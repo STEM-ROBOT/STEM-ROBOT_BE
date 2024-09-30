@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>STEM_ROBOT.BLL</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\STEM-ROBOT.Common\STEM-ROBOT.Common.csproj" />
+    <ProjectReference Include="..\STEM-ROBOT.DAL\STEM-ROBOT.DAL.csproj" />
+  </ItemGroup>
+
+</Project>
