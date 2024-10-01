@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Req\" />
+    <Folder Include="Req\" />
   </ItemGroup>
 
 </Project>
