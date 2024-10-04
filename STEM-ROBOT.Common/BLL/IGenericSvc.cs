@@ -10,15 +10,15 @@ namespace STEM_ROBOT.Common.BLL
 {
     public interface IGenericSvc<T>
     {
-       
+
         SingleRsp Add(T entity);
 
         SingleRsp Update(T entity);
 
-      
+
         SingleRsp Delete(int id);
 
-      
+
         SingleRsp GetById(int id);
 
         MutipleRsp GetAll(Expression<Func<T, bool>> filter = null, string includeProperties = "", int? pageIndex = null, int? pageSize = null);

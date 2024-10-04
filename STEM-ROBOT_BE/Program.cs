@@ -1,5 +1,7 @@
 
+using AutoMapper;
 using STEM_ROBOT.BLL;
+using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.DAL;
 using STEM_ROBOT_BE.Extensions;
 
@@ -14,6 +16,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServices();
 builder.Services.addDatabase();
+//config mapper
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.AddProfile(new Map());
+});
+var mapper = config.CreateMapper();
+
+builder.Services.AddSingleton(mapper);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCors(options =>
 {

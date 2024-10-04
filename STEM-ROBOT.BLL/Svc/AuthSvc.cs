@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace STEM_ROBOT.BLL
+namespace STEM_ROBOT.BLL.Svc
 {
 
     public class AuthSvc : GenericSvc<Account>
