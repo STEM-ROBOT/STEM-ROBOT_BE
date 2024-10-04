@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using STEM_ROBOT.BLL;
+using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
 using System.Text;
@@ -12,8 +12,11 @@ namespace STEM_ROBOT_BE.Extensions
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<AuthSvc>();  
-            services.AddScoped<AccountRepo>();  
             services.AddScoped<AccountSvc>();
+            services.AddScoped<AccountRepo>();
+            services.AddScoped<TournamentFormatRepo>();
+            services.AddScoped<TournamentFormatSvc>();
+
             return services;
         }
 

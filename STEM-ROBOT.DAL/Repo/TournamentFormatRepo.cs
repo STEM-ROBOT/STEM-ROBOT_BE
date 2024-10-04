@@ -2,21 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace STEM_ROBOT.DAL.Repo
 {
-    public class AccountRepo : GenericRep<Account>
+    public class TournamentFormatRepo : GenericRep<TournamentFormat>
     {
         
-        public AccountRepo(StemdbContext context) : base(context)
+        public TournamentFormatRepo(StemdbContext context) : base(context)
         {
         }
-
-        
-
     }
-
 }

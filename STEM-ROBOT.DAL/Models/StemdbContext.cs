@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-
 namespace STEM_ROBOT.DAL.Models;
 
 public partial class StemdbContext : DbContext
@@ -11,7 +10,7 @@ public partial class StemdbContext : DbContext
     }
 
     public StemdbContext(DbContextOptions<StemdbContext> options)
-        : base(options)
+            : base(options)
     {
     }
 

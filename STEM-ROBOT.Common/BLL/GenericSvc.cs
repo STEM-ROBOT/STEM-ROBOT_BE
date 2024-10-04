@@ -1,4 +1,5 @@
 ﻿using STEM_ROBOT.Common.DAL;
+using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Repo;
 using System;
@@ -56,7 +57,7 @@ namespace STEM_ROBOT.Common.BLL
             return res;
         }
 
-       
+
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
@@ -72,7 +73,7 @@ namespace STEM_ROBOT.Common.BLL
             return res;
         }
 
-        
+
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
@@ -96,7 +97,7 @@ namespace STEM_ROBOT.Common.BLL
         }
 
 
-        
+
         public MutipleRsp GetAll(Expression<Func<T, bool>> filter = null, string includeProperties = "", int? pageIndex = null, int? pageSize = null)
         {
             var res = new MutipleRsp();

@@ -56,7 +56,7 @@ public class GenericRep<T> : IGenericRep<T> where T : class
         return _dbSet.Where(predicate).ToList();
     }
 
-    
+
     public T getID(object id)
     {
         return _dbSet.Find(id);
