@@ -6,6 +6,7 @@ using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
+
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL
 {
+
     public class AuthSvc : GenericSvc<Account>
     {
         private readonly AccountRepo _accountRep;
@@ -25,6 +27,7 @@ namespace STEM_ROBOT.BLL
         public AuthSvc(AccountRepo accountRep, IConfiguration configuration) : base(accountRep)
         {
             _accountRep = accountRep;
+
             _configuration = configuration;
         }
 
@@ -34,7 +37,9 @@ namespace STEM_ROBOT.BLL
 
             try
             {
+
                 var user = _accountRep.Find(u => u.Email == loginReq.Email).FirstOrDefault();
+
 
                 if (user == null)
                 {
@@ -59,7 +64,9 @@ namespace STEM_ROBOT.BLL
             return res;
         }
 
+
         private string GenerateJwtToken(Account acc)
+
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
@@ -69,8 +76,10 @@ namespace STEM_ROBOT.BLL
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+
                     new Claim(ClaimTypes.Email, acc.Email),
                     //w Claim(ClaimTypes.Role, user.Role)
+
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"])),
                 Issuer = jwtSettings["Issuer"],
