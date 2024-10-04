@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using STEM_ROBOT.BLL;
-using STEM_ROBOT.DAL;
+using STEM_ROBOT.BLL.Svc;
+using STEM_ROBOT.DAL.Models;
+using STEM_ROBOT.DAL.Repo;
 using System.Text;
 
 namespace STEM_ROBOT_BE.Extensions
@@ -11,7 +12,11 @@ namespace STEM_ROBOT_BE.Extensions
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<AuthSvc>();  
-            services.AddScoped<AccountReq>();  
+            services.AddScoped<AccountSvc>();
+            services.AddScoped<AccountRepo>();
+            services.AddScoped<TournamentFormatRepo>();
+            services.AddScoped<TournamentFormatSvc>();
+
             return services;
         }
 
@@ -45,22 +50,22 @@ namespace STEM_ROBOT_BE.Extensions
             return services;
         }
 
-        //public static IServiceCollection addDatabase(this IServiceCollection services)
-        //{
-        //    services.AddDbContext<MenShopContext>(options => options.UseSqlServer(getConnectionString()));
-        //    return services;
-        //}
+        public static IServiceCollection addDatabase(this IServiceCollection services)
+        {
+            services.AddDbContext<StemdbContext>(options => options.UseSqlServer(getConnectionString()));
+            return services;
+        }
 
-        //private static string getConnectionString()
-        //{
-        //    IConfiguration config = new ConfigurationBuilder()
-        //    .SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("appsettings.json", true, true)
-        //    .Build();
-        //    var strConn = config["ConnectionStrings:DefaultConnection"];
+        private static string getConnectionString()
+        {
+            IConfiguration config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", true, true)
+            .Build();
+            var strConn = config["ConnectionStrings:DefaultConnection"];
 
-        //    return strConn;
+            return strConn;
 
-        //}
+        }
     }
 }
