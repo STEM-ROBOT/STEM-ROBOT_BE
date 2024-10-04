@@ -20,8 +20,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\STEM-ROBOT.Common\STEM-ROBOT.Common.csproj" />
-  </ItemGroup>
-
 </Project>

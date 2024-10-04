@@ -1,5 +1,6 @@
 ﻿using STEM_ROBOT.Common.DAL;
 using STEM_ROBOT.Common.Rsp;
+using STEM_ROBOT.DAL.Repo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +13,18 @@ namespace STEM_ROBOT.Common.BLL
     public class GenericSvc<T> : IGenericSvc<T> where T : class
     {
         protected readonly IGenericRep<T> _repository;
+        private AccountRepo accountRep;
 
         public GenericSvc(IGenericRep<T> repository)
         {
             _repository = repository;
         }
 
-       
+        public GenericSvc(AccountRepo accountRep)
+        {
+            this.accountRep = accountRep;
+        }
+
         public SingleRsp Add(T entity)
         {
             var res = new SingleRsp();
@@ -42,6 +48,7 @@ namespace STEM_ROBOT.Common.BLL
                 _repository.Update(entity);
                 res.setData("200", entity);
             }
+
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);

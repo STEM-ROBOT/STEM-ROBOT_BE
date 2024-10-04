@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServices();
+builder.Services.addDatabase();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCors(options =>
 {
@@ -36,7 +37,7 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseCors("myAppCors");
 app.UseAuthorization();
-
+app.UseAuthentication();
 app.MapControllers();
 
 app.Run();
