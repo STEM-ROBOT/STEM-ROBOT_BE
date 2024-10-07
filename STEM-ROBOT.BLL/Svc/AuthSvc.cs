@@ -78,7 +78,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
 
                     new Claim(ClaimTypes.Email, acc.Email),
-                    //w Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Role, acc.RoleId.ToString()),
+                    new Claim("AccountId", acc.Id.ToString()),
 
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"])),

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
+    [Authorize(Roles ="1")]
     public class AccountController : ControllerBase
     {
         private readonly AccountSvc _accountSvc;
@@ -26,20 +28,24 @@ namespace STEM_ROBOT_BE.Controllers
             return StatusCode(500, res.Message);
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public IActionResult GetAccountById(int id)
         {
             var res = _accountSvc.GetById(id);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message); 
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
 
-        [HttpPost("id")]
+        [HttpPost("{id}")]
         public IActionResult CreateAccount([FromBody] AccountReq req)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = _accountSvc.Create(req);
             if (!res.Success)
             {
@@ -48,10 +54,14 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
         {
-            var res = _accountSvc.Update(req,id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var res = _accountSvc.Update(req, id);
             if (!res.Success)
             {
                 StatusCode(500, res.Message);
@@ -59,9 +69,13 @@ namespace STEM_ROBOT_BE.Controllers
             return StatusCode(500, res.Message);
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeleteAccount(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = _accountSvc.Delete(id);
             if (res.Success)
             {
