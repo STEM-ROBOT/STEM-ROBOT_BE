@@ -48,7 +48,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var getFormat = _tournamentFormatSvc.getID(id);
-                if(getFormat == null)
+                if (getFormat == null)
                 {
                     res.SetError("404", "No data found");
                 }
@@ -125,8 +125,8 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        
 
-        
+
+
     }
 }

@@ -13,21 +13,15 @@ public partial class Contestant
 
     public string Name { get; set; } = null!;
 
-    public string Gender { get; set; } = null!;
-
     public string? Email { get; set; }
 
     public string? Status { get; set; }
 
-    public string PhoneNumber { get; set; } = null!;
+    public string? Gender { get; set; }
 
-    public DateTime DateOfBirth { get; set; }
+    public string? Phone { get; set; }
 
     public string? Image { get; set; }
-
-    public string Role { get; set; } = null!;
-
-    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
 
     public virtual School School { get; set; } = null!;
 

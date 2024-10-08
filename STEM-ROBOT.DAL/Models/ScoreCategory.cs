@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace STEM_ROBOT.DAL.Models;
 
-public partial class Score
+public partial class ScoreCategory
 {
     public int Id { get; set; }
 

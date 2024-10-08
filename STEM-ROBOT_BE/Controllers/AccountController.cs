@@ -32,7 +32,7 @@ namespace STEM_ROBOT_BE.Controllers
             var res = _accountSvc.GetById(id);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message); 
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
@@ -51,7 +51,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPut("id")]
         public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
         {
-            var res = _accountSvc.Update(req,id);
+            var res = _accountSvc.Update(req, id);
             if (!res.Success)
             {
                 StatusCode(500, res.Message);

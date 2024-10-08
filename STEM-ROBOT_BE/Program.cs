@@ -17,13 +17,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddServices();
 builder.Services.addDatabase();
 //config mapper
-var config = new MapperConfiguration(cfg =>
-{
-    cfg.AddProfile(new Map());
-});
-var mapper = config.CreateMapper();
+builder.Services.AddMapper();
+//config authen swagger 
 
-builder.Services.AddSingleton(mapper);
+builder.Services.AddSwager();   
+//config hubclient
+//builder.Services.addHub();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCors(options =>
 {
@@ -44,10 +43,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 app.UseCors("myAppCors");
-app.UseAuthorization();
-app.UseAuthentication();
-app.MapControllers();
 
+app.MapControllers();
+// hubclient
+//app.UseEndpoints(endpoints =>
+//{
+//    endpoints.MapControllers();
+//    endpoints.MapHub<TournamentClient>("/tournamentHub");  
+//});
 app.Run();

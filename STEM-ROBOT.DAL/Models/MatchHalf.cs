@@ -9,7 +9,7 @@ public partial class MatchHalf
 
     public int MatchId { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public DateTime? TimeIn { get; set; }
 

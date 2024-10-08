@@ -10,12 +10,12 @@ namespace STEM_ROBOT.DAL.Repo
 {
     public class AccountRepo : GenericRep<Account>
     {
-        
+
         public AccountRepo(StemdbContext context) : base(context)
         {
         }
 
-        
+
 
     }
 

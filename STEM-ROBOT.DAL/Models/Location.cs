@@ -3,11 +3,15 @@ using System.Collections.Generic;
 
 namespace STEM_ROBOT.DAL.Models;
 
-public partial class Position
+public partial class Location
 {
     public int Id { get; set; }
 
     public string Address { get; set; } = null!;
+
+    public string ContactPerson { get; set; } = null!;
+
+    public string Status { get; set; } = null!;
 
     public int CompetitionId { get; set; }
 

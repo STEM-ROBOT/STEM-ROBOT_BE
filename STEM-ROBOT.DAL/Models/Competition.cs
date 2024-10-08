@@ -17,13 +17,11 @@ public partial class Competition
 
     public string Name { get; set; } = null!;
 
-    public string Status { get; set; } = null!;
-
-    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
+    public string? Status { get; set; }
 
     public virtual Genre Genre { get; set; } = null!;
 
-    public virtual ICollection<Position> Positions { get; set; } = new List<Position>();
+    public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
 
     public virtual ICollection<RefereeCompetition> RefereeCompetitions { get; set; } = new List<RefereeCompetition>();
 
