@@ -14,6 +14,4 @@ public partial class RefereeCompetition
     public virtual Competition Competition { get; set; } = null!;
 
     public virtual Referee Referee { get; set; } = null!;
-
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 }

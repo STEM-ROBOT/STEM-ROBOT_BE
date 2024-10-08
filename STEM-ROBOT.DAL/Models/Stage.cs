@@ -15,7 +15,7 @@ public partial class Stage
 
     public DateTime EndDate { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public virtual Competition Competition { get; set; } = null!;
 

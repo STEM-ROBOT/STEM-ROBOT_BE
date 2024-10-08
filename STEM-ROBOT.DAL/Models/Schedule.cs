@@ -11,11 +11,13 @@ public partial class Schedule
 
     public int MatchId { get; set; }
 
-    public int PositionId { get; set; }
+    public int LocationId { get; set; }
+
+    public DateTime StartTime { get; set; }
+
+    public virtual Location Location { get; set; } = null!;
 
     public virtual Match Match { get; set; } = null!;
 
-    public virtual Position Position { get; set; } = null!;
-
-    public virtual RefereeCompetition Referee { get; set; } = null!;
+    public virtual Referee Referee { get; set; } = null!;
 }

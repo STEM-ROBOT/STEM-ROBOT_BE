@@ -21,6 +21,8 @@ public partial class Account
 
     public string? Status { get; set; }
 
+    public int? Package { get; set; }
+
     public virtual Role Role { get; set; } = null!;
 
     public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();

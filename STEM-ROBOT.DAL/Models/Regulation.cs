@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace STEM_ROBOT.DAL.Models;
 
-public partial class Genre
+public partial class Regulation
 {
     public int Id { get; set; }
 
@@ -13,9 +13,5 @@ public partial class Genre
 
     public string? Image { get; set; }
 
-    public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
-
     public virtual ICollection<GenreRegulation> GenreRegulations { get; set; } = new List<GenreRegulation>();
-
-    public virtual ICollection<ScoreCategory> ScoreCategories { get; set; } = new List<ScoreCategory>();
 }

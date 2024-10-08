@@ -35,7 +35,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var lst = _accountRepo.All();
                 var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
-                res.SetSuccess(accountResLst,"Success");
+                res.SetSuccess(accountResLst, "Success");
             }
             catch (Exception ex)
             {
@@ -69,7 +69,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var account = _mapper.Map<Account>(req);  
+                var account = _mapper.Map<Account>(req);
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
             }

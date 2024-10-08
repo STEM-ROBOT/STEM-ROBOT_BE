@@ -19,16 +19,8 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginReq login)
         {
-            SingleRsp response = _authSvc.Login(login);
-
-            if (response.Success)
-            {
-                return Ok(response.Data);
-            }
-            else
-            {
-                return StatusCode(401, response.Message);  
-            }
+            var user = _authSvc.Login(login);
+            return Ok(user);
         }
     }
 }

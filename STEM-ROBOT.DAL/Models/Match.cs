@@ -7,13 +7,13 @@ public partial class Match
 {
     public int Id { get; set; }
 
-    public int StageId { get; set; }
+    public int RoundId { get; set; }
 
-    public int? TableId { get; set; }
+    public int TableId { get; set; }
 
     public DateTime StartDate { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public DateTime? TimeIn { get; set; }
 
@@ -21,11 +21,11 @@ public partial class Match
 
     public virtual ICollection<MatchHalf> MatchHalves { get; set; } = new List<MatchHalf>();
 
+    public virtual Stage Round { get; set; } = null!;
+
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
-    public virtual Stage Stage { get; set; } = null!;
-
-    public virtual TableGroup? Table { get; set; }
+    public virtual TableGroup Table { get; set; } = null!;
 
     public virtual ICollection<TeamMatch> TeamMatches { get; set; } = new List<TeamMatch>();
 }

@@ -30,65 +30,53 @@ namespace STEM_ROBOT.BLL.Svc
 
             _configuration = configuration;
         }
-
-        public SingleRsp Login(LoginReq loginReq)
+        public async Task<TokenRsp> Login(LoginReq loginReq)
         {
-            var res = new SingleRsp();
-
-            try
-            {
-
-                var user = _accountRep.Find(u => u.Email == loginReq.Email).FirstOrDefault();
-
-
-                if (user == null)
-                {
-                    res.SetError("404", "User not found");
-                }
-                else if (user.Password != loginReq.Password)
-                {
-                    res.SetError("401", "Invalid password");
-                }
-                else
-                {
-                    var token = GenerateJwtToken(user);
-                    res.setData("200", new { token });
-                    res.SetMessage("Login successful");
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-
-            return res;
+            var user = _accountRep.Find(x => x.Email == loginReq.Email && x.Password == loginReq.Password).FirstOrDefault();
+            if (user == null) { throw new AggregateException("No user"); }
+            var token = await GenarateToken(user);
+            return token;
         }
 
 
-        private string GenerateJwtToken(Account acc)
-
+        public async Task<TokenRsp> GenarateToken(Account user)
         {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
-            var tokenHandler = new JwtSecurityTokenHandler();
 
-            var tokenDescriptor = new SecurityTokenDescriptor
+
+            var jwttokenHandler = new JwtSecurityTokenHandler();
+            var secretkey = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
+
+            var claims = new List<Claim>
+    {
+         new Claim(ClaimTypes.Name, user.Name),
+         new Claim("Id", user.Id.ToString()),
+         new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+         new Claim("Email", user.Email),
+         new Claim(ClaimTypes.Role, user.RoleId.ToString()),
+    };
+            var tokendescription = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(claims),
+                Issuer = _configuration["JWT:Issuer"],
+                Audience = _configuration["JWT:Audience"],
+                Expires = DateTime.UtcNow.AddHours(24),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretkey), SecurityAlgorithms.HmacSha512),
+                Claims = new Dictionary<string, object>
                 {
 
-                    new Claim(ClaimTypes.Email, acc.Email),
-                    //w Claim(ClaimTypes.Role, user.Role)
-
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"])),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                }
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var token = jwttokenHandler.CreateToken(tokendescription);
+            var accessToken = jwttokenHandler.WriteToken(token);
+
+            return new TokenRsp
+            {
+                Token = accessToken
+            };
+
         }
     }
 }

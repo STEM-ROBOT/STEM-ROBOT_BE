@@ -19,9 +19,9 @@ public partial class Referee
 
     public string? Status { get; set; }
 
-    public string? Image { get; set; }
-
     public virtual ICollection<RefereeCompetition> RefereeCompetitions { get; set; } = new List<RefereeCompetition>();
+
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
     public virtual Tournament Tournament { get; set; } = null!;
 }
