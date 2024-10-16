@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -12,17 +13,16 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class TournamentFormatSvc
+    public class GenreSvc
     {
-        private readonly TournamentFormatRepo _tournamentFormatSvc;
-        private readonly IConfiguration _configuration;
+        private readonly GenreRepo _genreRepo;
         private readonly IMapper _mapper;
-
-        public TournamentFormatSvc(TournamentFormatRepo tournamentFormat, IMapper mapper, IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        public GenreSvc(GenreRepo repo, IConfiguration configuration, IMapper mapper)
         {
-            _tournamentFormatSvc = tournamentFormat;
-            _configuration = configuration;
+            _genreRepo = repo;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public MutipleRsp GetAll()
@@ -30,12 +30,15 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _tournamentFormatSvc.All();
-                if(lst == null)
+                var lst = _genreRepo.All();
+                if (lst != null)
+                {
+                    res.SetSuccess(lst, "200");
+                }
+                else
                 {
                     res.SetError("404", "No data found");
                 }
-                res.SetSuccess(lst, "200");
 
             }
             catch (Exception ex)
@@ -44,20 +47,17 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-
-                var format = _tournamentFormatSvc.getID(id);
-                if(format == null)
-
+                var getGenre = _genreRepo.getID(id);
+                if (getGenre == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                res.setData("200", format);
+
             }
             catch (Exception ex)
             {
@@ -66,14 +66,14 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create(TournamentFormatReq tournamentFormat)
+        public SingleRsp Create([FromBody] GenreReq genre)
         {
             var res = new SingleRsp();
             try
             {
-                var newFormat = _mapper.Map<TournamentFormat>(tournamentFormat);
-                _tournamentFormatSvc.Add(newFormat);
-                res.setData("200", newFormat);
+                var newGenre = _mapper.Map<Genre>(genre);
+                _genreRepo.Add(newGenre);
+                res.setData("200", newGenre);
             }
             catch (Exception ex)
             {
@@ -82,21 +82,22 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(TournamentFormatReq req, int id)
+
+        public SingleRsp Update( GenreReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updFormat = _tournamentFormatSvc.getID(id);
-                if (updFormat == null)
+                var updGenre = _genreRepo.getID(id);
+                if (updGenre == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    updFormat = _mapper.Map<TournamentFormat>(req);
-                    _tournamentFormatSvc.Update(updFormat);
-                    res.setData("200", updFormat);
+                    updGenre = _mapper.Map<Genre>(req);
+                    _genreRepo.Update(updGenre);
+                    res.setData("200", updGenre);
                 }
             }
             catch (Exception ex)
@@ -105,21 +106,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var delFormat = _tournamentFormatSvc.getID(id);
-                if (delFormat == null)
+                var genre = _genreRepo.getID(id);
+                if (genre == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    _tournamentFormatSvc.Delete(id);
+                    _genreRepo.Delete(id);
                     res.SetMessage("Delete successfully");
+
                 }
             }
             catch (Exception ex)
@@ -127,10 +128,8 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
+
         }
-
-
-
 
     }
 }

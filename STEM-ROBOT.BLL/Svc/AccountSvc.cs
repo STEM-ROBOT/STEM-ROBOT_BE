@@ -2,16 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.BLL;
-using STEM_ROBOT.Common.DAL;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -33,7 +27,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _accountRepo.All();
+                var lst = _accountRepo.All(a => a.RoleId != 1);
                 var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
                 res.SetSuccess(accountResLst, "Success");
             }
@@ -49,10 +43,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.getID(id);
+                var acc = _accountRepo.GetRoleNameAccount(id);
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
+                }
+                if(acc.RoleId == 1)
+                {
+                    res.SetError("403", "Cannot access Admin account");
                 }
                 var accountRes = _mapper.Map<AccountRes>(acc);
                 res.setData("Success", accountRes);
@@ -69,7 +67,24 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
+
+                if(req.RoleId == 1)
+                {
+                    res.SetError("403", "Cannot create Admin account");
+                    return res;
+                }
+                if(req.Email.Equals(_accountRepo.Find(a => a.Email == req.Email).FirstOrDefault()))
+                {
+                    res.SetError("400", "Email already exists");
+                    return res;
+                }
+
                 var account = _mapper.Map<Account>(req);
+                if (account.RoleId == 1)
+                {
+                    res.SetError("403", "You can't create an account with role Admin");
+                    return res;
+                }
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
             }
@@ -86,16 +101,23 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var account = _accountRepo.getID(id);
+                if (account.RoleId == 1)
+                {
+                    res.SetError("403", "Cannot update Admin account");
+                }
                 if (account == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                else
+
+                if (account.RoleId == 1)
                 {
-                    account = _mapper.Map<Account>(req);
-                    _accountRepo.Update(account);
-                    res.setData("200", account);
+                    res.SetError("403", "You can't update an account with role Admin");
+                    return res;
                 }
+                account = _mapper.Map<Account>(req);
+                _accountRepo.Update(account);
+                res.setData("200", account);
             }
             catch (Exception ex)
             {
@@ -110,15 +132,22 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var acc = _accountRepo.getID(id);
+                if (acc.RoleId == 1)
+                {
+                    res.SetError("403", "Cannot delete Admin account");
+                }
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                else
+                if (acc.RoleId == 1)
                 {
-                    _accountRepo.Delete(acc.Id);
-                    res.setData("200", acc);
+                    res.SetError("403", "You can't delete an account with role Admin");
+                    return res;
                 }
+                _accountRepo.Delete(acc.Id);
+                res.setData("200", acc);
+
             }
             catch (Exception ex)
             {
