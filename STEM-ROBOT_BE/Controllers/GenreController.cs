@@ -8,7 +8,7 @@ namespace STEM_ROBOT_BE.Controllers
 {
     [Route("api/genres")]
     [ApiController]
-    [Authorize(Roles = "1")]
+    //[Authorize(Roles = "1")]
     public class GenreController : ControllerBase
     {
         private readonly GenreSvc _genreSvc;
@@ -40,7 +40,8 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPost("{id}")]
+
+        [HttpPost()]
         public IActionResult CreateGenre([FromBody] GenreReq req)
         {
             var res = _genreSvc.Create(req);

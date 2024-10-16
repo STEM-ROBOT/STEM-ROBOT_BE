@@ -14,11 +14,15 @@ namespace STEM_ROBOT.BLL.Mapper
     {
         public Map()
         {
-            CreateMap<Account, Account>().ReverseMap();
-            CreateMap<Account, AccountRes>().ReverseMap();
+            CreateMap<Account, AccountReq>().ReverseMap();
+            CreateMap<Account, AccountRes>()
+                .ForMember(x => x.RoleName, y => y.MapFrom(z => z.Role.Name)).ReverseMap();
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
             CreateMap<Tournament,TournamentReq>().ReverseMap();
+            CreateMap<Location,LocationReq >().ReverseMap();
+            CreateMap<Location, LocationRes>().ReverseMap();
             CreateMap<School, SchoolRep>().ReverseMap();
+
         }
     }
 }

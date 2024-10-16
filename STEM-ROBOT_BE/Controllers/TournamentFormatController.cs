@@ -8,7 +8,7 @@ namespace STEM_ROBOT_BE.Controllers
 {
     [Route("api/tournamentformats")]
     [ApiController]
-    [Authorize(Roles = "1")]
+    //[Authorize(Roles = "1")]
     public class TournamentFormatController : ControllerBase
     {
         private readonly TournamentFormatSvc _tournamentFormatSvc;
@@ -40,7 +40,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPost("{id}")]
+        [HttpPost()]
         public IActionResult CreateTournamentFormat([FromBody] TournamentFormatReq req)
         {
             var res = _tournamentFormatSvc.Create(req);

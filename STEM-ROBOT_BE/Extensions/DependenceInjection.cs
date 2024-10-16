@@ -24,16 +24,14 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<AccountRepo>();
             services.AddScoped<TournamentFormatRepo>();
             services.AddScoped<TournamentFormatSvc>();
-
             services.AddScoped<GenreRepo>();
             services.AddScoped<GenreSvc>();
-
-
             services.AddScoped<TournamentRepo>();
             services.AddScoped<TournamentSvc>();
+            services.AddScoped<LocationRepo>();
+            services.AddScoped<LocationSvc>();
             services.AddScoped<SchoolRepo>();
             services.AddScoped<SchoolSvc>();
-
             return services;
         }
 

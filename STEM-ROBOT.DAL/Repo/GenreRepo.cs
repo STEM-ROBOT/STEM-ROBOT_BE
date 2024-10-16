@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.DAL.Repo
 {
-    public class GenreRepo :GenericRep<Genre>
+    public class GenreRepo : GenericRep<Genre>
+
     {
         public GenreRepo(StemdbContext context) : base(context)
         {

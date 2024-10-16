@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -13,16 +11,15 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class GenreSvc
+    public class LocationSvc
     {
-        private readonly GenreRepo _genreRepo;
+        private readonly LocationRepo _locationRepo;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
-        public GenreSvc(GenreRepo repo, IConfiguration configuration, IMapper mapper)
+
+        public LocationSvc(LocationRepo locationRepo, IMapper mapper)
         {
-            _genreRepo = repo;
+            _locationRepo = locationRepo;
             _mapper = mapper;
-            _configuration = configuration;
         }
 
         public MutipleRsp GetAll()
@@ -30,7 +27,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _genreRepo.All();
+                var lst = _locationRepo.All();
                 if (lst != null)
                 {
                     res.SetSuccess(lst, "200");
@@ -52,8 +49,9 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var getGenre = _genreRepo.getID(id);
-                if (getGenre == null)
+                var getLocation = _locationRepo.GetCompetitionNameByLocation(id);
+
+                if (getLocation == null)
                 {
                     res.SetError("404", "No data found");
                 }
@@ -66,14 +64,15 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create([FromBody] GenreReq genre)
+        public SingleRsp CreateLocation(LocationReq req)
         {
             var res = new SingleRsp();
             try
             {
-                var newGenre = _mapper.Map<Genre>(genre);
-                _genreRepo.Add(newGenre);
-                res.setData("200", newGenre);
+                var location = _mapper.Map<Location>(req);
+                _locationRepo.Add(location);
+                res.setData("Account added successfully", location);
+
             }
             catch (Exception ex)
             {
@@ -82,45 +81,44 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-
-        public SingleRsp Update( GenreReq req, int id)
+        public SingleRsp UpdateLocation(LocationReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updGenre = _genreRepo.getID(id);
-                if (updGenre == null)
-                {
-                    res.SetError("404", "No data found");
-                }
-                else
-                {
-                    updGenre = _mapper.Map<Genre>(req);
-                    _genreRepo.Update(updGenre);
-                    res.setData("200", updGenre);
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-        public SingleRsp Delete(int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var genre = _genreRepo.getID(id);
-                if (genre == null)
+                var location = _locationRepo.getID(id);
+                if(location == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    _genreRepo.Delete(id);
+                    location = _mapper.Map<Location>(req);
+                    _locationRepo.Update(location);
+                    res.setData("200", location);
+                }
+                res.setData("Account added successfully", location);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp  DeleteLocation(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var location = _locationRepo.getID(id);
+                if (location == null)
+                {
+                    res.SetError("404", "No data found");
+                }
+                else
+                {
+                    _locationRepo.Delete(id);
                     res.SetMessage("Delete successfully");
-
                 }
             }
             catch (Exception ex)
@@ -128,8 +126,7 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
-
         }
-
+        
     }
 }

@@ -43,7 +43,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.getID(id);
+                var acc = _accountRepo.GetRoleNameAccount(id);
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
@@ -80,6 +80,11 @@ namespace STEM_ROBOT.BLL.Svc
                 }
 
                 var account = _mapper.Map<Account>(req);
+                if (account.RoleId == 1)
+                {
+                    res.SetError("403", "You can't create an account with role Admin");
+                    return res;
+                }
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
             }
@@ -104,12 +109,15 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-                else 
+
+                if (account.RoleId == 1)
                 {
-                    account = _mapper.Map<Account>(req);
-                    _accountRepo.Update(account);
-                    res.setData("200", account);
+                    res.SetError("403", "You can't update an account with role Admin");
+                    return res;
                 }
+                account = _mapper.Map<Account>(req);
+                _accountRepo.Update(account);
+                res.setData("200", account);
             }
             catch (Exception ex)
             {
@@ -132,11 +140,14 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-                else
+                if (acc.RoleId == 1)
                 {
-                    _accountRepo.Delete(acc.Id);
-                    res.setData("200", acc);
+                    res.SetError("403", "You can't delete an account with role Admin");
+                    return res;
                 }
+                _accountRepo.Delete(acc.Id);
+                res.setData("200", acc);
+
             }
             catch (Exception ex)
             {
