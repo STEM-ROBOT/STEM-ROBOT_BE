@@ -27,7 +27,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
+
+                
+
                 var lst = _accountRepo.All(a => a.RoleId != 1);
+
                 var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
                 res.SetSuccess(accountResLst, "Success");
             }
