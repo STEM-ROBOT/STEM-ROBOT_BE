@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -12,16 +11,14 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class TournamentFormatSvc
+    public class LocationSvc
     {
-        private readonly TournamentFormatRepo _tournamentFormatSvc;
-        private readonly IConfiguration _configuration;
+        private readonly LocationRepo _locationRepo;
         private readonly IMapper _mapper;
 
-        public TournamentFormatSvc(TournamentFormatRepo tournamentFormat, IMapper mapper, IConfiguration configuration)
+        public LocationSvc(LocationRepo locationRepo, IMapper mapper)
         {
-            _tournamentFormatSvc = tournamentFormat;
-            _configuration = configuration;
+            _locationRepo = locationRepo;
             _mapper = mapper;
         }
 
@@ -30,12 +27,15 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _tournamentFormatSvc.All();
-                if(lst == null)
+                var lst = _locationRepo.All();
+                if (lst != null)
+                {
+                    res.SetSuccess(lst, "200");
+                }
+                else
                 {
                     res.SetError("404", "No data found");
                 }
-                res.SetSuccess(lst, "200");
 
             }
             catch (Exception ex)
@@ -44,20 +44,18 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
+                var getLocation = _locationRepo.GetCompetitionNameByLocation(id);
 
-                var format = _tournamentFormatSvc.getID(id);
-                if(format == null)
-
+                if (getLocation == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                res.setData("200", format);
+
             }
             catch (Exception ex)
             {
@@ -66,14 +64,15 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create(TournamentFormatReq tournamentFormat)
+        public SingleRsp CreateLocation(LocationReq req)
         {
             var res = new SingleRsp();
             try
             {
-                var newFormat = _mapper.Map<TournamentFormat>(tournamentFormat);
-                _tournamentFormatSvc.Add(newFormat);
-                res.setData("200", newFormat);
+                var location = _mapper.Map<Location>(req);
+                _locationRepo.Add(location);
+                res.setData("Account added successfully", location);
+
             }
             catch (Exception ex)
             {
@@ -82,43 +81,43 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(TournamentFormatReq req, int id)
+        public SingleRsp UpdateLocation(LocationReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updFormat = _tournamentFormatSvc.getID(id);
-                if (updFormat == null)
-                {
-                    res.SetError("404", "No data found");
-                }
-                else
-                {
-                    updFormat = _mapper.Map<TournamentFormat>(req);
-                    _tournamentFormatSvc.Update(updFormat);
-                    res.setData("200", updFormat);
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Delete(int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var delFormat = _tournamentFormatSvc.getID(id);
-                if (delFormat == null)
+                var location = _locationRepo.getID(id);
+                if(location == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    _tournamentFormatSvc.Delete(id);
+                    location = _mapper.Map<Location>(req);
+                    _locationRepo.Update(location);
+                    res.setData("200", location);
+                }
+                res.setData("Account added successfully", location);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp  DeleteLocation(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var location = _locationRepo.getID(id);
+                if (location == null)
+                {
+                    res.SetError("404", "No data found");
+                }
+                else
+                {
+                    _locationRepo.Delete(id);
                     res.SetMessage("Delete successfully");
                 }
             }
@@ -128,9 +127,6 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
-
-
-
+        
     }
 }

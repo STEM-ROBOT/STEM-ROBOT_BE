@@ -6,22 +6,22 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/tournamentformats")]
+    [Route("api/genres")]
     [ApiController]
     //[Authorize(Roles = "1")]
-    public class TournamentFormatController : ControllerBase
+    public class GenreController : ControllerBase
     {
-        private readonly TournamentFormatSvc _tournamentFormatSvc;
+        private readonly GenreSvc _genreSvc;
 
-        public TournamentFormatController(TournamentFormatSvc tournamentFormatSvc)
+        public GenreController(GenreSvc genreSvc)
         {
-            _tournamentFormatSvc = tournamentFormatSvc;
+            _genreSvc = genreSvc;
         }
 
         [HttpGet()]
-        public IActionResult GetTournamentFormats()
+        public IActionResult GetGenres()
         {
-            var res = _tournamentFormatSvc.GetAll();
+            var res = _genreSvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,9 +30,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetTournamentFormatById(int id)
+        public IActionResult GetGenreById(int id)
         {
-            var res = _tournamentFormatSvc.GetById(id);
+            var res = _genreSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -40,10 +40,11 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
+
         [HttpPost()]
-        public IActionResult CreateTournamentFormat([FromBody] TournamentFormatReq req)
+        public IActionResult CreateGenre([FromBody] GenreReq req)
         {
-            var res = _tournamentFormatSvc.Create(req);
+            var res = _genreSvc.Create(req);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -52,9 +53,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateTournamentFormat([FromBody] TournamentFormatReq req, int id)
+        public IActionResult UpdateGenre([FromBody] GenreReq req, int id)
         {
-            var res = _tournamentFormatSvc.Update(req, id);
+            var res = _genreSvc.Update(req, id);
             if (!res.Success)
             {
                 StatusCode(500, res.Message);
@@ -63,9 +64,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteTournamnetFormat(int id)
+        public IActionResult DeleteGenre(int id)
         {
-            var res = _tournamentFormatSvc.Delete(id);
+            var res = _genreSvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);

@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>STEM_ROBOT_BE</RootNamespace>
+    <RootNamespace>STEM_ROBOT.Web</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

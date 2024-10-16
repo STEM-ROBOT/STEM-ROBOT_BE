@@ -1,89 +1,80 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/accounts")]
+    [Route("api/location")]
     [ApiController]
-    //[Authorize(Roles ="1")]
-
-    public class AccountController : ControllerBase
+    //[Authorize(Roles = "1,2")]
+    public class LocationController : ControllerBase
     {
-        private readonly AccountSvc _accountSvc;
+        private readonly LocationSvc _locationSvc;
 
-        public AccountController(AccountSvc accountSvc)
+        public LocationController(LocationSvc locationSvc)
         {
-            _accountSvc = accountSvc;
+            _locationSvc = locationSvc;
         }
 
         [HttpGet()]
-        public IActionResult GetAccounts()
+        public IActionResult GetLocations()
         {
-            var res = _accountSvc.GetAll();
+            var res = _locationSvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);
             }
             return StatusCode(500, res.Message);
         }
-
         [HttpGet("{id}")]
-        public IActionResult GetAccountById(int id)
+        public IActionResult GetLocationById(int id)
         {
-            var res = _accountSvc.GetById(id);
+            var res = _locationSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
-
-
         [HttpPost()]
-        public IActionResult CreateAccount([FromBody] AccountReq req)
+        public IActionResult CreateLocation([FromBody] LocationReq req)
         {
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Create(req);
+            var res = _locationSvc.CreateLocation(req);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
-
         [HttpPut("{id}")]
-        public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
+        public IActionResult UpdateLocation([FromBody] LocationReq req, int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Update(req, id);
+            var res = _locationSvc.UpdateLocation(req, id);
             if (!res.Success)
             {
                 StatusCode(500, res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res);
         }
-
         [HttpDelete("{id}")]
-        public IActionResult DeleteAccount(int id)
+        public IActionResult DeleteLocation(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _accountSvc.Delete(id);
+            var res = _locationSvc.DeleteLocation(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res);
         }
     }
 }
