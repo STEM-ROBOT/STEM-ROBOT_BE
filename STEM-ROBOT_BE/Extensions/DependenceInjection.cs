@@ -44,7 +44,7 @@ namespace STEM_ROBOT_BE.Extensions
             var mapper = config.CreateMapper();
 
             services.AddSingleton(mapper);
-
+            services.AddAutoMapper(typeof(Map));
             return services;
         }
         //config add authen swagger

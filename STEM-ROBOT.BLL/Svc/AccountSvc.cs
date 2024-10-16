@@ -33,7 +33,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _accountRepo.All();
+                var lst = _accountRepo.GetAccount();
                 var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
                 res.SetSuccess(accountResLst, "Success");
             }

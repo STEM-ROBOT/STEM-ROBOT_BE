@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using NetTopologySuite.Algorithm;
 using OfficeOpenXml;
+using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
@@ -17,7 +18,7 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly SchoolRepo _schoolRepo;
         private readonly IMapper _mapper;
-        public SchoolSvc(SchoolRepo schoolRepo,IMapper mapper)
+        public SchoolSvc(SchoolRepo schoolRepo, IMapper mapper)
         {
             _schoolRepo = schoolRepo;
             _mapper = mapper;
@@ -30,14 +31,15 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var school = new List<School>();
-                using(var stream = new MemoryStream())
+                using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
-                    using(var package = new ExcelPackage(stream))
+                    using (var package = new ExcelPackage(stream))
                     {
                         ExcelWorksheet workSheet = package.Workbook.Worksheets[0];
                         int rowCount = workSheet.Dimension.Rows;
-                        for (int row = 3; row < rowCount; row++) {
+                        for (int row = 3; row < rowCount; row++)
+                        {
 
                             var schools = new School
                             {
@@ -76,9 +78,10 @@ namespace STEM_ROBOT.BLL.Svc
                 await _schoolRepo.BulkInsertAsyncSchool(school);
 
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                res.SetError("500",ex.Message);
+                res.SetError("500", ex.Message);
             }
             return res;
         }
@@ -98,6 +101,82 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public SingleRsp ListIDSchool(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var school = _schoolRepo.getID(id);
+                if (school == null)
+                {
+                    res.SetError($"NO School ID: {id}");
+                }
+                var mapper = _mapper.Map<SchoolRep>(school);
+                res.setData("OK",mapper);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp AddSchool(SchoolReq school)
+        {
+            var res = new SingleRsp();
+            try
+            {
+              var mapper = _mapper.Map<School>(school);
+                if(mapper != null)
+                {
+                    _schoolRepo.Add(mapper);
 
+                    res.setData("OK", mapper);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp UpdateSchool(int Id,SchoolReq school)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schoolID = _schoolRepo.getID(Id);
+                if(schoolID == null)
+                {
+                    res.SetError($"No SchoolID : {Id}");
+                }
+                var mapper = _mapper.Map<School>(school);
+                _schoolRepo.Update(mapper);
+                res.setData("OK", mapper);  
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp DeleteSchool(int Id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schoolID = _schoolRepo.getID(Id);
+                if (schoolID == null)
+                {
+                    res.SetError($"No SchoolID : {Id}");
+                }
+                _schoolRepo.Delete(Id);
+                res.setData("Ok",schoolID);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }

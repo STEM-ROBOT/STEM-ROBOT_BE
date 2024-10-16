@@ -10,7 +10,7 @@ namespace STEM_ROBOT.Common.Rsp
     public class AccountRes
     {
         public int Id { get; set; }
-        public int RoleId { get; set; }
+        public string roleName { get; set; }
 
         
         public string Name { get; set; }
