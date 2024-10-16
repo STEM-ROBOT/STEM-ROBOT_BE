@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using STEM_ROBOT.Common.BLL;
-using STEM_ROBOT.Common.DAL;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -15,17 +13,16 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class AccountSvc : GenericSvc<Account>
+    public class GenreSvc
     {
-        private readonly AccountRepo _accountRepo;
-        private readonly IConfiguration _configuration;
+        private readonly GenreRepo _genreRepo;
         private readonly IMapper _mapper;
-
-        public AccountSvc(AccountRepo accountRep, IConfiguration configuration, IMapper mapper) : base(accountRep)
+        private readonly IConfiguration _configuration;
+        public GenreSvc(GenreRepo repo, IConfiguration configuration, IMapper mapper)
         {
-            _accountRepo = accountRep;
-            _configuration = configuration;
+            _genreRepo = repo;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public MutipleRsp GetAll()
@@ -33,9 +30,16 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _accountRepo.All(a => a.RoleId != 1);
-                var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
-                res.SetSuccess(accountResLst, "Success");
+                var lst = _genreRepo.All();
+                if (lst != null)
+                {
+                    res.SetSuccess(lst, "200");
+                }
+                else
+                {
+                    res.SetError("404", "No data found");
+                }
+
             }
             catch (Exception ex)
             {
@@ -43,19 +47,17 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.GetRoleNameAccount(id);
-                if (acc == null)
+                var getGenre = _genreRepo.getID(id);
+                if (getGenre == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                var accountRes = _mapper.Map<AccountRes>(acc);
-                res.setData("Success", accountRes);
+
             }
             catch (Exception ex)
             {
@@ -64,19 +66,14 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create([FromBody] AccountReq req)
+        public SingleRsp Create([FromBody] GenreReq genre)
         {
             var res = new SingleRsp();
             try
             {
-                var account = _mapper.Map<Account>(req);
-                if (account.RoleId == 1)
-                {
-                    res.SetError("403", "You can't create an account with role Admin");
-                    return res;
-                }
-                _accountRepo.Add(account);
-                res.setData("Account added successfully", account);
+                var newGenre = _mapper.Map<Genre>(genre);
+                _genreRepo.Add(newGenre);
+                res.setData("200", newGenre);
             }
             catch (Exception ex)
             {
@@ -85,24 +82,22 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update([FromBody] AccountReq req, int id)
+        public SingleRsp Update(GenreReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var account = _accountRepo.getID(id);
-                if (account == null)
+                var updGenre = _genreRepo.getID(id);
+                if (updGenre == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                if (account.RoleId == 1)
+                else
                 {
-                    res.SetError("403", "You can't update an account with role Admin");
-                    return res;
+                    updGenre = _mapper.Map<Genre>(req);
+                    _genreRepo.Update(updGenre);
+                    res.setData("200", updGenre);
                 }
-                account = _mapper.Map<Account>(req);
-                _accountRepo.Update(account);
-                res.setData("200", account);
             }
             catch (Exception ex)
             {
@@ -110,25 +105,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.getID(id);
-                if (acc == null)
+                var genre = _genreRepo.getID(id);
+                if (genre == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                if (acc.RoleId == 1)
+                else
                 {
-                    res.SetError("403", "You can't delete an account with role Admin");
-                    return res;
+                    _genreRepo.Delete(id);
+                    res.SetMessage("Delete successfully");
                 }
-                _accountRepo.Delete(acc.Id);
-                res.setData("200", acc);
-
             }
             catch (Exception ex)
             {

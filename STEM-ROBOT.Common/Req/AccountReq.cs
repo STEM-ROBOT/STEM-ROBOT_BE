@@ -31,8 +31,9 @@ namespace STEM_ROBOT.Common.Req
 
         public string? Image { get; set; }
 
-        /*[Required(ErrorMessage = "Status is required")]
-        public string Status { get; set; } */
+        [Required(ErrorMessage = "Status is required")]
+        public string Status { get; set; }
+
 
     }
 }
