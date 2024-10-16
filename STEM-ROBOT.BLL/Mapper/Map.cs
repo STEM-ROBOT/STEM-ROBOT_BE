@@ -17,6 +17,8 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Account, Account>().ReverseMap();
             CreateMap<Account, AccountRes>().ReverseMap();
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
+            CreateMap<Tournament,TournamentReq>().ReverseMap();
+            CreateMap<School, SchoolRep>().ReverseMap();
         }
     }
 }

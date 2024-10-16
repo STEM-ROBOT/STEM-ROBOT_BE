@@ -7,15 +7,15 @@ public partial class Referee
 {
     public int Id { get; set; }
 
-    public int TournamentId { get; set; }
+    public int? TournamentId { get; set; }
 
-    public string Role { get; set; } = null!;
+    public string? Role { get; set; }
 
     public string? Email { get; set; }
 
     public string? PhoneNumber { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public string? Status { get; set; }
 
@@ -23,5 +23,5 @@ public partial class Referee
 
     public virtual ICollection<RefereeCompetition> RefereeCompetitions { get; set; } = new List<RefereeCompetition>();
 
-    public virtual Tournament Tournament { get; set; } = null!;
+    public virtual Tournament? Tournament { get; set; }
 }

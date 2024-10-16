@@ -7,15 +7,13 @@ public partial class Schedule
 {
     public int Id { get; set; }
 
-    public int RefereeId { get; set; }
+    public int? RefereeId { get; set; }
 
-    public int MatchId { get; set; }
+    public int? MatchId { get; set; }
 
-    public int PositionId { get; set; }
+    public int? LocationId { get; set; }
 
-    public virtual Match Match { get; set; } = null!;
+    public DateTime? StartTime { get; set; }
 
-    public virtual Position Position { get; set; } = null!;
-
-    public virtual RefereeCompetition Referee { get; set; } = null!;
+    public virtual Match? Match { get; set; }
 }

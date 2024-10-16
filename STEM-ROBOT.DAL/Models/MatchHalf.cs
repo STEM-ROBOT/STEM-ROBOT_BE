@@ -7,9 +7,9 @@ public partial class MatchHalf
 {
     public int Id { get; set; }
 
-    public int MatchId { get; set; }
+    public int? MatchId { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public DateTime? TimeIn { get; set; }
 
@@ -17,5 +17,5 @@ public partial class MatchHalf
 
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
-    public virtual Match Match { get; set; } = null!;
+    public virtual Match? Match { get; set; }
 }

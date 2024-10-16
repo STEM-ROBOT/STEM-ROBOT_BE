@@ -50,8 +50,10 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
+
                 var format = _tournamentFormatSvc.getID(id);
                 if(format == null)
+
                 {
                     res.SetError("404", "No data found");
                 }
@@ -127,8 +129,8 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        
 
-        
+
+
     }
 }

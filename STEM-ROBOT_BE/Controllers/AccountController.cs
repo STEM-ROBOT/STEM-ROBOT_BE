@@ -57,10 +57,12 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
         {
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
             var res = _accountSvc.Update(req, id);
             if (!res.Success)
             {

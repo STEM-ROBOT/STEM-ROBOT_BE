@@ -67,6 +67,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
+
                 if(req.RoleId == 1)
                 {
                     res.SetError("403", "Cannot create Admin account");
@@ -77,6 +78,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("400", "Email already exists");
                     return res;
                 }
+
                 var account = _mapper.Map<Account>(req);
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
