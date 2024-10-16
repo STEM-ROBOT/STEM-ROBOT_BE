@@ -16,4 +16,6 @@ public partial class Location
     public int? CompetitionId { get; set; }
 
     public virtual Competition? Competition { get; set; }
+
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 }

@@ -43,7 +43,7 @@ namespace STEM_ROBOT.DAL.Repo
 
         }
    
-    public async Task<List<Account>> GetAccount()
+    public async Task<IEnumerable<Account>> GetAccount()
     {
         return await _context.Accounts.Include(x => x.Role).ToListAsync();
     }

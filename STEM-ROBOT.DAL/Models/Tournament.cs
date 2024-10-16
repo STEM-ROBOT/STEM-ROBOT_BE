@@ -43,6 +43,8 @@ public partial class Tournament
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
 
+    public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
+
     public virtual TournamentFormat? Format { get; set; }
 
     public virtual ICollection<Referee> Referees { get; set; } = new List<Referee>();

@@ -22,4 +22,6 @@ public partial class School
     public string? ProvinceCode { get; set; }
 
     public string? DistrictCode { get; set; }
+
+    public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
 }
