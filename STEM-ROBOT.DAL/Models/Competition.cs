@@ -19,11 +19,19 @@ public partial class Competition
 
     public string? Status { get; set; }
 
+    public string? Regulation { get; set; }
+
+    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
+
     public virtual Genre? Genre { get; set; }
 
     public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
 
     public virtual ICollection<RefereeCompetition> RefereeCompetitions { get; set; } = new List<RefereeCompetition>();
+
+    public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
+
+    public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 
     public virtual Tournament? Tournament { get; set; }
 }

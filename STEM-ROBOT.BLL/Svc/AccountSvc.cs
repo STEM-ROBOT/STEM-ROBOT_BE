@@ -22,7 +22,7 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public MutipleRsp GetAll()
+        public async Task<MutipleRsp> GetAll()
         {
             var res = new MutipleRsp();
             try
@@ -30,7 +30,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 
 
-                var lst = _accountRepo.All(a => a.RoleId != 1);
+                var lst = await _accountRepo.GetAccount();
 
                 var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
                 res.SetSuccess(accountResLst, "Success");

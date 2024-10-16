@@ -17,7 +17,13 @@ public partial class Team
 
     public string? Status { get; set; }
 
-    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+    public int? TableId { get; set; }
+
+    public virtual Competition? Competition { get; set; }
+
+    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
+
+    public virtual TableGroup? Table { get; set; }
 
     public virtual ICollection<TeamMatch> TeamMatches { get; set; } = new List<TeamMatch>();
 }

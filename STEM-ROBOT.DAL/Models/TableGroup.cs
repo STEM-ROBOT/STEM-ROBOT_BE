@@ -20,4 +20,6 @@ public partial class TableGroup
     public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
 
     public virtual Stage? Round { get; set; }
+
+    public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 }

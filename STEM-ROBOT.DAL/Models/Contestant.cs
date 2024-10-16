@@ -22,4 +22,10 @@ public partial class Contestant
     public string? Phone { get; set; }
 
     public string? Image { get; set; }
+
+    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
+
+    public virtual School? School { get; set; }
+
+    public virtual Tournament? Tournament { get; set; }
 }

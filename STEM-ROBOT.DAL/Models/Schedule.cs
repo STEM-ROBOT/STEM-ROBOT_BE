@@ -15,5 +15,9 @@ public partial class Schedule
 
     public DateTime? StartTime { get; set; }
 
+    public virtual Location? Location { get; set; }
+
     public virtual Match? Match { get; set; }
+
+    public virtual RefereeCompetition? Referee { get; set; }
 }

@@ -32,6 +32,9 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<LocationSvc>();
             services.AddScoped<SchoolRepo>();
             services.AddScoped<SchoolSvc>();
+            services.AddScoped<ContestantRepo>();
+            services.AddScoped<ContestantSvc>();
+
             return services;
         }
 
