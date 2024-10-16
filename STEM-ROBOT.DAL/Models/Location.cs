@@ -7,15 +7,13 @@ public partial class Location
 {
     public int Id { get; set; }
 
-    public string Address { get; set; } = null!;
+    public string? Address { get; set; }
 
-    public string ContactPerson { get; set; } = null!;
+    public string? ContactPerson { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
-    public int CompetitionId { get; set; }
+    public int? CompetitionId { get; set; }
 
-    public virtual Competition Competition { get; set; } = null!;
-
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public virtual Competition? Competition { get; set; }
 }

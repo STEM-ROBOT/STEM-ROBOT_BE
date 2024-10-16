@@ -7,11 +7,11 @@ public partial class RefereeCompetition
 {
     public int Id { get; set; }
 
-    public int RefereeId { get; set; }
+    public int? RefereeId { get; set; }
 
-    public int CompetitionId { get; set; }
+    public int? CompetitionId { get; set; }
 
-    public virtual Competition Competition { get; set; } = null!;
+    public virtual Competition? Competition { get; set; }
 
-    public virtual Referee Referee { get; set; } = null!;
+    public virtual Referee? Referee { get; set; }
 }

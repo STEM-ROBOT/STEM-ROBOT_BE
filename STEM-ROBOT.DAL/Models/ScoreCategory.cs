@@ -7,15 +7,13 @@ public partial class ScoreCategory
 {
     public int Id { get; set; }
 
-    public int GenreId { get; set; }
+    public int? GenreId { get; set; }
 
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; }
 
-    public int Bonus { get; set; }
+    public int? Bonus { get; set; }
 
-    public int Minus { get; set; }
+    public int? Minus { get; set; }
 
-    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
-
-    public virtual Genre Genre { get; set; } = null!;
+    public virtual Genre? Genre { get; set; }
 }
