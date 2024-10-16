@@ -22,7 +22,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<TournamentFormatSvc>();
             services.AddScoped<TournamentRepo>();
             services.AddScoped<TournamentSvc>();
-
+            services.AddScoped<SchoolRepo>();
+            services.AddScoped<SchoolSvc>();
             return services;
         }
 

@@ -61,19 +61,18 @@ public partial class StemdbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=Admin-PC;uid=sa;pwd=12345;Database=STEMDb;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=stemrobot.database.windows.net;database=STEMDb;user=stem;password=Longnhat1@");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3213E83F7832DF6A");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3213E83F0BE27616");
 
             entity.ToTable("Account");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.Image).HasMaxLength(250);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
@@ -81,180 +80,146 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__RoleId__398D8EEE");
+                .HasConstraintName("FK__Account__RoleId__5EBF139D");
         });
 
         modelBuilder.Entity<Action>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Action__3213E83FB22BEC98");
+            entity.HasKey(e => e.Id).HasName("PK__Action__3213E83FDA61AAC8");
 
             entity.ToTable("Action");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.EventTime).HasColumnType("datetime");
 
             entity.HasOne(d => d.MatchHalf).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.MatchHalfId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Action__MatchHal__787EE5A0");
-
-            entity.HasOne(d => d.ScoreCategory).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.ScoreCategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Action__ScoreCat__797309D9");
+                .HasConstraintName("FK__Action__MatchHal__1DB06A4F");
 
             entity.HasOne(d => d.Team).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Action__TeamId__7A672E12");
+                .HasConstraintName("FK__Action__TeamId__1F98B2C1");
         });
 
         modelBuilder.Entity<Competition>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Competit__3213E83F00E5DB86");
+            entity.HasKey(e => e.Id).HasName("PK__Competit__3213E83F125E57BB");
 
             entity.ToTable("Competition");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.GenreId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Competiti__Genre__5070F446");
+                .HasConstraintName("FK__Competiti__Genre__75A278F5");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.TournamentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Competiti__Tourn__4F7CD00D");
+                .HasConstraintName("FK__Competiti__Tourn__74AE54BC");
         });
 
         modelBuilder.Entity<Contestant>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Contesta__3213E83FAE06A761");
+            entity.HasKey(e => e.Id).HasName("PK__Contesta__3213E83F0FA78220");
 
             entity.ToTable("Contestant");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Gender).HasMaxLength(50);
-            entity.Property(e => e.Image).HasMaxLength(200);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Phone).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(250);
-
-            entity.HasOne(d => d.School).WithMany(p => p.Contestants)
-                .HasForeignKey(d => d.SchoolId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Contestan__Schoo__440B1D61");
-
-            entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
-                .HasForeignKey(d => d.TournamentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Contestan__Tourn__44FF419A");
         });
 
         modelBuilder.Entity<Genre>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Genre__3213E83F88F0723A");
+            entity.HasKey(e => e.Id).HasName("PK__Genre__3213E83F32DCA6A9");
 
             entity.ToTable("Genre");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Image).HasMaxLength(250);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
         });
 
         modelBuilder.Entity<GenreRegulation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__GenreReg__3213E83F03952676");
+            entity.HasKey(e => e.Id).HasName("PK__GenreReg__3213E83F2C66F70C");
 
             entity.ToTable("GenreRegulation");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.GenreRegulations)
                 .HasForeignKey(d => d.GenreId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GenreRegu__Genre__4BAC3F29");
+                .HasConstraintName("FK__GenreRegu__Genre__70DDC3D8");
 
             entity.HasOne(d => d.Role).WithMany(p => p.GenreRegulations)
                 .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GenreRegu__RoleI__4CA06362");
+                .HasConstraintName("FK__GenreRegu__RoleI__71D1E811");
         });
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Location__3213E83F6DDE6ED4");
+            entity.HasKey(e => e.Id).HasName("PK__Location__3213E83FE55DE9DD");
 
             entity.ToTable("Location");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Address).HasMaxLength(250);
             entity.Property(e => e.ContactPerson).HasMaxLength(250);
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Competition).WithMany(p => p.Locations)
                 .HasForeignKey(d => d.CompetitionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Location__Compet__59FA5E80");
+                .HasConstraintName("FK__Location__Compet__7F2BE32F");
         });
 
         modelBuilder.Entity<Match>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Match__3213E83F46782D03");
+            entity.HasKey(e => e.Id).HasName("PK__Match__3213E83F7297D577");
 
             entity.ToTable("Match");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.TimeIn).HasColumnType("datetime");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
             entity.HasOne(d => d.Round).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.RoundId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Match__RoundId__66603565");
+                .HasConstraintName("FK__Match__RoundId__0B91BA14");
 
             entity.HasOne(d => d.Table).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.TableId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Match__TableId__6754599E");
+                .HasConstraintName("FK__Match__TableId__0C85DE4D");
         });
 
         modelBuilder.Entity<MatchHalf>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__MatchHal__3213E83F57D2665B");
+            entity.HasKey(e => e.Id).HasName("PK__MatchHal__3213E83FC7A15D6B");
 
             entity.ToTable("MatchHalf");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.TimeIn).HasColumnType("datetime");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
             entity.HasOne(d => d.Match).WithMany(p => p.MatchHalves)
                 .HasForeignKey(d => d.MatchId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__MatchHalf__Match__6E01572D");
+                .HasConstraintName("FK__MatchHalf__Match__1332DBDC");
         });
 
         modelBuilder.Entity<Referee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Referee__3213E83F89B25665");
+            entity.HasKey(e => e.Id).HasName("PK__Referee__3213E83FF479F0DE");
 
             entity.ToTable("Referee");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
             entity.Property(e => e.Role).HasMaxLength(250);
@@ -262,217 +227,175 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Referees)
                 .HasForeignKey(d => d.TournamentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Referee__Tournam__534D60F1");
+                .HasConstraintName("FK__Referee__Tournam__787EE5A0");
         });
 
         modelBuilder.Entity<RefereeCompetition>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RefereeC__3213E83FED5D4D91");
+            entity.HasKey(e => e.Id).HasName("PK__RefereeC__3213E83F929750B0");
 
             entity.ToTable("RefereeCompetition");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-
             entity.HasOne(d => d.Competition).WithMany(p => p.RefereeCompetitions)
                 .HasForeignKey(d => d.CompetitionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RefereeCo__Compe__571DF1D5");
+                .HasConstraintName("FK__RefereeCo__Compe__7C4F7684");
 
             entity.HasOne(d => d.Referee).WithMany(p => p.RefereeCompetitions)
                 .HasForeignKey(d => d.RefereeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RefereeCo__Refer__5629CD9C");
+                .HasConstraintName("FK__RefereeCo__Refer__7B5B524B");
         });
 
         modelBuilder.Entity<Regulation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Regulati__3214EC07ADF2C363");
+            entity.HasKey(e => e.Id).HasName("PK__Regulati__3214EC07BDAEE66E");
 
             entity.ToTable("Regulation");
 
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Image).HasMaxLength(250);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3213E83F5E8A8402");
+            entity.HasKey(e => e.Id).HasName("PK__Role__3213E83F6E4C5509");
 
             entity.ToTable("Role");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name).HasMaxLength(250);
         });
 
         modelBuilder.Entity<Schedule>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Schedule__3213E83FB649C7B8");
+            entity.HasKey(e => e.Id).HasName("PK__Schedule__3213E83F7F87B3F2");
 
             entity.ToTable("Schedule");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Location).WithMany(p => p.Schedules)
-                .HasForeignKey(d => d.LocationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Schedule__Locati__75A278F5");
 
             entity.HasOne(d => d.Match).WithMany(p => p.Schedules)
                 .HasForeignKey(d => d.MatchId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Schedule__MatchI__74AE54BC");
-
-            entity.HasOne(d => d.Referee).WithMany(p => p.Schedules)
-                .HasForeignKey(d => d.RefereeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Schedule__Refere__73BA3083");
+                .HasConstraintName("FK__Schedule__MatchI__19DFD96B");
         });
 
         modelBuilder.Entity<School>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__School__3213E83F1D1D6FB1");
+            entity.HasKey(e => e.Id).HasName("PK__School__3213E83F7A25C3FB");
 
             entity.ToTable("School");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.Area).HasMaxLength(200);
             entity.Property(e => e.District).HasMaxLength(200);
+            entity.Property(e => e.DistrictCode).HasMaxLength(200);
             entity.Property(e => e.Province).HasMaxLength(200);
+            entity.Property(e => e.ProvinceCode).HasMaxLength(200);
             entity.Property(e => e.SchoolCode).HasMaxLength(250);
             entity.Property(e => e.SchoolName).HasMaxLength(500);
-            entity.Property(e => e.SchoolType).HasMaxLength(200);
         });
 
         modelBuilder.Entity<ScoreCategory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ScoreCat__3213E83FCD74C8EB");
+            entity.HasKey(e => e.Id).HasName("PK__ScoreCat__3213E83F49DEC7F9");
 
             entity.ToTable("ScoreCategory");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description).HasColumnType("text");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.ScoreCategories)
                 .HasForeignKey(d => d.GenreId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ScoreCate__Genre__70DDC3D8");
+                .HasConstraintName("FK__ScoreCate__Genre__160F4887");
         });
 
         modelBuilder.Entity<Stage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Stage__3213E83FB9ADFEB3");
+            entity.HasKey(e => e.Id).HasName("PK__Stage__3213E83F527E4245");
 
             entity.ToTable("Stage");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
-
-            entity.HasOne(d => d.Competition).WithMany(p => p.Stages)
-                .HasForeignKey(d => d.CompetitionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Stage__Competiti__5CD6CB2B");
         });
 
         modelBuilder.Entity<TableGroup>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TableGro__3213E83FCBBEC8D9");
+            entity.HasKey(e => e.Id).HasName("PK__TableGro__3213E83FAFB8010C");
 
             entity.ToTable("TableGroup");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Round).WithMany(p => p.TableGroups)
                 .HasForeignKey(d => d.RoundId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__TableGrou__Round__6383C8BA");
+                .HasConstraintName("FK__TableGrou__Round__08B54D69");
         });
 
         modelBuilder.Entity<Team>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Team__3213E83F8F6C5C8E");
+            entity.HasKey(e => e.Id).HasName("PK__Team__3213E83F60DC024A");
 
             entity.ToTable("Team");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreateDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Competition).WithMany(p => p.Teams)
-                .HasForeignKey(d => d.CompetitionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Team__Competitio__60A75C0F");
         });
 
         modelBuilder.Entity<TeamMatch>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TeamMatc__3213E83FF4A1D0BC");
+            entity.HasKey(e => e.Id).HasName("PK__TeamMatc__3213E83F4B2662C8");
 
             entity.ToTable("TeamMatch");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.MatchId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__TeamMatch__Match__6A30C649");
+                .HasConstraintName("FK__TeamMatch__Match__0F624AF8");
 
             entity.HasOne(d => d.Team).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__TeamMatch__TeamI__6B24EA82");
+                .HasConstraintName("FK__TeamMatch__TeamI__10566F31");
         });
 
         modelBuilder.Entity<Tournament>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3213E83F92843823");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3213E83FB6A35A7E");
 
             entity.ToTable("Tournament");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.Image).HasMaxLength(250);
-            entity.Property(e => e.Level).HasMaxLength(300);
+            entity.Property(e => e.EndDate).HasColumnType("date");
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Mode).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
+            entity.Property(e => e.TournamentLevel).HasMaxLength(300);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Tournaments)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tournamen__Accou__403A8C7D");
+                .HasConstraintName("FK__Tournamen__Accou__656C112C");
 
             entity.HasOne(d => d.Format).WithMany(p => p.Tournaments)
                 .HasForeignKey(d => d.FormatId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tournamen__Forma__412EB0B6");
+                .HasConstraintName("FK__Tournamen__Forma__66603565");
         });
 
         modelBuilder.Entity<TournamentFormat>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3213E83FCF2D0897");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3213E83FD32182EA");
 
             entity.ToTable("TournamentFormat");
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Image).HasMaxLength(250);
+            entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
         });
 
