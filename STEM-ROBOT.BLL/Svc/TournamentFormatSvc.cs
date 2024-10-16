@@ -31,8 +31,11 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var lst = _tournamentFormatSvc.All();
-                var lstRes = _mapper.Map<IEnumerable<TournamentFormatReq>>(lst);
-                res.SetSuccess(lstRes, "200");
+                if(lst == null)
+                {
+                    res.SetError("404", "No data found");
+                }
+                res.SetSuccess(lst, "200");
 
             }
             catch (Exception ex)
@@ -47,13 +50,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var getFormat = _tournamentFormatSvc.getID(id);
-                if (getFormat == null)
+
+                var format = _tournamentFormatSvc.getID(id);
+                if(format == null)
+
                 {
                     res.SetError("404", "No data found");
                 }
-                var formatRes = _mapper.Map<TournamentFormatReq>(getFormat);
-                res.setData("200", formatRes);
+                res.setData("200", format);
             }
             catch (Exception ex)
             {
@@ -67,9 +71,9 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var newForat = _mapper.Map<TournamentFormat>(tournamentFormat);
-                _tournamentFormatSvc.Add(newForat);
-                res.setData("200", newForat);
+                var newFormat = _mapper.Map<TournamentFormat>(tournamentFormat);
+                _tournamentFormatSvc.Add(newFormat);
+                res.setData("200", newFormat);
             }
             catch (Exception ex)
             {
@@ -107,15 +111,15 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var format = _tournamentFormatSvc.getID(id);
-                if (format == null)
+                var delFormat = _tournamentFormatSvc.getID(id);
+                if (delFormat == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
                     _tournamentFormatSvc.Delete(id);
-                    res.setData("200", $"Deleted entity with ID: {id}");
+                    res.SetMessage("Delete successfully");
                 }
             }
             catch (Exception ex)

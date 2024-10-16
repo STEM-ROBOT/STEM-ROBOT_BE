@@ -26,7 +26,7 @@ namespace STEM_ROBOT.DAL.Repo
                         select new AccountRes
                         {
                             Id = account.Id,
-                            RoleId = account.RoleId,
+                            RoleId = (int)account.RoleId,
                             RoleName = role.Name,
                             Name = account.Name,
                             PhoneNumber = account.PhoneNumber,

@@ -18,5 +18,6 @@ namespace STEM_ROBOT.Common.Req
         public string Image { get; set; } = null!;
         [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = null!;
+
     }
 }

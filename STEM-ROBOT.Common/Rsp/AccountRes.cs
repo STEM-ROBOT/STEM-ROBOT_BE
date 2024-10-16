@@ -26,6 +26,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
 
 
+
         public string Status { get; set; }
         
     }

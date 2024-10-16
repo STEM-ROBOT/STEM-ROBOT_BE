@@ -8,6 +8,7 @@ namespace STEM_ROBOT_BE.Controllers
     [Route("api/accounts")]
     [ApiController]
     //[Authorize(Roles ="1")]
+
     public class AccountController : ControllerBase
     {
         private readonly AccountSvc _accountSvc;
@@ -38,6 +39,7 @@ namespace STEM_ROBOT_BE.Controllers
             }
             return Ok(res.Data);
         }
+
 
         [HttpPost()]
         public IActionResult CreateAccount([FromBody] AccountReq req)

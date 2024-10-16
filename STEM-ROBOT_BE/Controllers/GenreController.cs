@@ -40,6 +40,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
+
         [HttpPost()]
         public IActionResult CreateGenre([FromBody] GenreReq req)
         {

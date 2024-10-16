@@ -82,7 +82,8 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(GenreReq req, int id)
+
+        public SingleRsp Update( GenreReq req, int id)
         {
             var res = new SingleRsp();
             try
@@ -119,6 +120,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _genreRepo.Delete(id);
                     res.SetMessage("Delete successfully");
+
                 }
             }
             catch (Exception ex)
@@ -126,6 +128,8 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
+
         }
+
     }
 }

@@ -21,6 +21,8 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Tournament,TournamentReq>().ReverseMap();
             CreateMap<Location,LocationReq >().ReverseMap();
             CreateMap<Location, LocationRes>().ReverseMap();
+            CreateMap<School, SchoolRep>().ReverseMap();
+
         }
     }
 }

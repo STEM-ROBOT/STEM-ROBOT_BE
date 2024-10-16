@@ -30,9 +30,9 @@ namespace STEM_ROBOT.Common.Req
         public string Password { get; set; } 
 
         public string? Image { get; set; }
-
         [Required(ErrorMessage = "Status is required")]
         public string Status { get; set; }
+
 
 
     }

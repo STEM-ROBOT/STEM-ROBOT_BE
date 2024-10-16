@@ -25,7 +25,7 @@ namespace STEM_ROBOT.DAL.Repo
                             Address = location.Address,
                             ContactPerson = location.ContactPerson,
                             Status = location.Status,
-                            CompetitionId = location.CompetitionId,
+                            CompetitionId = (int)location.CompetitionId,
                             CompetitionName = competition.Name  // Lấy tên của Competition
                         };
 

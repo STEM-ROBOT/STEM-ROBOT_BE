@@ -66,8 +66,10 @@ namespace STEM_ROBOT.BLL.Svc
                 Claims = new Dictionary<string, object>
                 {
 
+
                 }
             };
+
 
             var token = jwttokenHandler.CreateToken(tokendescription);
             var accessToken = jwttokenHandler.WriteToken(token);
