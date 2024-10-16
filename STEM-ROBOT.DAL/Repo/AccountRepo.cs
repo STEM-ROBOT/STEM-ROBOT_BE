@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using STEM_ROBOT.Common.Rsp;
+
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -35,16 +37,24 @@ namespace STEM_ROBOT.DAL.Repo
                             Status = account.Status
                         };
 
+      
+
             return query.FirstOrDefault();
 
         }
-        /*public async Task<List<AccountRes>> getAllAccountRole()
-        {
-            var acc = await _context.Accounts.Where(x=> x.RoleId == 1).Include(x => x.Role).ToListAsync();
-            var mapper = _mapper.Map<List<AccountRes>>(acc);
-
-            return mapper;
-        } */
-
+   
+    public async Task<List<Account>> GetAccount()
+    {
+        return await _context.Accounts.Include(x => x.Role).ToListAsync();
     }
+    /*public async Task<List<AccountRes>> getAllAccountRole()
+    {
+        var acc = await _context.Accounts.Where(x=> x.RoleId == 1).Include(x => x.Role).ToListAsync();
+        var mapper = _mapper.Map<List<AccountRes>>(acc);
+
+        return mapper;
+    } */
+
+
+}
 }
