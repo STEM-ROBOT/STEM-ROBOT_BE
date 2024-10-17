@@ -5,7 +5,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/referee")]
+    [Route("api/referees")]
     [ApiController]
     public class RefereeController : ControllerBase
     {

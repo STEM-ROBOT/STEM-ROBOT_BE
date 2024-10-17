@@ -6,7 +6,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/location")]
+    [Route("api/locations")]
     [ApiController]
     //[Authorize(Roles = "1,2")]
     public class LocationController : ControllerBase
