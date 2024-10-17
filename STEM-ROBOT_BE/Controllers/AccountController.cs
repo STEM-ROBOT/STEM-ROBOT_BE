@@ -19,9 +19,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetAccounts()
+        public async Task<IActionResult> GetAccounts()
         {
-            var res = _accountSvc.GetAll();
+            var res = await _accountSvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);

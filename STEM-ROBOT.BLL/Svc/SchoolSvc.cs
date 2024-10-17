@@ -149,9 +149,9 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError($"No SchoolID : {Id}");
                 }
-                var mapper = _mapper.Map<School>(school);
-                _schoolRepo.Update(mapper);
-                res.setData("OK", mapper);  
+                _mapper.Map(school, schoolID);
+                _schoolRepo.Update(schoolID);
+                res.setData("OK", schoolID);  
             }
             catch (Exception ex)
             {

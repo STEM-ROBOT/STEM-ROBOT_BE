@@ -23,9 +23,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Contestant> Contestants { get; set; }
 
-    public virtual DbSet<Genre> Genres { get; set; }
+    public virtual DbSet<ContestantCompetition> ContestantCompetitions { get; set; }
 
-    public virtual DbSet<GenreRegulation> GenreRegulations { get; set; }
+    public virtual DbSet<Genre> Genres { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
 
@@ -36,8 +36,6 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Referee> Referees { get; set; }
 
     public virtual DbSet<RefereeCompetition> RefereeCompetitions { get; set; }
-
-    public virtual DbSet<Regulation> Regulations { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -59,6 +57,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<TournamentFormat> TournamentFormats { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=stemrobot.database.windows.net;database=STEMDb;user=stem;password=Longnhat1@");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,9 +93,13 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.MatchHalfId)
                 .HasConstraintName("FK__Action__MatchHal__1DB06A4F");
 
-            entity.HasOne(d => d.Team).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.TeamId)
-                .HasConstraintName("FK__Action__TeamId__1F98B2C1");
+            entity.HasOne(d => d.ScoreCategory).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.ScoreCategoryId)
+                .HasConstraintName("FK_Action_ScoreCategory");
+
+            entity.HasOne(d => d.TeamMatch).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.TeamMatchId)
+                .HasConstraintName("FK_Action_TeamMatch");
         });
 
         modelBuilder.Entity<Competition>(entity =>
@@ -105,6 +110,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
+            entity.Property(e => e.Regulation).HasColumnType("text");
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -129,6 +135,31 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Phone).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.HasOne(d => d.School).WithMany(p => p.Contestants)
+                .HasForeignKey(d => d.SchoolId)
+                .HasConstraintName("FK_Contestant_School");
+
+            entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
+                .HasForeignKey(d => d.TournamentId)
+                .HasConstraintName("FK_Contestant_Tournament");
+        });
+
+        modelBuilder.Entity<ContestantCompetition>(entity =>
+        {
+            entity.ToTable("ContestantCompetition");
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.ContestantCompetitions)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_ContestantCompetition_Competition");
+
+            entity.HasOne(d => d.Contestant).WithMany(p => p.ContestantCompetitions)
+                .HasForeignKey(d => d.ContestantId)
+                .HasConstraintName("FK_ContestantCompetition_Contestant");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.ContestantCompetitions)
+                .HasForeignKey(d => d.TeamId)
+                .HasConstraintName("FK_ContestantCompetition_Team");
         });
 
         modelBuilder.Entity<Genre>(entity =>
@@ -137,26 +168,9 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Genre");
 
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Description).HasColumnType("ntext");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
-        });
-
-        modelBuilder.Entity<GenreRegulation>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__GenreReg__3213E83F2C66F70C");
-
-            entity.ToTable("GenreRegulation");
-
-            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Genre).WithMany(p => p.GenreRegulations)
-                .HasForeignKey(d => d.GenreId)
-                .HasConstraintName("FK__GenreRegu__Genre__70DDC3D8");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.GenreRegulations)
-                .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK__GenreRegu__RoleI__71D1E811");
         });
 
         modelBuilder.Entity<Location>(entity =>
@@ -242,17 +256,6 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK__RefereeCo__Refer__7B5B524B");
         });
 
-        modelBuilder.Entity<Regulation>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Regulati__3214EC07BDAEE66E");
-
-            entity.ToTable("Regulation");
-
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Image).HasColumnType("text");
-            entity.Property(e => e.Name).HasMaxLength(250);
-        });
-
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Role__3213E83F6E4C5509");
@@ -270,9 +273,17 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.StartTime).HasColumnType("datetime");
 
+            entity.HasOne(d => d.Location).WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK_Schedule_Location");
+
             entity.HasOne(d => d.Match).WithMany(p => p.Schedules)
                 .HasForeignKey(d => d.MatchId)
                 .HasConstraintName("FK__Schedule__MatchI__19DFD96B");
+
+            entity.HasOne(d => d.Referee).WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.RefereeId)
+                .HasConstraintName("FK_Schedule_RefereeCompetition");
         });
 
         modelBuilder.Entity<School>(entity =>
@@ -297,7 +308,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("ScoreCategory");
 
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Description).HasColumnType("ntext");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.ScoreCategories)
                 .HasForeignKey(d => d.GenreId)
@@ -314,6 +325,10 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.Stages)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_Stage_Competition");
         });
 
         modelBuilder.Entity<TableGroup>(entity =>
@@ -344,12 +359,18 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.Teams)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_Team_Competition");
+
+            entity.HasOne(d => d.Table).WithMany(p => p.Teams)
+                .HasForeignKey(d => d.TableId)
+                .HasConstraintName("FK_Team_TableGroup");
         });
 
         modelBuilder.Entity<TeamMatch>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TeamMatc__3213E83F4B2662C8");
-
             entity.ToTable("TeamMatch");
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
@@ -391,7 +412,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("TournamentFormat");
 
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Description).HasColumnType("ntext");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
         });
