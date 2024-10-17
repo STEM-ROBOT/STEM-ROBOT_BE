@@ -11,6 +11,8 @@ public partial class TeamMatch
 
     public int? TeamId { get; set; }
 
+    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+
     public virtual Match? Match { get; set; }
 
     public virtual Team? Team { get; set; }

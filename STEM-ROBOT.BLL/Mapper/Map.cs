@@ -14,20 +14,40 @@ namespace STEM_ROBOT.BLL.Mapper
     {
         public Map()
         {
+
             CreateMap<Account, Account>().ReverseMap();
             CreateMap<Account, AccountRes>()
              .ForMember(x => x.RoleName, op => op.MapFrom(x => x.Role.Name)).ReverseMap();
             CreateMap<Account, AccountReq>().ReverseMap();
+
+          
+            //tournament
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
-            CreateMap<Tournament, TournamentReq>().ReverseMap();
-            CreateMap<Location, LocationReq>().ReverseMap();
+            CreateMap<Tournament,TournamentReq>().ReverseMap();
+            //location
+            CreateMap<Location,LocationReq >().ReverseMap();
+
             CreateMap<Location, LocationRes>().ReverseMap();
-            CreateMap<School, SchoolRep>().ReverseMap();
+            //school
+
             CreateMap<School, SchoolReq>().ReverseMap();
             CreateMap<Referee, RefereeReq>().ReverseMap();
             CreateMap<Referee, RefereeRes>().ReverseMap();
             CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
             CreateMap<ScoreCategory, ScoreCategoryRes>().ReverseMap();
+
+            //contestant
+            CreateMap<Contestant, ContestantRep>().ReverseMap();
+            CreateMap<Contestant,ContestantReq>().ReverseMap();
+            //competition
+            CreateMap<Competition, CompetitionRep>()
+                .ForMember(x => x.NameGenre , op => op.MapFrom( x=> x.Genre.Name))
+                .ForMember(x=> x.TournamentName, op=> op.MapFrom(x=> x.Tournament.Name))
+                .ForMember(x=> x.Address, op => op.MapFrom(x=> x.Locations.FirstOrDefault().Address))
+                 .ForMember(x => x.ContactPerson, op => op.MapFrom(x => x.Locations.FirstOrDefault().ContactPerson))
+                .ForMember(x=> x.Description, op => op.MapFrom(x => x.Genre.Description))
+                .ForMember(x=> x.Image, op => op.MapFrom(x => x.Genre.Image))
+                .ReverseMap();
 
         }
     }

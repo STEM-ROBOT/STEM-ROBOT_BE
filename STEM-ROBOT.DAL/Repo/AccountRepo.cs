@@ -18,9 +18,6 @@ namespace STEM_ROBOT.DAL.Repo
         public AccountRepo(StemdbContext context) : base(context)
         {
         }
-
-
-
         public async Task<List<Account>> GetAccounts()
         {
             return await _context.Accounts.Where(x => x.RoleId != 1).Include(x => x.Role).ToListAsync();
@@ -29,9 +26,5 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await _context.Accounts.Where(x => x.RoleId != 1 && x.Id == id).Include(x => x.Role).FirstOrDefaultAsync();
         }
-
-        
-
-
     }
 }

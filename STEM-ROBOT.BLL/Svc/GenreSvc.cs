@@ -57,7 +57,11 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-
+                else
+                {
+                    res.setData("200", getGenre);
+                }
+                
             }
             catch (Exception ex)
             {

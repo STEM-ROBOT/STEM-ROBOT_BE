@@ -15,5 +15,7 @@ public partial class ScoreCategory
 
     public int? Minus { get; set; }
 
+    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+
     public virtual Genre? Genre { get; set; }
 }
