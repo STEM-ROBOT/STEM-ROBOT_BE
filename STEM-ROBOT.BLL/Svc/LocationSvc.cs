@@ -22,12 +22,12 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public MutipleRsp GetAll()
+        public async Task<MutipleRsp> GetLocations()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = _locationRepo.All();
+                var lst = await _locationRepo.GetLocations();
                 if (lst != null)
                 {
                     res.SetSuccess(lst, "200");
@@ -44,12 +44,12 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp GetById(int id)
+        public async Task<SingleRsp> GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var getLocation = _locationRepo.GetCompetitionNameByLocation(id);
+                var getLocation = await _locationRepo.GetLocationById(id);
 
                 if (getLocation == null)
                 {
@@ -86,14 +86,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var location = _locationRepo.getID(id);
+                var location = _locationRepo.GetById(id);
                 if(location == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    location = _mapper.Map<Location>(req);
+                    _mapper.Map(res, location);
                     _locationRepo.Update(location);
                     res.setData("200", location);
                 }
@@ -110,7 +110,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var location = _locationRepo.getID(id);
+                var location = _locationRepo.GetById(id);
                 if (location == null)
                 {
                     res.SetError("404", "No data found");

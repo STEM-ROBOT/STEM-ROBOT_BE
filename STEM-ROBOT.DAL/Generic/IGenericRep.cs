@@ -15,7 +15,7 @@ namespace STEM_ROBOT.Common.DAL
           string includeProperties = "",
           int? pageIndex = null,
           int? pageSize = null);
-        T getID(object id);
+        T GetById(object id);
         void Delete(int id);
         void Add(T entity);
         void Update(T entity);

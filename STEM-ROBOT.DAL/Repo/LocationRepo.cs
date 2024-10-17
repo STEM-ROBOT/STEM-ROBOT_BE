@@ -1,4 +1,5 @@
-﻿using STEM_ROBOT.Common.Rsp;
+﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -13,41 +14,13 @@ namespace STEM_ROBOT.DAL.Repo
         public LocationRepo(StemdbContext context) : base(context)
         {
         }
-        public LocationRes GetCompetitionNameByLocation(int id)
+        public async Task<List<Location>> GetLocations()
         {
-            var query = from location in _context.Locations
-                        join competition in _context.Competitions
-                        on location.CompetitionId equals competition.Id
-                        where location.Id == id
-                        select new LocationRes
-                        {
-                            Id = location.Id,
-                            Address = location.Address,
-                            ContactPerson = location.ContactPerson,
-                            Status = location.Status,
-                            CompetitionId = (int)location.CompetitionId,
-                            CompetitionName = competition.Name  // Lấy tên của Competition
-                        };
-
-            return query.FirstOrDefault();
+            return await _context.Locations.Include(x=> x.Competition).ToListAsync();
         }
-
-        /*public override IEnumerable<LocationRes> All()
+        public async Task<Location> GetLocationById(int id)
         {
-            var query = from location in _context.Locations
-                        join competition in _context.Competitions
-                        on location.CompetitionId equals competition.Id
-                        select new LocationRes
-                        {
-                            Id = location.Id,
-                            Address = location.Address,
-                            ContactPerson = location.ContactPerson,
-                            Status = location.Status,
-                            CompetitionId = location.CompetitionId,
-                            CompetitionName = competition.Name  // Lấy tên của Competition
-                        };
-
-            return query.ToList();
-        }*/
+            return await _context.Locations.Where(x => x.Id == id).Include(x => x.Competition).FirstOrDefaultAsync();
+        }
     }
 }

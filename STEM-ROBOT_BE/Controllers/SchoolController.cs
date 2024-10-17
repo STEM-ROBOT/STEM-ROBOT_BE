@@ -6,7 +6,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/school")]
     [ApiController]
     public class SchoolController : ControllerBase
     {

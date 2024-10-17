@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
-    public class AccountRes
+    public class AccountRsp
     {
         public int Id { get; set; }
         public int RoleId { get; set; }
