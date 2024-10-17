@@ -20,13 +20,13 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public async Task<MutipleRsp> GetAll()
+        public async Task<MutipleRsp> GetAccounts()
         {
             var res = new MutipleRsp();
             try
             {
                 var lst = await _accountRepo.GetAccounts();
-                var accountResLst = _mapper.Map<List<AccountRes>>(lst);
+                var accountResLst = _mapper.Map<List<AccountRsp>>(lst);
                 res.SetSuccess(accountResLst, "Success");
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-                var accountRes = _mapper.Map<AccountRes>(acc);
+                var accountRes = _mapper.Map<AccountRsp>(acc);
                 res.setData("Success", accountRes);
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var account = _accountRepo.getID(id);
+                var account = _accountRepo.GetById(id);
                 if (account == null)
                 {
                     res.SetError("404", "No data found");
@@ -124,7 +124,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.getID(id);
+                var acc = _accountRepo.GetById(id);
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");

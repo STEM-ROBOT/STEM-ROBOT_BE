@@ -24,7 +24,7 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public MutipleRsp GetAll()
+        public MutipleRsp GetReferees()
         {
             var res = new MutipleRsp();
             try
@@ -51,7 +51,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var referee = _refereeRepo.getID(id);
+                var referee = _refereeRepo.GetById(id);
                 if (referee == null)
                 {
                     res.SetError("404", "Referee not found");
@@ -95,7 +95,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var referee = _refereeRepo.getID(id);
+                var referee = _refereeRepo.GetById(id);
                 if (referee == null)
                 {
                     res.SetError("404", "Referee not found");
@@ -126,7 +126,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var referee = _refereeRepo.getID(id);
+                var referee = _refereeRepo.GetById(id);
                 if (referee == null)
                 {
                     res.SetError("404", "Referee not found");

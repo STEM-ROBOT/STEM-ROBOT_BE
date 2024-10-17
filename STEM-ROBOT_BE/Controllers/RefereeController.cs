@@ -19,7 +19,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet()]
         public IActionResult GetReferees()
         {
-            var res = _refereeSvc.GetAll();
+            var res = _refereeSvc.GetReferees();
             if (res.Success)
             {
                 return Ok(res.Data);

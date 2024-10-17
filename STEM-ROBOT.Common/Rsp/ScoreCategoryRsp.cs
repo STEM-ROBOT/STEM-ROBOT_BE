@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
-    public class ScoreCategoryRes
+    public class ScoreCategoryRsp
     {
         public string Description { get; set; }
         public int Bonus { get; set; }

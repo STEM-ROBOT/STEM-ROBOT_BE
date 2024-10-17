@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Action = STEM_ROBOT.DAL.Models.Action;
 
 namespace STEM_ROBOT.BLL.Mapper
 {
@@ -16,7 +17,7 @@ namespace STEM_ROBOT.BLL.Mapper
         {
 
             CreateMap<Account, Account>().ReverseMap();
-            CreateMap<Account, AccountRes>()
+            CreateMap<Account, AccountRsp>()
              .ForMember(x => x.RoleName, op => op.MapFrom(x => x.Role.Name)).ReverseMap();
             CreateMap<Account, AccountReq>().ReverseMap();
 
@@ -24,21 +25,22 @@ namespace STEM_ROBOT.BLL.Mapper
             //tournament
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
             CreateMap<Tournament,TournamentReq>().ReverseMap();
+
             //location
             CreateMap<Location,LocationReq >().ReverseMap();
+            CreateMap<Location, LocationRsp>().ReverseMap();
 
-            CreateMap<Location, LocationRes>().ReverseMap();
             //school
-
             CreateMap<School, SchoolReq>().ReverseMap();
             CreateMap<Referee, RefereeReq>().ReverseMap();
-            CreateMap<Referee, RefereeRes>().ReverseMap();
+            CreateMap<Referee, RefereeRsp>().ReverseMap();
             CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
-            CreateMap<ScoreCategory, ScoreCategoryRes>().ReverseMap();
+            CreateMap<ScoreCategory, ScoreCategoryRsp>().ReverseMap();
 
             //contestant
             CreateMap<Contestant, ContestantRep>().ReverseMap();
             CreateMap<Contestant,ContestantReq>().ReverseMap();
+
             //competition
             CreateMap<Competition, CompetitionRep>()
                 .ForMember(x => x.NameGenre , op => op.MapFrom( x=> x.Genre.Name))
@@ -49,6 +51,12 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x=> x.Image, op => op.MapFrom(x => x.Genre.Image))
                 .ReverseMap();
 
+            //team
+            CreateMap<Team, TeamReq>().ReverseMap();
+            CreateMap<Team, TeamRsp>().ReverseMap();
+
+            //action
+            CreateMap<Action, ActionReq>().ReverseMap();
         }
     }
 }

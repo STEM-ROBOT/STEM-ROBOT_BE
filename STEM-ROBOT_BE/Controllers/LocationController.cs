@@ -21,7 +21,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetLocations()
         {
-            var res = await _locationSvc.GetAll();
+            var res = await _locationSvc.GetLocations();
             if (res.Success)
             {
                 return Ok(res.Data);

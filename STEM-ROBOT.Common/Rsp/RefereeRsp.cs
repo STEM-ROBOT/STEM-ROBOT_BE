@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
-    public class RefereeRes
+    public class RefereeRsp
     {
         public string Name { get; set; }
         public string Role { get; set; }

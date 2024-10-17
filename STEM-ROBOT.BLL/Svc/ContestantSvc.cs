@@ -102,7 +102,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var contestant = _contestantRepo.getID(ID);
+                var contestant = _contestantRepo.GetById(ID);
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<Contestant>(contestant);
@@ -120,7 +120,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var contestant = _contestantRepo.getID(contestantID);
+                var contestant = _contestantRepo.GetById(contestantID);
                 if (contestant != null)
                 {
                     _mapper.Map(contestantReq, contestant);
@@ -139,7 +139,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var contestant = _contestantRepo.getID(contestantID);
+                var contestant = _contestantRepo.GetById(contestantID);
                 if (contestant != null)
                 {
                     _contestantRepo.Delete(contestant.Id);
