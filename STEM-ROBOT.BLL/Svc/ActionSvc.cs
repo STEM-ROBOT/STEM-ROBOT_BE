@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -10,36 +8,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Action = STEM_ROBOT.DAL.Models.Action;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class GenreSvc
+    public class ActionSvc
     {
-        private readonly GenreRepo _genreRepo;
+        private readonly ActionRepo _actionRepo;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
-        public GenreSvc(GenreRepo repo, IConfiguration configuration, IMapper mapper)
+
+        public ActionSvc(ActionRepo actionRepo, IMapper mapper)
         {
-            _genreRepo = repo;
+            _actionRepo = actionRepo;
             _mapper = mapper;
-            _configuration = configuration;
         }
 
-        public MutipleRsp GetGenres()
+        public MutipleRsp GetActions()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = _genreRepo.All();
+                var lst = _actionRepo.All();
                 if (lst != null)
                 {
-                    res.SetSuccess(lst, "200");
+                     res.SetSuccess(lst, "200");
                 }
                 else
                 {
                     res.SetError("404", "No data found");
                 }
-
             }
             catch (Exception ex)
             {
@@ -47,21 +44,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var getGenre = _genreRepo.GetById(id);
-                if (getGenre == null)
+                var action = _actionRepo.GetById(id);
+                if (action == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Action not found");
                 }
                 else
                 {
-                    res.setData("200", getGenre);
+                    res.setData("200", action);
                 }
-                
             }
             catch (Exception ex)
             {
@@ -70,14 +67,14 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create([FromBody] GenreReq genre)
+        public SingleRsp Create(ActionReq req)
         {
             var res = new SingleRsp();
             try
             {
-                var newGenre = _mapper.Map<Genre>(genre);
-                _genreRepo.Add(newGenre);
-                res.setData("200", newGenre);
+                var newAction = _mapper.Map<Action>(req);
+                _actionRepo.Add(newAction);
+                res.setData("200", newAction);
             }
             catch (Exception ex)
             {
@@ -85,21 +82,22 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp Update( GenreReq req, int id)
+
+        public SingleRsp Update(ActionReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updGenre = _genreRepo.GetById(id);
-                if (updGenre == null)
+                var action = _actionRepo.GetById(id);
+                if (action == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Action not found");
                 }
                 else
                 {
-                    _mapper.Map(res, updGenre);
-                    _genreRepo.Update(updGenre);
-                    res.setData("200", updGenre);
+                    _mapper.Map(req, action);
+                    _actionRepo.Update(action);
+                    res.setData("200", action);
                 }
             }
             catch (Exception ex)
@@ -108,21 +106,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var genre = _genreRepo.GetById(id);
-                if (genre == null)
+                var action = _actionRepo.GetById(id);
+                if (action == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Action not found");
                 }
                 else
                 {
-                    _genreRepo.Delete(id);
+                    _actionRepo.Delete(id);
                     res.SetMessage("Delete successfully");
-
                 }
             }
             catch (Exception ex)
@@ -130,7 +128,6 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
-
         }
 
     }

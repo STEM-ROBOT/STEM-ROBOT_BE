@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
-    public class LocationRes
+    public class LocationRsp
     {
         public int Id { get; set; }
         public string Address { get; set; }

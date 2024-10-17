@@ -22,7 +22,7 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public async Task<MutipleRsp> GetAll()
+        public async Task<MutipleRsp> GetLocations()
         {
             var res = new MutipleRsp();
             try
@@ -86,7 +86,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var location = _locationRepo.getID(id);
+                var location = _locationRepo.GetById(id);
                 if(location == null)
                 {
                     res.SetError("404", "No data found");
@@ -110,7 +110,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var location = _locationRepo.getID(id);
+                var location = _locationRepo.GetById(id);
                 if (location == null)
                 {
                     res.SetError("404", "No data found");

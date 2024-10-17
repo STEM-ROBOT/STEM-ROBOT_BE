@@ -21,7 +21,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet()]
         public IActionResult GetTournamentFormats()
         {
-            var res = _tournamentFormatSvc.GetAll();
+            var res = _tournamentFormatSvc.GetFormats();
             if (res.Success)
             {
                 return Ok(res.Data);

@@ -21,7 +21,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet()]
         public IActionResult GetGenres()
         {
-            var res = _genreSvc.GetAll();
+            var res = _genreSvc.GetGenres();
             if (res.Success)
             {
                 return Ok(res.Data);

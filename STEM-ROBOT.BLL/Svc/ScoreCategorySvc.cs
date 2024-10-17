@@ -22,7 +22,7 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public MutipleRsp GetAll()
+        public MutipleRsp GetScoreCategories()
         {
             var res = new MutipleRsp();
             try
@@ -49,7 +49,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var scoreCategory = _scoreCategoryRepo.getID(id);
+                var scoreCategory = _scoreCategoryRepo.GetById(id);
                 if (scoreCategory == null)
                 {
                     res.SetError("404", "Score category not found");
@@ -87,7 +87,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var scoreCategory = _scoreCategoryRepo.getID(id);
+                var scoreCategory = _scoreCategoryRepo.GetById(id);
                 if (scoreCategory == null)
                 {
                     res.SetError("404", "Score category not found");
@@ -111,7 +111,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var scoreCategory = _scoreCategoryRepo.getID(id);
+                var scoreCategory = _scoreCategoryRepo.GetById(id);
                 if (scoreCategory == null)
                 {
                     res.SetError("404", "Score category not found");

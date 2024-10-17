@@ -20,7 +20,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet()]
         public IActionResult GetScoreCategories()
         {
-            var res = _scoreCategorySvc.GetAll();
+            var res = _scoreCategorySvc.GetScoreCategories();
             if (res.Success)
             {
                 return Ok(res.Data);
