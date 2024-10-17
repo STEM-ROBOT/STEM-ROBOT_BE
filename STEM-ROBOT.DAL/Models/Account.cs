@@ -21,7 +21,11 @@ public partial class Account
 
     public string? Status { get; set; }
 
-    public int? Package { get; set; }
+    public int? MaxTournatment { get; set; }
+
+    public int? UsedTournament { get; set; }
+
+    public virtual ICollection<PakageAccount> PakageAccounts { get; set; } = new List<PakageAccount>();
 
     public virtual Role? Role { get; set; }
 

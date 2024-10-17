@@ -33,6 +33,10 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<MatchHalf> MatchHalves { get; set; }
 
+    public virtual DbSet<Package> Packages { get; set; }
+
+    public virtual DbSet<PakageAccount> PakageAccounts { get; set; }
+
     public virtual DbSet<Referee> Referees { get; set; }
 
     public virtual DbSet<RefereeCompetition> RefereeCompetitions { get; set; }
@@ -57,7 +61,10 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<TournamentFormat> TournamentFormats { get; set; }
 
-    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=stemrobot.database.windows.net;database=STEMDb;user=stem;password=Longnhat1@");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -68,10 +75,12 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Image).HasColumnType("text");
+            entity.Property(e => e.MaxTournatment).HasDefaultValueSql("((3))");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
+            entity.Property(e => e.UsedTournament).HasDefaultValueSql("((0))");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
@@ -220,6 +229,30 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK__MatchHalf__Match__1332DBDC");
         });
 
+        modelBuilder.Entity<Package>(entity =>
+        {
+            entity.ToTable("Package");
+
+            entity.Property(e => e.Name).HasMaxLength(250);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 0)");
+        });
+
+        modelBuilder.Entity<PakageAccount>(entity =>
+        {
+            entity.ToTable("PakageAccount");
+
+            entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.PakageAccounts)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_PakageAccount_Account");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PakageAccounts)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_PakageAccount_Package");
+        });
+
         modelBuilder.Entity<Referee>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Referee__3213E83FF479F0DE");
@@ -334,13 +367,11 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("TableGroup");
 
-            entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
-            entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
-            entity.HasOne(d => d.Round).WithMany(p => p.TableGroups)
-                .HasForeignKey(d => d.RoundId)
+            entity.HasOne(d => d.Stage).WithMany(p => p.TableGroups)
+                .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK__TableGrou__Round__08B54D69");
         });
 
