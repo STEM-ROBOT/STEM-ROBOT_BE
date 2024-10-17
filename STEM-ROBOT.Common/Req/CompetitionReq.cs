@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace STEM_ROBOT.Common.Req
+{
+    public class CompetitionReq
+    {
+        public int? TournamentId { get; set; }
+
+        public int? GenreId { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Status { get; set; }
+    }
+}

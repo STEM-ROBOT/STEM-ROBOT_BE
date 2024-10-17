@@ -51,12 +51,25 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x=> x.Image, op => op.MapFrom(x => x.Genre.Image))
                 .ReverseMap();
 
+            CreateMap<Competition, CompetitionReq>().ReverseMap();
+            //stage
+            CreateMap<Stage,StageReq>().ReverseMap();
+            CreateMap<Stage,StageRep>().ReverseMap();
+            //match
+            CreateMap<Match, MatchReq>().ReverseMap(); 
+            CreateMap<Match,MatchRep>().ReverseMap();
+            //tablegroup
+            CreateMap<TableGroup, TableGroupReq>().ReverseMap();
+            CreateMap<TableGroup,TableGroupRep>().ReverseMap();
+
+
             //team
             CreateMap<Team, TeamReq>().ReverseMap();
             CreateMap<Team, TeamRsp>().ReverseMap();
 
             //action
             CreateMap<Action, ActionReq>().ReverseMap();
+
         }
     }
 }
