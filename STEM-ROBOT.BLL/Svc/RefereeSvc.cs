@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Configuration;
+using STEM_ROBOT.Common.BLL;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -12,16 +12,15 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class TournamentFormatSvc
+    public class RefereeSvc
     {
-        private readonly TournamentFormatRepo _tournamentFormatSvc;
-        private readonly IConfiguration _configuration;
+
+        private readonly RefereeRepo _refereeRepo;
         private readonly IMapper _mapper;
 
-        public TournamentFormatSvc(TournamentFormatRepo tournamentFormat, IMapper mapper, IConfiguration configuration)
+        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper)
         {
-            _tournamentFormatSvc = tournamentFormat;
-            _configuration = configuration;
+            _refereeRepo = refereeRepo;
             _mapper = mapper;
         }
 
@@ -30,13 +29,15 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _tournamentFormatSvc.All();
-                if (lst == null)
+                var lst = _refereeRepo.All();
+                if (lst == null || !lst.Any())
                 {
                     res.SetError("404", "No data found");
                 }
-                res.SetSuccess(lst, "200");
-
+                else
+                {
+                    res.SetSuccess(lst, "200");
+                }
             }
             catch (Exception ex)
             {
@@ -50,53 +51,67 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-
-                var format = _tournamentFormatSvc.getID(id);
-                if (format == null)
-
+                var referee = _refereeRepo.getID(id);
+                if (referee == null)
                 {
-                    res.SetError("404", "No data found");
-                }
-                res.setData("200", format);
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Create(TournamentFormatReq tournamentFormat)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var newFormat = _mapper.Map<TournamentFormat>(tournamentFormat);
-                _tournamentFormatSvc.Add(newFormat);
-                res.setData("200", newFormat);
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Update(TournamentFormatReq req, int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var updFormat = _tournamentFormatSvc.getID(id);
-                if (updFormat == null)
-                {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Referee not found");
                 }
                 else
                 {
-                    _mapper.Map(req, updFormat);
-                    _tournamentFormatSvc.Update(updFormat);
-                    res.setData("200", updFormat);
+                    res.setData("200", referee);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp Create(RefereeReq req)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var existingAccount = _refereeRepo.Find(a => a.Email == req.Email).FirstOrDefault();
+                if (existingAccount != null)
+                {
+                    res.SetError("400", "Email already exists");
+                    return res;
+                }
+                var newReferee = _mapper.Map<Referee>(req);
+                _refereeRepo.Add(newReferee);
+                res.setData("200", newReferee);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp Update(RefereeReq req, int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var referee = _refereeRepo.getID(id);
+                if (referee == null)
+                {
+                    res.SetError("404", "Referee not found");
+                }
+                else
+                {
+                    var existingAccount = _refereeRepo.Find(a => a.Email == req.Email && a.Id != id).FirstOrDefault();
+                    if (existingAccount != null)
+                    {
+                        res.SetError("400", "Email already exists");
+                        return res;
+                    }
+
+                    _mapper.Map(req, referee);
+                    _refereeRepo.Update(referee);
+                    res.setData("200", referee);
                 }
             }
             catch (Exception ex)
@@ -111,14 +126,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var delFormat = _tournamentFormatSvc.getID(id);
-                if (delFormat == null)
+                var referee = _refereeRepo.getID(id);
+                if (referee == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Referee not found");
                 }
                 else
                 {
-                    _tournamentFormatSvc.Delete(id);
+                    _refereeRepo.Delete(id);
                     res.SetMessage("Delete successfully");
                 }
             }
@@ -128,9 +143,5 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
-
-
-
     }
 }

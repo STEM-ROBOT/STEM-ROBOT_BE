@@ -43,6 +43,11 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPost()]
         public IActionResult CreateTournamentFormat([FromBody] TournamentFormatReq req)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = _tournamentFormatSvc.Create(req);
             if (!res.Success)
             {
@@ -54,12 +59,16 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateTournamentFormat([FromBody] TournamentFormatReq req, int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = _tournamentFormatSvc.Update(req, id);
             if (!res.Success)
             {
-                StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
-            return StatusCode(500, res.Message);
+            return Ok(res.Data);
         }
 
         [HttpDelete("{id}")]
@@ -70,7 +79,7 @@ namespace STEM_ROBOT_BE.Controllers
             {
                 return StatusCode(500, res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res.Message);
         }
     }
 }

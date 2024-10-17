@@ -11,51 +11,31 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class LocationSvc
+    public class ScoreCategorySvc
     {
-        private readonly LocationRepo _locationRepo;
+        private readonly ScoreCategoryRepo _scoreCategoryRepo;
         private readonly IMapper _mapper;
 
-        public LocationSvc(LocationRepo locationRepo, IMapper mapper)
+        public ScoreCategorySvc(ScoreCategoryRepo scoreCategoryRepo, IMapper mapper)
         {
-            _locationRepo = locationRepo;
+            _scoreCategoryRepo = scoreCategoryRepo;
             _mapper = mapper;
         }
 
-        public async Task<MutipleRsp> GetAll()
+        public MutipleRsp GetAll()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = await _locationRepo.GetLocations();
-                if (lst != null)
+                var lst = _scoreCategoryRepo.All();
+                if (lst == null || !lst.Any())
+                {
+                    res.SetError("404", "No data found");
+                }
+                else
                 {
                     res.SetSuccess(lst, "200");
                 }
-                else
-                {
-                    res.SetError("404", "No data found");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-        public async Task<SingleRsp> GetById(int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var getLocation = await _locationRepo.GetLocationById(id);
-
-                if (getLocation == null)
-                {
-                    res.SetError("404", "No data found");
-                }
-
             }
             catch (Exception ex)
             {
@@ -64,40 +44,20 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp CreateLocation(LocationReq req)
+        public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var location = _mapper.Map<Location>(req);
-                _locationRepo.Add(location);
-                res.setData("Account added successfully", location);
-
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp UpdateLocation(LocationReq req, int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var location = _locationRepo.getID(id);
-                if(location == null)
+                var scoreCategory = _scoreCategoryRepo.getID(id);
+                if (scoreCategory == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Score category not found");
                 }
                 else
                 {
-                    _mapper.Map(res, location);
-                    _locationRepo.Update(location);
-                    res.setData("200", location);
+                    res.setData("200", scoreCategory);
                 }
-                res.setData("Account added successfully", location);
             }
             catch (Exception ex)
             {
@@ -105,19 +65,60 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp  DeleteLocation(int id)
+
+        public SingleRsp Create(ScoreCategoryReq req)
         {
             var res = new SingleRsp();
             try
             {
-                var location = _locationRepo.getID(id);
-                if (location == null)
+                var newScoreCategory = _mapper.Map<ScoreCategory>(req);
+                _scoreCategoryRepo.Add(newScoreCategory);
+                res.setData("200", newScoreCategory);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp Update(ScoreCategoryReq req, int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var scoreCategory = _scoreCategoryRepo.getID(id);
+                if (scoreCategory == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Score category not found");
                 }
                 else
                 {
-                    _locationRepo.Delete(id);
+                    _mapper.Map(req, scoreCategory);
+                    _scoreCategoryRepo.Update(scoreCategory);
+                    res.setData("200", scoreCategory);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp Delete(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var scoreCategory = _scoreCategoryRepo.getID(id);
+                if (scoreCategory == null)
+                {
+                    res.SetError("404", "Score category not found");
+                }
+                else
+                {
+                    _scoreCategoryRepo.Delete(id);
                     res.SetMessage("Delete successfully");
                 }
             }
@@ -127,6 +128,5 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
     }
 }

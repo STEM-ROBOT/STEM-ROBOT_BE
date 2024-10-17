@@ -19,9 +19,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetAccounts()
+        public async Task<IActionResult> GetAccounts()
         {
-            var res = _accountSvc.GetAll();
+            var res = await _accountSvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,9 +30,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAccountById(int id)
+        public async Task<IActionResult> GetAccountById(int id)
         {
-            var res = _accountSvc.GetById(id);
+            var res = await _accountSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -66,7 +66,7 @@ namespace STEM_ROBOT_BE.Controllers
             var res = _accountSvc.Update(req, id);
             if (!res.Success)
             {
-                StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
@@ -83,7 +83,7 @@ namespace STEM_ROBOT_BE.Controllers
             {
                 return StatusCode(500, res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res.Message);
         }
     }
 }

@@ -1,75 +1,80 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
-namespace STEM_ROBOT_BE.Controllers
+namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/location")]
+    [Route("api/score")]
     [ApiController]
-    //[Authorize(Roles = "1,2")]
-    public class LocationController : ControllerBase
+    public class ScoreController : ControllerBase
     {
-        private readonly LocationSvc _locationSvc;
 
-        public LocationController(LocationSvc locationSvc)
+        private readonly ScoreCategorySvc _scoreCategorySvc;
+
+        public ScoreController(ScoreCategorySvc scoreCategorySvc)
         {
-            _locationSvc = locationSvc;
+            _scoreCategorySvc = scoreCategorySvc;
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetLocations()
+        public IActionResult GetScoreCategories()
         {
-            var res = await _locationSvc.GetAll();
+            var res = _scoreCategorySvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);
             }
             return StatusCode(500, res.Message);
         }
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLocationById(int id)
+        public IActionResult GetScoreCategoryById(int id)
         {
-            var res = await _locationSvc.GetById(id);
+            var res = _scoreCategorySvc.GetById(id);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message);
+                return StatusCode(404, res.Message);
             }
             return Ok(res.Data);
         }
+
         [HttpPost()]
-        public IActionResult CreateLocation([FromBody] LocationReq req)
-        {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _locationSvc.CreateLocation(req);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
-            return Ok(res.Data);
-        }
-        [HttpPut("{id}")]
-        public IActionResult UpdateLocation([FromBody] LocationReq req, int id)
+        public IActionResult CreateScoreCategory([FromBody] ScoreCategoryReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _locationSvc.UpdateLocation(req, id);
+
+            var res = _scoreCategorySvc.Create(req);
             if (!res.Success)
             {
-                StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
-        [HttpDelete("{id}")]
-        public IActionResult DeleteLocation(int id)
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateScoreCategory([FromBody] ScoreCategoryReq req, int id)
         {
-            var res = _locationSvc.DeleteLocation(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var res = _scoreCategorySvc.Update(req, id);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteScoreCategory(int id)
+        {
+            var res = _scoreCategorySvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -78,3 +83,4 @@ namespace STEM_ROBOT_BE.Controllers
         }
     }
 }
+
