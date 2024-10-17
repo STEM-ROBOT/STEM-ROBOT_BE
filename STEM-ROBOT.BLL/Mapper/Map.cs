@@ -14,23 +14,28 @@ namespace STEM_ROBOT.BLL.Mapper
     {
         public Map()
         {
-            //account
+
             CreateMap<Account, Account>().ReverseMap();
             CreateMap<Account, AccountRes>()
-             .ForMember(x => x.RoleName, op => op.MapFrom(x=> x.Role.Name)).ReverseMap();
-
+             .ForMember(x => x.RoleName, op => op.MapFrom(x => x.Role.Name)).ReverseMap();
             CreateMap<Account, AccountReq>().ReverseMap();
+
           
             //tournament
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
             CreateMap<Tournament,TournamentReq>().ReverseMap();
             //location
             CreateMap<Location,LocationReq >().ReverseMap();
+
             CreateMap<Location, LocationRes>().ReverseMap();
             //school
-            CreateMap<School, SchoolRep>().ReverseMap();
 
-            CreateMap<School,SchoolReq>().ReverseMap(); 
+            CreateMap<School, SchoolReq>().ReverseMap();
+            CreateMap<Referee, RefereeReq>().ReverseMap();
+            CreateMap<Referee, RefereeRes>().ReverseMap();
+            CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
+            CreateMap<ScoreCategory, ScoreCategoryRes>().ReverseMap();
+
             //contestant
             CreateMap<Contestant, ContestantRep>().ReverseMap();
             CreateMap<Contestant,ContestantReq>().ReverseMap();
@@ -43,6 +48,7 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x=> x.Description, op => op.MapFrom(x => x.Genre.Description))
                 .ForMember(x=> x.Image, op => op.MapFrom(x => x.Genre.Image))
                 .ReverseMap();
+
         }
     }
 }

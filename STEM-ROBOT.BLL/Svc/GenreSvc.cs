@@ -57,7 +57,11 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-
+                else
+                {
+                    res.setData("200", getGenre);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -81,8 +85,6 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
-
         public SingleRsp Update( GenreReq req, int id)
         {
             var res = new SingleRsp();
@@ -95,7 +97,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    updGenre = _mapper.Map<Genre>(req);
+                    _mapper.Map(res, updGenre);
                     _genreRepo.Update(updGenre);
                     res.setData("200", updGenre);
                 }

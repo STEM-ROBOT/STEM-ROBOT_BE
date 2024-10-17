@@ -1,75 +1,77 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
-namespace STEM_ROBOT_BE.Controllers
+namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/location")]
+    [Route("api/referee")]
     [ApiController]
-    //[Authorize(Roles = "1,2")]
-    public class LocationController : ControllerBase
+    public class RefereeController : ControllerBase
     {
-        private readonly LocationSvc _locationSvc;
+        private readonly RefereeSvc _refereeSvc;
 
-        public LocationController(LocationSvc locationSvc)
+        public RefereeController(RefereeSvc refereeSvc)
         {
-            _locationSvc = locationSvc;
+            _refereeSvc = refereeSvc;
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetLocations()
+        public IActionResult GetReferees()
         {
-            var res = await _locationSvc.GetAll();
+            var res = _refereeSvc.GetAll();
             if (res.Success)
             {
                 return Ok(res.Data);
             }
             return StatusCode(500, res.Message);
         }
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLocationById(int id)
+        public IActionResult GetRefereeById(int id)
         {
-            var res = await _locationSvc.GetById(id);
+            var res = _refereeSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
+
         [HttpPost()]
-        public IActionResult CreateLocation([FromBody] LocationReq req)
-        {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _locationSvc.CreateLocation(req);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
-            return Ok(res.Data);
-        }
-        [HttpPut("{id}")]
-        public IActionResult UpdateLocation([FromBody] LocationReq req, int id)
+        public IActionResult CreateReferee([FromBody] RefereeReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _locationSvc.UpdateLocation(req, id);
+            var res = _refereeSvc.Create(req);
             if (!res.Success)
             {
-                StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
-        [HttpDelete("{id}")]
-        public IActionResult DeleteLocation(int id)
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateReferee([FromBody] RefereeReq req, int id)
         {
-            var res = _locationSvc.DeleteLocation(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var res = _refereeSvc.Update(req, id);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteReferee(int id)
+        {
+            var res = _refereeSvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
