@@ -32,12 +32,29 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<LocationSvc>();
             services.AddScoped<SchoolRepo>();
             services.AddScoped<SchoolSvc>();
+            services.AddScoped<RefereeRepo>();
+            services.AddScoped<RefereeSvc>();
+            services.AddScoped<ScoreCategoryRepo>();
+            services.AddScoped<ScoreCategorySvc>();
             services.AddScoped<ContestantRepo>();
             services.AddScoped<ContestantSvc>();
+
             services.AddScoped<CompetitionRepo>();
             services.AddScoped<CompetitionSvc>();
             services.AddScoped<StageRepo>();
             services.AddScoped<StageSvc>();
+
+            services.AddScoped<TeamSvc>();
+            services.AddScoped<TeamRepo>();
+            services.AddScoped<ScheduleRepo>();
+            services.AddScoped<ScheduleSvc>();
+            services.AddScoped<ActionRepo>();
+            services.AddScoped<ActionSvc>();
+            services.AddScoped<MatchRepo>();
+            services.AddScoped<MatchSvc>();
+            services.AddScoped<TableGroupRepo>();
+            services.AddScoped<TableGroupSvc>();
+
             return services;
         }
 

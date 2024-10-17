@@ -6,7 +6,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/location")]
+    [Route("api/locations")]
     [ApiController]
     //[Authorize(Roles = "1,2")]
     public class LocationController : ControllerBase
@@ -19,9 +19,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetLocations()
+        public async Task<IActionResult> GetLocations()
         {
-            var res = _locationSvc.GetAll();
+            var res = await _locationSvc.GetLocations();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -29,9 +29,9 @@ namespace STEM_ROBOT_BE.Controllers
             return StatusCode(500, res.Message);
         }
         [HttpGet("{id}")]
-        public IActionResult GetLocationById(int id)
+        public async Task<IActionResult> GetLocationById(int id)
         {
-            var res = _locationSvc.GetById(id);
+            var res = await _locationSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -64,7 +64,7 @@ namespace STEM_ROBOT_BE.Controllers
             {
                 StatusCode(500, res.Message);
             }
-            return Ok(res);
+            return Ok(res.Data);
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteLocation(int id)
@@ -74,7 +74,7 @@ namespace STEM_ROBOT_BE.Controllers
             {
                 return StatusCode(500, res.Message);
             }
-            return Ok(res);
+            return Ok(res.Message);
         }
     }
 }

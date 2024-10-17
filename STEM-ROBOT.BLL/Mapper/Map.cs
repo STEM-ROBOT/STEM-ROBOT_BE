@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Action = STEM_ROBOT.DAL.Models.Action;
 
 namespace STEM_ROBOT.BLL.Mapper
 {
@@ -14,26 +15,32 @@ namespace STEM_ROBOT.BLL.Mapper
     {
         public Map()
         {
-            //account
-            CreateMap<Account, Account>().ReverseMap();
-            CreateMap<Account, AccountRes>()
-             .ForMember(x => x.RoleName, op => op.MapFrom(x=> x.Role.Name)).ReverseMap();
 
+            CreateMap<Account, Account>().ReverseMap();
+            CreateMap<Account, AccountRsp>()
+             .ForMember(x => x.RoleName, op => op.MapFrom(x => x.Role.Name)).ReverseMap();
             CreateMap<Account, AccountReq>().ReverseMap();
+
           
             //tournament
             CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
             CreateMap<Tournament,TournamentReq>().ReverseMap();
+
             //location
             CreateMap<Location,LocationReq >().ReverseMap();
-            CreateMap<Location, LocationRes>().ReverseMap();
-            //school
-            CreateMap<School, SchoolRep>().ReverseMap();
+            CreateMap<Location, LocationRsp>().ReverseMap();
 
-            CreateMap<School,SchoolReq>().ReverseMap(); 
+            //school
+            CreateMap<School, SchoolReq>().ReverseMap();
+            CreateMap<Referee, RefereeReq>().ReverseMap();
+            CreateMap<Referee, RefereeRsp>().ReverseMap();
+            CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
+            CreateMap<ScoreCategory, ScoreCategoryRsp>().ReverseMap();
+
             //contestant
             CreateMap<Contestant, ContestantRep>().ReverseMap();
             CreateMap<Contestant,ContestantReq>().ReverseMap();
+
             //competition
             CreateMap<Competition, CompetitionRep>()
                 .ForMember(x => x.NameGenre , op => op.MapFrom( x=> x.Genre.Name))
@@ -43,6 +50,7 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x=> x.Description, op => op.MapFrom(x => x.Genre.Description))
                 .ForMember(x=> x.Image, op => op.MapFrom(x => x.Genre.Image))
                 .ReverseMap();
+
             CreateMap<Competition, CompetitionReq>().ReverseMap();
             //stage
             CreateMap<Stage,StageReq>().ReverseMap();
@@ -53,6 +61,15 @@ namespace STEM_ROBOT.BLL.Mapper
             //tablegroup
             CreateMap<TableGroup, TableGroupReq>().ReverseMap();
             CreateMap<TableGroup,TableGroupRep>().ReverseMap();
+
+
+            //team
+            CreateMap<Team, TeamReq>().ReverseMap();
+            CreateMap<Team, TeamRsp>().ReverseMap();
+
+            //action
+            CreateMap<Action, ActionReq>().ReverseMap();
+
         }
     }
 }

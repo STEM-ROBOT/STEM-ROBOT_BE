@@ -106,7 +106,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var school = _schoolRepo.getID(id);
+                var school = _schoolRepo.GetById(id);
                 if (school == null)
                 {
                     res.SetError($"NO School ID: {id}");
@@ -144,7 +144,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var schoolID = _schoolRepo.getID(Id);
+                var schoolID = _schoolRepo.GetById(Id);
                 if(schoolID == null)
                 {
                     res.SetError($"No SchoolID : {Id}");
@@ -164,7 +164,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var schoolID = _schoolRepo.getID(Id);
+                var schoolID = _schoolRepo.GetById(Id);
                 if (schoolID == null)
                 {
                     res.SetError($"No SchoolID : {Id}");

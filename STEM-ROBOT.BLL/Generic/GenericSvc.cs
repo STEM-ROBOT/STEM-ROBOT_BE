@@ -79,7 +79,7 @@ namespace STEM_ROBOT.Common.BLL
             var res = new SingleRsp();
             try
             {
-                var entity = _repository.getID(id);
+                var entity = _repository.GetById(id);
                 if (entity != null)
                 {
                     res.setData("200", entity);

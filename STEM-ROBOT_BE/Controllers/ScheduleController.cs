@@ -1,27 +1,27 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
-namespace STEM_ROBOT_BE.Controllers
+namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/accounts")]
+    [Route("api/schedules")]
     [ApiController]
-    //[Authorize(Roles ="1")]
-
-    public class AccountController : ControllerBase
+    public class ScheduleController : ControllerBase
     {
-        private readonly AccountSvc _accountSvc;
-
-        public AccountController(AccountSvc accountSvc)
+        private readonly ScheduleSvc _scheduleSvc;
+        private readonly IMapper _mapper;
+        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper)
         {
-            _accountSvc = accountSvc;
+            _scheduleSvc = scheduleSvc;
+            _mapper = mapper;
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetAccounts()
+        public IActionResult GetSchedules()
         {
-            var res = await _accountSvc.GetAccounts();
+            var res = _scheduleSvc.GetSchedules();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,25 +30,25 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(int id)
+        public IActionResult GetScheduleById(int id)
         {
-            var res = await _accountSvc.GetById(id);
+            var res = _scheduleSvc.GetById(id);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message);
+                return StatusCode(404, res.Message);
             }
             return Ok(res.Data);
         }
 
-
         [HttpPost()]
-        public IActionResult CreateAccount([FromBody] AccountReq req)
+        public IActionResult CreateSchedule([FromBody] ScheduleReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Create(req);
+
+            var res = _scheduleSvc.Create(req);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -57,13 +57,14 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
+        public IActionResult UpdateSchedule([FromBody] ScheduleReq req, int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Update(req, id);
+
+            var res = _scheduleSvc.Update(req, id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -72,13 +73,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteAccount(int id)
+        public IActionResult DeleteSchedule(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _accountSvc.Delete(id);
+            var res = _scheduleSvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);

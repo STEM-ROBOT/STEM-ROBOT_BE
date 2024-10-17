@@ -21,7 +21,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet()]
         public IActionResult GetGenres()
         {
-            var res = _genreSvc.GetAll();
+            var res = _genreSvc.GetGenres();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -58,9 +58,9 @@ namespace STEM_ROBOT_BE.Controllers
             var res = _genreSvc.Update(req, id);
             if (!res.Success)
             {
-                StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
-            return StatusCode(500, res.Message);
+            return Ok(res.Data);
         }
 
         [HttpDelete("{id}")]
@@ -71,7 +71,7 @@ namespace STEM_ROBOT_BE.Controllers
             {
                 return StatusCode(500, res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res.Message);
         }
     }
 }

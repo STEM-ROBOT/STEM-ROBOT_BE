@@ -45,7 +45,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var stage = _stageRepo.getID(id);
+                var stage = _stageRepo.GetById(id);
                 if (stage == null)
                 {
                     res.SetError("Plage add data!");
@@ -83,7 +83,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var stage = _stageRepo.getID(id);
+                var stage = _stageRepo.GetById(id);
 
                 if (stage == null)
                 {
@@ -104,7 +104,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var stage = _stageRepo.getID(id);
+                var stage = _stageRepo.GetById(id);
                 if (stage == null)
                 {
                     res.SetError("No ID");

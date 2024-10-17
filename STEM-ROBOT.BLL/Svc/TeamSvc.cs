@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -13,33 +11,31 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class GenreSvc
+    public class TeamSvc
     {
-        private readonly GenreRepo _genreRepo;
+        private readonly TeamRepo _teamRepo;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
-        public GenreSvc(GenreRepo repo, IConfiguration configuration, IMapper mapper)
+
+        public TeamSvc(TeamRepo teamRepo, IMapper mapper)
         {
-            _genreRepo = repo;
+            _teamRepo = teamRepo;
             _mapper = mapper;
-            _configuration = configuration;
         }
 
-        public MutipleRsp GetGenres()
+        public MutipleRsp GetTeams()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = _genreRepo.All();
+                var lst = _teamRepo.All();
                 if (lst != null)
                 {
-                    res.SetSuccess(lst, "200");
+                     res.SetSuccess(lst, "200");
                 }
                 else
                 {
                     res.SetError("404", "No data found");
                 }
-
             }
             catch (Exception ex)
             {
@@ -47,21 +43,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var getGenre = _genreRepo.GetById(id);
-                if (getGenre == null)
+                var team = _teamRepo.GetById(id);
+                if (team == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Team not found");
                 }
                 else
                 {
-                    res.setData("200", getGenre);
+                    res.setData("200", team);
                 }
-                
             }
             catch (Exception ex)
             {
@@ -70,14 +66,14 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create([FromBody] GenreReq genre)
+        public SingleRsp Create(TeamReq req)
         {
             var res = new SingleRsp();
             try
             {
-                var newGenre = _mapper.Map<Genre>(genre);
-                _genreRepo.Add(newGenre);
-                res.setData("200", newGenre);
+                var newTeam = _mapper.Map<Team>(req);
+                _teamRepo.Add(newTeam);
+                res.setData("200", newTeam);
             }
             catch (Exception ex)
             {
@@ -85,21 +81,22 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp Update( GenreReq req, int id)
+
+        public SingleRsp Update(TeamReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updGenre = _genreRepo.GetById(id);
-                if (updGenre == null)
+                var team = _teamRepo.GetById(id);
+                if (team == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Team not found");
                 }
                 else
                 {
-                    _mapper.Map(res, updGenre);
-                    _genreRepo.Update(updGenre);
-                    res.setData("200", updGenre);
+                    _mapper.Map(req, team);
+                    _teamRepo.Update(team);
+                    res.setData("200", team);
                 }
             }
             catch (Exception ex)
@@ -108,21 +105,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var genre = _genreRepo.GetById(id);
-                if (genre == null)
+                var team = _teamRepo.GetById(id);
+                if (team == null)
                 {
-                    res.SetError("404", "No data found");
+                    res.SetError("404", "Team not found");
                 }
                 else
                 {
-                    _genreRepo.Delete(id);
+                    _teamRepo.Delete(id);
                     res.SetMessage("Delete successfully");
-
                 }
             }
             catch (Exception ex)
@@ -130,7 +127,6 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
-
         }
 
     }

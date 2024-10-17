@@ -77,7 +77,7 @@ public class GenericRep<T> : IGenericRep<T> where T : class
     }
 
 
-    public T getID(object id)
+    public T GetById(object id)
     {
         return _dbSet.Find(id);
     }

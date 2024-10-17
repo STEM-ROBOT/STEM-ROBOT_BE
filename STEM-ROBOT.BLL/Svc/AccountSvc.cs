@@ -9,30 +9,24 @@ using STEM_ROBOT.DAL.Repo;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class AccountSvc : GenericSvc<Account>
+    public class AccountSvc 
     {
         private readonly AccountRepo _accountRepo;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public AccountSvc(AccountRepo accountRep, IConfiguration configuration, IMapper mapper) : base(accountRep)
+        public AccountSvc(AccountRepo accountRep, IMapper mapper) 
         {
             _accountRepo = accountRep;
-            _configuration = configuration;
             _mapper = mapper;
         }
 
-        public async Task<MutipleRsp> GetAll()
+        public async Task<MutipleRsp> GetAccounts()
         {
             var res = new MutipleRsp();
             try
             {
-
-                
-
-                var lst = await _accountRepo.GetAccount();
-
-                var accountResLst = _mapper.Map<IEnumerable<AccountRes>>(lst);
+                var lst = await _accountRepo.GetAccounts();
+                var accountResLst = _mapper.Map<List<AccountRsp>>(lst);
                 res.SetSuccess(accountResLst, "Success");
             }
             catch (Exception ex)
@@ -42,21 +36,17 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp GetById(int id)
+        public async Task<SingleRsp> GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.GetRoleNameAccount(id);
+                var acc = await _accountRepo.GetAccountById(id);
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                if(acc.RoleId == 1)
-                {
-                    res.SetError("403", "Cannot access Admin account");
-                }
-                var accountRes = _mapper.Map<AccountRes>(acc);
+                var accountRes = _mapper.Map<AccountRsp>(acc);
                 res.setData("Success", accountRes);
             }
             catch (Exception ex)
@@ -71,24 +61,21 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-
-                if(req.RoleId == 1)
-                {
-                    res.SetError("403", "Cannot create Admin account");
-                    return res;
-                }
-                if(req.Email.Equals(_accountRepo.Find(a => a.Email == req.Email).FirstOrDefault()))
+                var existingAccount = _accountRepo.Find(a => a.Email == req.Email).FirstOrDefault();
+                if (existingAccount != null)
                 {
                     res.SetError("400", "Email already exists");
                     return res;
                 }
 
                 var account = _mapper.Map<Account>(req);
+
                 if (account.RoleId == 1)
                 {
                     res.SetError("403", "You can't create an account with role Admin");
                     return res;
                 }
+
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
             }
@@ -98,28 +85,29 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp Update([FromBody] AccountReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var account = _accountRepo.getID(id);
-                if (account.RoleId == 1)
-                {
-                    res.SetError("403", "Cannot update Admin account");
-                }
+                var account = _accountRepo.GetById(id);
                 if (account == null)
                 {
                     res.SetError("404", "No data found");
+                    return res;
                 }
-
-                if (account.RoleId == 1)
+                var existingAccount = _accountRepo.Find(a => a.Email == req.Email && a.Id != id).FirstOrDefault();
+                if (existingAccount != null)
+                {
+                    res.SetError("400", "Email already exists");
+                    return res;
+                }
+                if (account.RoleId == 1 || req.RoleId == 1)
                 {
                     res.SetError("403", "You can't update an account with role Admin");
                     return res;
                 }
-                account = _mapper.Map<Account>(req);
+                _mapper.Map(req, account);
                 _accountRepo.Update(account);
                 res.setData("200", account);
             }
@@ -130,16 +118,13 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var acc = _accountRepo.getID(id);
-                if (acc.RoleId == 1)
-                {
-                    res.SetError("403", "Cannot delete Admin account");
-                }
+                var acc = _accountRepo.GetById(id);
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");

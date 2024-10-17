@@ -25,13 +25,13 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public MutipleRsp GetAll()
+        public MutipleRsp GetFormats()
         {
             var res = new MutipleRsp();
             try
             {
                 var lst = _tournamentFormatSvc.All();
-                if(lst == null)
+                if (lst == null)
                 {
                     res.SetError("404", "No data found");
                 }
@@ -51,8 +51,8 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
 
-                var format = _tournamentFormatSvc.getID(id);
-                if(format == null)
+                var format = _tournamentFormatSvc.GetById(id);
+                if (format == null)
 
                 {
                     res.SetError("404", "No data found");
@@ -87,14 +87,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var updFormat = _tournamentFormatSvc.getID(id);
+                var updFormat = _tournamentFormatSvc.GetById(id);
                 if (updFormat == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    updFormat = _mapper.Map<TournamentFormat>(req);
+                    _mapper.Map(req, updFormat);
                     _tournamentFormatSvc.Update(updFormat);
                     res.setData("200", updFormat);
                 }
@@ -111,7 +111,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var delFormat = _tournamentFormatSvc.getID(id);
+                var delFormat = _tournamentFormatSvc.GetById(id);
                 if (delFormat == null)
                 {
                     res.SetError("404", "No data found");

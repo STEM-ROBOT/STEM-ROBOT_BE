@@ -6,7 +6,7 @@ using STEM_ROBOT.Common.Rsp;
 
 namespace STEM_ROBOT_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {

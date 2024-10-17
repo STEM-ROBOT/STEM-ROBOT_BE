@@ -8,7 +8,7 @@ using STEM_ROBOT.DAL.Repo;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/competitions")]
     [ApiController]
     public class CompetitionController : ControllerBase
     {

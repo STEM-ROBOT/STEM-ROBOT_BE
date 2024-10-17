@@ -1,27 +1,25 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
-namespace STEM_ROBOT_BE.Controllers
+namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/accounts")]
+    [Route("api/referees")]
     [ApiController]
-    //[Authorize(Roles ="1")]
-
-    public class AccountController : ControllerBase
+    public class RefereeController : ControllerBase
     {
-        private readonly AccountSvc _accountSvc;
+        private readonly RefereeSvc _refereeSvc;
 
-        public AccountController(AccountSvc accountSvc)
+        public RefereeController(RefereeSvc refereeSvc)
         {
-            _accountSvc = accountSvc;
+            _refereeSvc = refereeSvc;
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetAccounts()
+        public IActionResult GetReferees()
         {
-            var res = await _accountSvc.GetAccounts();
+            var res = _refereeSvc.GetReferees();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,9 +28,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(int id)
+        public IActionResult GetRefereeById(int id)
         {
-            var res = await _accountSvc.GetById(id);
+            var res = _refereeSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -40,15 +38,14 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-
         [HttpPost()]
-        public IActionResult CreateAccount([FromBody] AccountReq req)
+        public IActionResult CreateReferee([FromBody] RefereeReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Create(req);
+            var res = _refereeSvc.Create(req);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -57,13 +54,13 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
+        public IActionResult UpdateReferee([FromBody] RefereeReq req, int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Update(req, id);
+            var res = _refereeSvc.Update(req, id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -72,13 +69,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteAccount(int id)
+        public IActionResult DeleteReferee(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _accountSvc.Delete(id);
+            var res = _refereeSvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);

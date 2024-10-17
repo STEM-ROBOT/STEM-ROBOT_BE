@@ -44,7 +44,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var list = _repo.getID(id);
+                var list = _repo.GetById(id);
                 if (list == null)
                 {
                     res.SetError("No data");
@@ -102,7 +102,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var match = _repo.getID(id);
+                var match = _repo.GetById(id);
                 if (match == null)
                 {
                     res.SetError("Please check data");

@@ -84,7 +84,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competion = _competitionRepo.getID(id);
+                var competion = _competitionRepo.GetById(id);
 
                 
                 if (competion == null)
@@ -106,7 +106,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competion = _competitionRepo.getID(id);
+                var competion = _competitionRepo.GetById(id);
 
 
                 if (competion == null)

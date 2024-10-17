@@ -1,27 +1,26 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
-namespace STEM_ROBOT_BE.Controllers
+namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/accounts")]
+    [Route("api/scores")]
     [ApiController]
-    //[Authorize(Roles ="1")]
-
-    public class AccountController : ControllerBase
+    public class ScoreController : ControllerBase
     {
-        private readonly AccountSvc _accountSvc;
 
-        public AccountController(AccountSvc accountSvc)
+        private readonly ScoreCategorySvc _scoreCategorySvc;
+
+        public ScoreController(ScoreCategorySvc scoreCategorySvc)
         {
-            _accountSvc = accountSvc;
+            _scoreCategorySvc = scoreCategorySvc;
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetAccounts()
+        public IActionResult GetScoreCategories()
         {
-            var res = await _accountSvc.GetAccounts();
+            var res = _scoreCategorySvc.GetScoreCategories();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,25 +29,25 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(int id)
+        public IActionResult GetScoreCategoryById(int id)
         {
-            var res = await _accountSvc.GetById(id);
+            var res = _scoreCategorySvc.GetById(id);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message);
+                return StatusCode(404, res.Message);
             }
             return Ok(res.Data);
         }
 
-
         [HttpPost()]
-        public IActionResult CreateAccount([FromBody] AccountReq req)
+        public IActionResult CreateScoreCategory([FromBody] ScoreCategoryReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Create(req);
+
+            var res = _scoreCategorySvc.Create(req);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -57,13 +56,14 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
+        public IActionResult UpdateScoreCategory([FromBody] ScoreCategoryReq req, int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var res = _accountSvc.Update(req, id);
+
+            var res = _scoreCategorySvc.Update(req, id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -72,13 +72,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteAccount(int id)
+        public IActionResult DeleteScoreCategory(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _accountSvc.Delete(id);
+            var res = _scoreCategorySvc.Delete(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -87,3 +83,4 @@ namespace STEM_ROBOT_BE.Controllers
         }
     }
 }
+

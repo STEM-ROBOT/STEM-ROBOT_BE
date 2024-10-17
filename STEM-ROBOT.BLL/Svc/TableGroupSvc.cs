@@ -45,7 +45,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var table = _tableGroupRepo.getID(id);
+                var table = _tableGroupRepo.GetById(id);
                 if (table == null)
                 {
                     res.SetError("No data");
@@ -87,7 +87,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var table = _tableGroupRepo.getID(id);
+                var table = _tableGroupRepo.GetById(id);
 
                 if (table == null)
                 {
@@ -108,7 +108,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var table = _tableGroupRepo.getID(id);
+                var table = _tableGroupRepo.GetById(id);
 
                 if (table == null)
                 {
