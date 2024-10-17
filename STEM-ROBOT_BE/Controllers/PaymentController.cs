@@ -1,14 +1,12 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Net.payOS.Types;
-using Net.payOS;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/payments")]
     [ApiController]
     public class PaymentController : ControllerBase
     {

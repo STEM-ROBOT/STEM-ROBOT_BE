@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Net.payOS;
-using Net.payOS.Types;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
