@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Net.payOS;
+using Net.payOS.Types;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -19,91 +20,81 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly PayOS _payOS;
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly PackageRepo _packageRepo;
+        private readonly PackageAccountRepo _packageAccountRepo;
 
-        public PaymentSvc(AccountRepo accountRepo, IMapper mapper, HttpClient httpClient, IConfiguration configuration, PayOS payOS)
+        public PaymentSvc(PayOS payOS, IMapper mapper, AccountRepo accountRepo, PackageRepo packageRepo, PackageAccountRepo packageAccountRepo)
         {
-            _accountRepo = accountRepo;
             _payOS = payOS;
             _mapper = mapper;
-            _httpClient = httpClient;
-            _configuration = configuration;
+            _accountRepo = accountRepo;
+            _packageRepo = packageRepo;
+            _packageAccountRepo = packageAccountRepo;
+          
+        }
+        public async Task<SingleRsp> CreateOrder(PaymentReq request)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                long orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                var account = _accountRepo.GetById(request.AccountId);
+                if (account == null)
+                {
+                    res.SetError("Account not found");
+                    return res;
+                }
+                var package = _packageRepo.GetById(request.PackageId);
+                if (package == null)
+                {
+                    res.SetError("Package not found");
+                    return res;
+                }
+                var packageAccount = new PakageAccount
+                {
+                    Id = (int)orderCode,
+                    AccountId = request.AccountId,
+                    PackageId = request.PackageId,
+                    PurchaseDate = DateTime.Now,
+                    Status = "Pending"
+                };
+                _packageAccountRepo.Add(packageAccount);
+                List<ItemData> items = new List<ItemData>
+                {
+                    new ItemData(package.Name, 1, (int)package.Price)
+                };
+                var payLink = await CreatePayos(items, orderCode, (int)package.Price);
+                res.setData("200", payLink);
+
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
         }
 
-        /*public async Task<string> CreateOrder(int accountId, PaymentReq request)
+        public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
-
-            var user = await _accountRepo.GetAccountById(accountId);
-            if (user == null) throw new ArgumentException("No user");
-
-            long orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-            string orderCodeas = orderCode.ToString();
-            var order = new PakageAccount
-            {
-                PackageId = request.PackageId,
-                AccountId = accountId,
-                PurchaseDate = DateTime.Now,
-                Status = "PENDING",
-
-            };
-            _unitOfWork.OrderRepository.Insert(order);
-            await _unitOfWork.SaveChangeAsync();
-            decimal totalPrice = 0; // Move total price initialization here
-            List<ItemData> items = new List<ItemData>();
-            foreach (var item1 in request.orderRequestNews)
-            {
-                var quantity = item1.Quantity;
-                var productID = item1.ProductID;
-                var product = await _unitOfWork.ProductRepository.GetByIDAsync(productID);
-                if (product == null) throw new ArgumentException("Product not found");
-                if (product.Inventory < 0) throw new ArgumentException("Out of stock");
-
-
-                var orderDetail = new OrderDetail
-                {
-                    OrderId = order.OrderId,
-                    ProductId = productID,
-                    Quantity = quantity,
-                    Price = product.Price,
-                    PriceSale = product.PriceSale,
-                    Weight = item1.Weight
-
-                };
-
-
-                var price = Convert.ToInt32(product.PriceSale);
-                totalPrice += quantity * product.PriceSale; // Accumulate total price for each item
-                product.Inventory -= quantity;
-                product.Purchases += quantity;
-                ItemData item = new ItemData(product.ProductName, quantity, price);
-                items.Add(item);
-                _unitOfWork.OrderDetailRepository.Insert(orderDetail);
-            }
-
-            order.TotalPrice = totalPrice; // Set total price after calculating
-
-
-            await _unitOfWork.SaveChangeAsync();
-
-
-            if (request.PaymentMethod == "CASH")
-            {
-                order.Status = "2";
-                await _unitOfWork.SaveChangeAsync();
-                return order.OrderId;
-            }
-            else if (request.PaymentMethod == "PAYOS")
-            {
-                var paylink = await CreatePayos(items, orderCode, (int)totalPrice);
-                order.PayUrl = paylink;
-                order.PaymentStatus = "PENDING";
-                await _unitOfWork.SaveChangeAsync();
-                return paylink;
-            }
-            return null;
-        }*/
+#if DEBUG
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/payments/cancel/{orderCode}", $"https://localhost:7283/api/payments/success/{orderCode}");
+#else
+           
+#endif
+            CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+            
+            return createPayment.checkoutUrl;
+        }
+        public async Task<SingleRsp> CancelOrder(int orderCode)
+        {
+            var res = new SingleRsp();
+            var packageAccount = _packageAccountRepo.GetById(orderCode);
+            var account = _accountRepo.GetById(packageAccount.AccountId);
+            var package = _packageRepo.GetById(packageAccount.PackageId);
+            account.MaxTournatment += package.MaxTournament;
+            _accountRepo.Update(account);
+            return res; 
+        }
 
     }
 }

@@ -15,9 +15,9 @@ namespace STEM_ROBOT.Common.Req
         [Required(ErrorMessage = "PackageId is required")]
         public int PackageId { get; set; }
 
-        [Required(ErrorMessage = "Amount is required")]
+        /*[Required(ErrorMessage = "Amount is required")]
         public decimal Amount { get; set; }
 
-        public string Description { get; set; }
+        public string Description { get; set; }*/
     }
 }
