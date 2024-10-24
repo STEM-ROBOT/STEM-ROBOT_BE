@@ -19,9 +19,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetAccounts()
+        public  IActionResult GetAccounts()
         {
-            var res = await _accountSvc.GetAccounts();
+            var res =  _accountSvc.GetAccounts();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -30,9 +30,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(int id)
+        public IActionResult GetAccountById(int id)
         {
-            var res = await _accountSvc.GetById(id);
+            var res = _accountSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -84,6 +84,17 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Message);
+        }
+
+        [HttpGet("recent-package")]
+        public IActionResult GetRecentPakage(int id)
+        {
+            var res = _accountSvc.GetPackageUsed(id);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }

@@ -30,13 +30,14 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var lst = _refereeRepo.All();
-                if (lst == null || !lst.Any())
+                if (lst == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    res.SetSuccess(lst, "200");
+                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
             }
             catch (Exception ex)
@@ -58,7 +59,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.setData("200", referee);
+                    var refereeRes = _mapper.Map<RefereeRsp>(referee);
+                    res.setData("200", refereeRes);
                 }
             }
             catch (Exception ex)

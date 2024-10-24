@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace STEM_ROBOT.DAL.Models;
 
-public partial class TournamentFormat
+public partial class Format
 {
     public int Id { get; set; }
 
@@ -13,5 +13,5 @@ public partial class TournamentFormat
 
     public string? Image { get; set; }
 
-    public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
+    public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
 }

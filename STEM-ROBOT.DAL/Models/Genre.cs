@@ -13,7 +13,11 @@ public partial class Genre
 
     public string? Image { get; set; }
 
-    public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
+    public bool? IsTop { get; set; }
 
-    public virtual ICollection<ScoreCategory> ScoreCategories { get; set; } = new List<ScoreCategory>();
+    public string? HintRule { get; set; }
+
+    public string? HintScore { get; set; }
+
+    public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
 }

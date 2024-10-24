@@ -8,9 +8,12 @@ namespace STEM_ROBOT.Common.Rsp
 {
     public class ScoreCategoryRsp
     {
+        public int CompetitionId { get; set; }
+
         public string Description { get; set; }
-        public int Bonus { get; set; }
-        public int Minus { get; set; }
-        public int GenreId { get; set; }
+
+        public int Point { get; set; }
+
+        public string Type { get; set; }
     }
 }

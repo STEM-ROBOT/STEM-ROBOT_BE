@@ -9,8 +9,6 @@ public partial class Referee
 
     public int? TournamentId { get; set; }
 
-    public string? Role { get; set; }
-
     public string? Email { get; set; }
 
     public string? PhoneNumber { get; set; }

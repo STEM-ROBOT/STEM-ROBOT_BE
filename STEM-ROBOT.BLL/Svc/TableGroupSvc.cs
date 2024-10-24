@@ -81,6 +81,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        
         public SingleRsp UpdateTable(int id,TableGroupReq request)
         {
 
@@ -103,6 +104,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public SingleRsp DeleteTable(int id)
         {
             var res = new SingleRsp();
@@ -123,5 +125,38 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public MutipleRsp CreateTables(int stageId, int numberTable)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var stage = _tableGroupRepo.GetById(stageId);
+                if(stage == null)
+                {
+                    res.SetError("No Stage found");
+                    return res;
+                }
+                var createdStage = new List<TableGroup>();
+                for (int i = 1; i <= numberTable; i++)
+                {
+                    var table = new TableGroup
+                    {
+                        StageId = stageId,
+                        Name = "Bảng " + i,
+                        IsAsign = false
+                    };
+                    _tableGroupRepo.Add(table);
+                    createdStage.Add(table);
+                }
+                res.SetData("200", createdStage);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
     }
 }

@@ -17,13 +17,13 @@ namespace STEM_ROBOT.BLL.Mapper
         {
 
             CreateMap<Account, Account>().ReverseMap();
-            CreateMap<Account, AccountRsp>()
-             .ForMember(x => x.RoleName, op => op.MapFrom(x => x.Role.Name)).ReverseMap();
+            CreateMap<Account, AccountRsp>().ReverseMap();
             CreateMap<Account, AccountReq>().ReverseMap();
 
           
             //tournament
-            CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
+            CreateMap<Format, FormatReq>().ReverseMap();
+
             CreateMap<Tournament,TournamentReq>().ReverseMap();
 
             //location
@@ -70,6 +70,13 @@ namespace STEM_ROBOT.BLL.Mapper
             //action
             CreateMap<Action, ActionReq>().ReverseMap();
 
+            //package
+            CreateMap<Package, PackageReq>().ReverseMap();
+            CreateMap<Package, PackageRsp>().ReverseMap();
+
+            //action
+            CreateMap<Action, ActionReq>().ReverseMap();
+            CreateMap<Action, ActionRsp>().ReverseMap();
         }
     }
 }

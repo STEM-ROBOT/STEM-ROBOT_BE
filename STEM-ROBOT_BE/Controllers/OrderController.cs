@@ -8,23 +8,24 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/payments")]
+    [Route("api/orders")]
     [ApiController]
-    public class PaymentController : ControllerBase
+    public class OrderController : ControllerBase
     {
-        private readonly PaymentSvc _paymentSvc;
+        private readonly OrderSvc _paymentSvc;
         private readonly PayOS _payOS;
-        public PaymentController(PaymentSvc paymentSvc)
+        public OrderController(OrderSvc paymentSvc)
         {
             _paymentSvc = paymentSvc;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(PaymentReq request)
+        public async Task<IActionResult> CreateOrder(OrderReq request)
         {
             var result = await _paymentSvc.CreateOrder(request);
-            
+
             return Ok(result.Data);
+            //return Redirect(result.Data.ToString());
         }
 
         /*[HttpGet("{id}")]
@@ -52,6 +53,17 @@ namespace STEM_ROBOT.Web.Controllers
         {
             var result = await _paymentSvc.CancelOrder(orderCode);
             return Redirect("https://www.youtube.com/");
+        }
+
+        [HttpGet("get-revenue")]
+        public IActionResult GetRevenue()
+        {
+            var res = _paymentSvc.GetRevenue();
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
         }
     }
 }

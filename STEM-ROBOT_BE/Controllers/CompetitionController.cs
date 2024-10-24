@@ -68,5 +68,15 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpPost("format-table")]
+        public IActionResult CreateCompetitionFormatTable(CompetitionReq request)
+        {
+            var res = _competionSvc.CreateCompetionFormatTable(request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
     }
 }

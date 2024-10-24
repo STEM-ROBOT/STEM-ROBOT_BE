@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class TournamentFormatSvc
+    public class FormatSvc
     {
-        private readonly TournamentFormatRepo _tournamentFormatSvc;
+        private readonly FormatRepo _formatSvc;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public TournamentFormatSvc(TournamentFormatRepo tournamentFormat, IMapper mapper, IConfiguration configuration)
+        public FormatSvc(FormatRepo tournamentFormat, IMapper mapper, IConfiguration configuration)
         {
-            _tournamentFormatSvc = tournamentFormat;
+            _formatSvc = tournamentFormat;
             _configuration = configuration;
             _mapper = mapper;
         }
@@ -30,12 +30,13 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst = _tournamentFormatSvc.All();
+                var lst = _formatSvc.All();
                 if (lst == null)
                 {
                     res.SetError("404", "No data found");
                 }
-                res.SetSuccess(lst, "200");
+                var lstRes = _mapper.Map<List<FormatRsp>>(lst);
+                res.SetSuccess(lstRes, "200");
 
             }
             catch (Exception ex)
@@ -51,13 +52,14 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
 
-                var format = _tournamentFormatSvc.GetById(id);
+                var format = _formatSvc.GetById(id);
                 if (format == null)
 
                 {
                     res.SetError("404", "No data found");
                 }
-                res.setData("200", format);
+                var formatRes = _mapper.Map<FormatRsp>(format);
+                res.setData("200", formatRes);
             }
             catch (Exception ex)
             {
@@ -66,13 +68,13 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create(TournamentFormatReq tournamentFormat)
+        public SingleRsp Create(FormatReq tournamentFormat)
         {
             var res = new SingleRsp();
             try
             {
-                var newFormat = _mapper.Map<TournamentFormat>(tournamentFormat);
-                _tournamentFormatSvc.Add(newFormat);
+                var newFormat = _mapper.Map<Format>(tournamentFormat);
+                _formatSvc.Add(newFormat);
                 res.setData("200", newFormat);
             }
             catch (Exception ex)
@@ -82,12 +84,12 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(TournamentFormatReq req, int id)
+        public SingleRsp Update(FormatReq req, int id)
         {
             var res = new SingleRsp();
             try
             {
-                var updFormat = _tournamentFormatSvc.GetById(id);
+                var updFormat = _formatSvc.GetById(id);
                 if (updFormat == null)
                 {
                     res.SetError("404", "No data found");
@@ -95,7 +97,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     _mapper.Map(req, updFormat);
-                    _tournamentFormatSvc.Update(updFormat);
+                    _formatSvc.Update(updFormat);
                     res.setData("200", updFormat);
                 }
             }
@@ -111,14 +113,14 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var delFormat = _tournamentFormatSvc.GetById(id);
+                var delFormat = _formatSvc.GetById(id);
                 if (delFormat == null)
                 {
                     res.SetError("404", "No data found");
                 }
                 else
                 {
-                    _tournamentFormatSvc.Delete(id);
+                    _formatSvc.Delete(id);
                     res.SetMessage("Delete successfully");
                 }
             }

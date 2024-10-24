@@ -30,11 +30,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                if(request.StartDate <  DateTime.Now || request.EndDate < request.StartDate) {
+                /*if(request.StartDate <  DateTime.Now || request.EndDate < request.StartDate) {
 
                     res.SetError("400", "Invalid registration dates");
                     return res;
-                }
+                }*/
                 var tournament = _mapper.Map<Tournament>(request);
                 tournament.AccountId = userID;
 

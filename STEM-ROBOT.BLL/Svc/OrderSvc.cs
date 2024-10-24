@@ -15,24 +15,25 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class PaymentSvc
+    public class OrderSvc
     {
         private readonly PayOS _payOS;
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
         private readonly PackageRepo _packageRepo;
-        private readonly PackageAccountRepo _packageAccountRepo;
+        private readonly OrderRepo _orderRepo;
+        private readonly PaymentRepo _paymentRepo;
 
-        public PaymentSvc(PayOS payOS, IMapper mapper, AccountRepo accountRepo, PackageRepo packageRepo, PackageAccountRepo packageAccountRepo)
+        public OrderSvc(PayOS payOS, IMapper mapper, AccountRepo accountRepo, PackageRepo packageRepo, OrderRepo packageAccountRepo, PaymentRepo paymentRepo)
         {
             _payOS = payOS;
             _mapper = mapper;
             _accountRepo = accountRepo;
             _packageRepo = packageRepo;
-            _packageAccountRepo = packageAccountRepo;
-          
+            _orderRepo = packageAccountRepo;
+            _paymentRepo = paymentRepo;
         }
-        public async Task<SingleRsp> CreateOrder(PaymentReq request)
+        public async Task<SingleRsp> CreateOrder(OrderReq request)
         {
             var res = new SingleRsp();
             try
@@ -50,15 +51,18 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("Package not found");
                     return res;
                 }
-                var packageAccount = new PakageAccount
+                var order = new Order
                 {
                     Id = (int)orderCode,
                     AccountId = request.AccountId,
                     PackageId = request.PackageId,
-                    PurchaseDate = DateTime.Now,
-                    Status = "Pending"
+                    Status = "Pending",
+                    OrderDate = DateTime.Now,
+                    Amount = package.Price,
+                    LinkPayAgain = $"https://localhost:7283/api/payments/cancel/{orderCode}"
+
                 };
-                _packageAccountRepo.Add(packageAccount);
+                _orderRepo.Add(order);
                 List<ItemData> items = new List<ItemData>
                 {
                     new ItemData(package.Name, 1, (int)package.Price)
@@ -82,19 +86,53 @@ namespace STEM_ROBOT.BLL.Svc
            
 #endif
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
-            
+
             return createPayment.checkoutUrl;
         }
         public async Task<SingleRsp> CancelOrder(int orderCode)
         {
             var res = new SingleRsp();
-            var packageAccount = _packageAccountRepo.GetById(orderCode);
-            var account = _accountRepo.GetById(packageAccount.AccountId);
-            var package = _packageRepo.GetById(packageAccount.PackageId);
-            account.MaxTournatment += package.MaxTournament;
-            _accountRepo.Update(account);
-            return res; 
+            try
+            {
+                var order = _orderRepo.GetById(orderCode);
+                var account = _accountRepo.GetById(order.AccountId);
+                var package = _packageRepo.GetById(order.PackageId);
+                account.MaxTournatment += package.MaxTournament;
+                _accountRepo.Update(account);
+                order.Status = "Success";
+                _orderRepo.Update(order);
+                var payment = new Payment
+                {
+                    OrderId = orderCode,
+                    Amount = package.Price,
+                    PurchaseDate = DateTime.Now,
+                    Status = "Success",
+                };
+                _paymentRepo.Add(payment);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
         }
 
+        public SingleRsp GetRevenue()
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var totalRevenue = _paymentRepo.All(p => p.Status == "Success").Sum(p => p.Amount);
+                res.setData("200", totalRevenue);
+
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        
     }
 }

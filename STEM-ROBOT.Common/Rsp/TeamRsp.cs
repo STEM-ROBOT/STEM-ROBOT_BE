@@ -15,5 +15,11 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Status { get; set; }
 
         public int? TableId { get; set; }
+
+        public string? PhoneNumber { get; set; }
+
+        public string? ContactInfo { get; set; }
+
+        public string? Image { get; set; }
     }
 }

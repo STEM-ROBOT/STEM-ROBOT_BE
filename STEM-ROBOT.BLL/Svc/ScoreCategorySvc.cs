@@ -34,7 +34,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.SetSuccess(lst, "200");
+                    var lstRes = _mapper.Map<List<ScoreCategoryRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
             }
             catch (Exception ex)
@@ -56,7 +57,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.setData("200", scoreCategory);
+                    var scoreCategoryRes = _mapper.Map<ScoreCategoryRsp>(scoreCategory);
+                    res.setData("200", scoreCategoryRes);
                 }
             }
             catch (Exception ex)

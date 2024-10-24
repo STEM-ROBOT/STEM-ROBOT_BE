@@ -22,8 +22,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<AuthSvc>();
             services.AddScoped<AccountSvc>();
             services.AddScoped<AccountRepo>();
-            services.AddScoped<TournamentFormatRepo>();
-            services.AddScoped<TournamentFormatSvc>();
+            services.AddScoped<FormatRepo>();
+            services.AddScoped<FormatSvc>();
             services.AddScoped<GenreRepo>();
             services.AddScoped<GenreSvc>();
             services.AddScoped<TournamentRepo>();
@@ -56,9 +56,9 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<TableGroupSvc>();
             services.AddScoped<PackageRepo>();
             services.AddScoped<PackageSvc>();
-            services.AddScoped<PackageAccountRepo>();
-            services.AddScoped<PaymentSvc>();
-
+            services.AddScoped<OrderRepo>();
+            services.AddScoped<OrderSvc>();
+            services.AddScoped<PaymentRepo>();
             return services;
         }
 

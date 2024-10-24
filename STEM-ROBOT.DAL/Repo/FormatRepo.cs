@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.DAL.Repo
 {
-    public class PackageAccountRepo : GenericRep<PakageAccount>
+    public class FormatRepo : GenericRep<Format>
     {
-        public PackageAccountRepo(StemdbContext context) : base(context)
-        { }
+
+        public FormatRepo(StemdbContext context) : base(context)
+        {
+        }
     }
 }
