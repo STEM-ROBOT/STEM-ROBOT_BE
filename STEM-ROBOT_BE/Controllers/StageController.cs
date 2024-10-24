@@ -45,6 +45,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        
         [HttpPut("id")]
         public IActionResult UpdateStage(int id, StageReq request)
         {

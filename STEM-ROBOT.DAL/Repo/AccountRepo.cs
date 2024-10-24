@@ -18,13 +18,13 @@ namespace STEM_ROBOT.DAL.Repo
         public AccountRepo(StemdbContext context) : base(context)
         {
         }
-        public async Task<List<Account>> GetAccounts()
+        /*public async Task<List<Account>> GetAccounts()
         {
             return await _context.Accounts.Where(x => x.RoleId != 1).Include(x => x.Role).ToListAsync();
         }
         public async Task<Account> GetAccountById(int id)
         {
             return await _context.Accounts.Where(x => x.RoleId != 1 && x.Id == id).Include(x => x.Role).FirstOrDefaultAsync();
-        }
+        }*/
     }
 }

@@ -12,15 +12,12 @@ namespace STEM_ROBOT.Common.Req
         [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "Bonus points are required")]
-        [Range(0, int.MaxValue, ErrorMessage = "Bonus must be a positive value")]
-        public int Bonus { get; set; }
+        [Required(ErrorMessage = "CompetitionId is required")]
+        public int? CompetitionId { get; set; }
 
-        [Required(ErrorMessage = "Minus points are required")]
-        [Range(0, int.MaxValue, ErrorMessage = "Minus must be a positive value")]
-        public int Minus { get; set; }
-
-        [Required(ErrorMessage = "GenreId is required")]
-        public int GenreId { get; set; }
+        [Required(ErrorMessage = "Point is required")]
+        public int Point { get; set; }
+        [Required(ErrorMessage = "Type is required")]
+        public string Type { get; set; }
     }
 }

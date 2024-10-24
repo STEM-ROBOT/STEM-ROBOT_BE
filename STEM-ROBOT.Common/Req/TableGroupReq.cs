@@ -9,7 +9,7 @@ namespace STEM_ROBOT.Common.Req
     public class TableGroupReq
     {
       
-        public int? RoundId { get; set; }
+        public int? StageId { get; set; }
 
         public string? Name { get; set; }
 

@@ -13,5 +13,7 @@ public partial class Package
 
     public decimal? Price { get; set; }
 
-    public virtual ICollection<PakageAccount> PakageAccounts { get; set; } = new List<PakageAccount>();
+    public int? MaxTeam { get; set; }
+
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

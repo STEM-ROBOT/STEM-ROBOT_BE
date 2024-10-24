@@ -13,21 +13,28 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
+        private readonly OrderRepo _orderRepo;
+        private readonly PackageRepo _packageRepo;
 
-        public AccountSvc(AccountRepo accountRep, IMapper mapper) 
+        public AccountSvc(AccountRepo accountRep, IMapper mapper, OrderRepo orderRepo, PackageRepo packageRepo)
         {
             _accountRepo = accountRep;
             _mapper = mapper;
+            _orderRepo = orderRepo;
+            _packageRepo = packageRepo;
         }
 
-        public async Task<MutipleRsp> GetAccounts()
+        public  MutipleRsp GetAccounts()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = await _accountRepo.GetAccounts();
-                var accountResLst = _mapper.Map<List<AccountRsp>>(lst);
-                res.SetSuccess(accountResLst, "Success");
+                var lst =  _accountRepo.All();
+                if (lst != null)
+                {
+                    var accountResLst = _mapper.Map<List<AccountRsp>>(lst);
+                    res.SetSuccess(accountResLst, "Success");
+                }
             }
             catch (Exception ex)
             {
@@ -36,12 +43,17 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public async Task<SingleRsp> GetById(int id)
+        public  SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var acc = await _accountRepo.GetAccountById(id);
+                var acc = _accountRepo.GetById(id);
+                if(acc.Role == "Admin")
+                {
+                    res.SetError("403", "You can't get an account with role Admin");
+                    return res;
+                }
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
@@ -70,7 +82,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var account = _mapper.Map<Account>(req);
 
-                if (account.RoleId == 1)
+                if (account.Role == "Admin")
                 {
                     res.SetError("403", "You can't create an account with role Admin");
                     return res;
@@ -102,7 +114,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("400", "Email already exists");
                     return res;
                 }
-                if (account.RoleId == 1 || req.RoleId == 1)
+                if (account.Role == "Admin" || req.Role == "Admin")
                 {
                     res.SetError("403", "You can't update an account with role Admin");
                     return res;
@@ -118,7 +130,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-
         public SingleRsp Delete(int id)
         {
             var res = new SingleRsp();
@@ -129,7 +140,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-                if (acc.RoleId == 1)
+                if (acc.Role == "Admin")
                 {
                     res.SetError("403", "You can't delete an account with role Admin");
                     return res;
@@ -137,6 +148,38 @@ namespace STEM_ROBOT.BLL.Svc
                 _accountRepo.Delete(acc.Id);
                 res.setData("200", acc);
 
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetPackageUsed(int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var recentOrder = _orderRepo.All(o => o.AccountId == accountId && o.Status == "Success").OrderByDescending(o => o.OrderDate).FirstOrDefault();
+                if (recentOrder != null)
+                {
+                    // Lấy thông tin package dựa vào recentOrder.PackageId
+                    var package = _packageRepo.GetById(recentOrder.PackageId);
+
+                    if (package != null)
+                    {
+                        var packageRsp = _mapper.Map<PackageRsp>(package);
+                        // Đặt dữ liệu package vào response
+                        res.setData("200", packageRsp);
+                        return res;
+                    }
+                    else
+                    {
+                        res.SetError("Package not found");
+                        return res;
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -30,7 +30,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _packageRepo.All();
                 if (lst != null)
                 {
-                    res.SetSuccess(lst, "200");
+                    var lstRes = _mapper.Map<List<PackageRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
                 else
                 {
@@ -56,7 +57,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.setData("200", getPackage);
+                    var packageRes = _mapper.Map<PackageRsp>(getPackage);
+                    res.setData("200", packageRes);
                     return res;
                 }
 

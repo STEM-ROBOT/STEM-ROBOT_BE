@@ -23,5 +23,8 @@ namespace STEM_ROBOT.Common.Req
 
         [Required(ErrorMessage = "TeamId is required")]
         public int TeamId { get; set; }
+
+        [Required(ErrorMessage = "RefereeId is required")]
+        public int RefereeId { get; set; }
     }
 }
