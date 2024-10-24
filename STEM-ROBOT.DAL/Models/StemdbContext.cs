@@ -21,7 +21,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Competition> Competitions { get; set; }
 
-    public virtual DbSet<Format> CompetitionFormats { get; set; }
+    public virtual DbSet<CompetitionFormat> CompetitionFormats { get; set; }
 
     public virtual DbSet<Contestant> Contestants { get; set; }
 
@@ -63,6 +63,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=stemrobot.database.windows.net;database=STEMDb;user=stem;password=Longnhat1@");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,7 +144,7 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK__Competiti__Tourn__74AE54BC");
         });
 
-        modelBuilder.Entity<Format>(entity =>
+        modelBuilder.Entity<CompetitionFormat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Tourname__3213E83FD32182EA");
 
