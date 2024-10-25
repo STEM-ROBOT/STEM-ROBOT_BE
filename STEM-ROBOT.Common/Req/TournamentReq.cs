@@ -9,6 +9,7 @@ namespace STEM_ROBOT.Common.Req
 {
     public class TournamentReq
     {
+
        
 
         public string? TournamentLevel { get; set; }
@@ -65,6 +66,16 @@ namespace STEM_ROBOT.Common.Req
         public int? NumberTeamReferee { get; set; }
 
         public TimeSpan? TimeOfMatch { get; set; }
+
+
+      
+        public string Name { get; set; } = null!;
+
+       
+        public string Location { get; set; } = null!;
+
+        public string Image { get; set; } = null!;
+
 
         public TimeSpan? TimeBreak { get; set; }
 

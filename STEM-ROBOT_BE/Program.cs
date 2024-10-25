@@ -1,5 +1,6 @@
 
 using AutoMapper;
+using Net.payOS;
 using STEM_ROBOT.BLL;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.DAL;
@@ -16,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServices();
 builder.Services.addDatabase();
+builder.Services.AddPayOs();
 //config mapper
 builder.Services.AddMapper();
 //config authen swagger 

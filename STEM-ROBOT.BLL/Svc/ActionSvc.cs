@@ -31,7 +31,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _actionRepo.All();
                 if (lst != null)
                 {
-                     res.SetSuccess(lst, "200");
+                    var lstRes = _mapper.Map<List<ActionRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
                 else
                 {
@@ -57,7 +58,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.setData("200", action);
+                    var actionRes = _mapper.Map<ActionRsp>(action);
+                    res.setData("200", actionRes);
                 }
             }
             catch (Exception ex)

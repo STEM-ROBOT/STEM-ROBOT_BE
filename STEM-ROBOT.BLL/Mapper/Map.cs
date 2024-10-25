@@ -17,12 +17,17 @@ namespace STEM_ROBOT.BLL.Mapper
         {
 
             CreateMap<Account, Account>().ReverseMap();
+
             CreateMap<Account, AccountRsp>() .ReverseMap();
+
+            CreateMap<Account, AccountRsp>().ReverseMap();
+
             CreateMap<Account, AccountReq>().ReverseMap();
 
           
             //tournament
-            CreateMap<TournamentFormat, TournamentFormatReq>().ReverseMap();
+
+           
             CreateMap<TournamentReq, Tournament>()
             .ForMember(dest => dest.Competitions, opt => opt.MapFrom(src => src.competition)) // Ánh xạ danh sách competition
             .ForMember(dest => dest.TournamentLevel, opt => opt.MapFrom(src => src.TournamentLevel))
@@ -30,7 +35,12 @@ namespace STEM_ROBOT.BLL.Mapper
             .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
 
-            // Ánh xạ từ TournamentCompetition sang Competition
+            CreateMap<Format, FormatReq>().ReverseMap();
+
+            CreateMap<Tournament,TournamentReq>().ReverseMap();
+
+
+        
             CreateMap<TournamentComeptition, Competition>()
                 .ForMember(dest => dest.GenreId, opt => opt.MapFrom(src => src.GenreId))
                 .ForMember(dest => dest.RegisterTime, opt => opt.MapFrom(src => src.RegisterTime))
@@ -105,6 +115,13 @@ namespace STEM_ROBOT.BLL.Mapper
             //teammatch
             CreateMap<TeamMatch, TeamMatchReq>().ReverseMap();
 
+            //package
+            CreateMap<Package, PackageReq>().ReverseMap();
+            CreateMap<Package, PackageRsp>().ReverseMap();
+
+            //action
+            CreateMap<Action, ActionReq>().ReverseMap();
+            CreateMap<Action, ActionRsp>().ReverseMap();
         }
     }
 }

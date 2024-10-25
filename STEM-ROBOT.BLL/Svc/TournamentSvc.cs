@@ -35,8 +35,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
+
                
                 var user =   _account.GetById(userID);
+
+               
                 var tournament = _mapper.Map<Tournament>(request);
                 tournament.AccountId = userID;
                 var userName = user.Name;

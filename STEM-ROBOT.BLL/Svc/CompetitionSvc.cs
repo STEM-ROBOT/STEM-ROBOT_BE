@@ -18,12 +18,17 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly CompetitionRepo _competitionRepo;
         private readonly IMapper _mapper;
+
         private readonly StageSvc _stageSvc;
         private readonly StageRepo _stageRepo;
         private readonly TeamRepo _teamRepo;
         private readonly MatchRepo _matchRepo;
         private readonly TeamMatchRepo _teamMatchRepo;
-        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, StageSvc stageSvc, StageRepo stageRepo,TeamRepo teamRepo,MatchRepo matchRepo,TeamMatchRepo teamMatchRepo)
+        private readonly TeamSvc _teamSvc;
+        private readonly TableGroupSvc _tableGroupSvc;
+
+        
+        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, StageSvc stageSvc, StageRepo stageRepo,TeamRepo teamRepo,MatchRepo matchRepo,TeamMatchRepo teamMatchRepo, TeamSvc teamSvc, TableGroupSvc tableGroupSvc)
         {
             _competitionRepo = competitionRepo;
             _mapper = mapper;
@@ -32,6 +37,9 @@ namespace STEM_ROBOT.BLL.Svc
             _teamRepo = teamRepo;
             _matchRepo = matchRepo;
             _teamMatchRepo = teamMatchRepo;
+            _teamSvc = teamSvc;
+            _stageSvc = stageSvc;
+            _tableGroupSvc = tableGroupSvc;
         }
 
         public async Task<MutipleRsp> GetListCompetitions()
@@ -134,12 +142,14 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         //update competitionformatconfig
         public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
         {
             var res = new SingleRsp();
             try
             {
+
                 var id = _competitionRepo.GetById(request.Id);
 
                 if (id == null)
@@ -151,16 +161,51 @@ namespace STEM_ROBOT.BLL.Svc
                 if (request.FormatId == 2)
                 {
                     int teamCount = (int)request.NumberTeam;
-                    var checkBool = await  StateSetup(teamCount, request.Id);
+                    var checkBool = await StateSetup(teamCount, request.Id);
 
-                    if(checkBool == false)
+                    if (checkBool == false)
                     {
                         throw new Exception("Tạo vòng đấu thất bại !!");
                     }
-        
+
                 }
 
-                res.setData("OK", map);
+                res.Setmessage("Ok");
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail Loại trực tiếp");
+            }
+            return res;
+
+        }
+
+        public SingleRsp CreateCompetionFormatTable(CompetitionReq request)
+
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var mapper = _mapper.Map<Competition>(request);
+                if (mapper == null)
+                {
+                    res.SetError("Please check again!");
+                }
+                _competitionRepo.Add(mapper);
+                if (request.FormatId == 1)
+                {
+                    _teamSvc.CreateTeams(mapper.Id, request.NumberTeam);
+                    int numberStage = CalculateNumberStage(request.NumberTeam, (int)request.NumberTable);
+                    _stageSvc.CreateStages(mapper.Id, numberStage);
+
+                    // Add tables to the first stage created
+                    var stages = _stageSvc.GetFirstStageByCompetitionId(mapper.Id);
+                    _tableGroupSvc.CreateTables(stages.Id, (int)request.NumberTable);
+                }
+                res.setData("OK", mapper);
+
             }
             catch (Exception ex)
             {
@@ -168,6 +213,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
 
         private async Task<bool> StateSetup(int number, int id)
         {
@@ -295,5 +341,11 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
      
+
+        public int CalculateNumberStage(int numberTeam, int numberTable)
+        {
+            return (int)Math.Log2(numberTeam / numberTable) + 2;
+        }
+
     }
 }

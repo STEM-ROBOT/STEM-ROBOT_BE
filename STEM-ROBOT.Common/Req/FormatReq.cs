@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
-    public class TournamentFormatReq
+    public class FormatReq
     {
         [Required(ErrorMessage = "Name is required")]
         [MaxLength(250, ErrorMessage = "Name cannot exceed 250 characters")]
