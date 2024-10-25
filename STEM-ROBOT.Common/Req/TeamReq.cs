@@ -9,7 +9,7 @@ namespace STEM_ROBOT.Common.Req
 {
     public class TeamReq
     {
-        [Required(ErrorMessage ="CompetitionId is required")]
+        [Required(ErrorMessage = "CompetitionId is required")]
         public int? CompetitionId { get; set; }
 
         [Required(ErrorMessage = "Name is required")]
@@ -21,7 +21,7 @@ namespace STEM_ROBOT.Common.Req
 
         public int? TableId { get; set; }
 
-        [Required(ErrorMessage ="Phone Number is required")]
+        [Required(ErrorMessage = "Phone Number is required")]
         public string? PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Contact Information is required")]
@@ -29,5 +29,7 @@ namespace STEM_ROBOT.Common.Req
 
         [Required(ErrorMessage = "Image is required")]
         public string? Image { get; set; }
+
+
     }
 }

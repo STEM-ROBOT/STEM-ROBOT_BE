@@ -49,14 +49,14 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpPut("id")]
-        public async Task<IActionResult> UpdateCompetition(int id,CompetitionReq request)
+        public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
         {
             var res = _competionSvc.UpdateCompetition(id, request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
             }
-            return Ok(res) ;
+            return Ok(res);
         }
         [HttpDelete("id")]
         public async Task<IActionResult> DeleteCompetition(int id)
@@ -68,6 +68,19 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
+        [HttpPut("competition-format-config")]
+        public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
+        {
+            var res = await _competionSvc.UpdateCompetitionConfig(request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+
+
+            }
+            return Ok(res);
+        }
         [HttpPost("format-table")]
         public IActionResult CreateCompetitionFormatTable(CompetitionReq request)
         {
@@ -75,8 +88,10 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
+
             }
             return Ok(res);
         }
     }
 }
+

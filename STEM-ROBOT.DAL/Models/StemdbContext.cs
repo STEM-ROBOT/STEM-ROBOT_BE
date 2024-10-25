@@ -264,9 +264,11 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Order");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.LinkPayAgain).HasColumnType("ntext");
             entity.Property(e => e.OrderDate).HasColumnType("datetime");
+
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Orders)
@@ -293,6 +295,11 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.Property(e => e.TransactionCode)
+                .HasMaxLength(10)
+                .IsFixedLength();
+
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
