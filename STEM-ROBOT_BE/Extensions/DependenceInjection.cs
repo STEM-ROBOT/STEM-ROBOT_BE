@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
+using Net.payOS;
 using STEM_ROBOT.BLL;
 
 
@@ -22,8 +22,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<AuthSvc>();
             services.AddScoped<AccountSvc>();
             services.AddScoped<AccountRepo>();
-            services.AddScoped<TournamentFormatRepo>();
-            services.AddScoped<TournamentFormatSvc>();
+            services.AddScoped<FormatRepo>();
+            services.AddScoped<FormatSvc>();
             services.AddScoped<GenreRepo>();
             services.AddScoped<GenreSvc>();
             services.AddScoped<TournamentRepo>();
@@ -54,7 +54,11 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<MatchSvc>();
             services.AddScoped<TableGroupRepo>();
             services.AddScoped<TableGroupSvc>();
-
+            services.AddScoped<PackageRepo>();
+            services.AddScoped<PackageSvc>();
+            services.AddScoped<OrderRepo>();
+            services.AddScoped<OrderSvc>();
+            services.AddScoped<PaymentRepo>();
             return services;
         }
 
@@ -65,6 +69,19 @@ namespace STEM_ROBOT_BE.Extensions
         //    return services;
         //}
         //con fig mapper
+
+        public static IServiceCollection AddPayOs(this IServiceCollection services)
+        {
+            services.AddSingleton<PayOS>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                return new PayOS(
+                    configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+            });
+            return services;
+        }
         public static IServiceCollection AddMapper(this IServiceCollection services)
         {
 
@@ -126,7 +143,8 @@ namespace STEM_ROBOT_BE.Extensions
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            }).AddJwtBearer(options => {
+            }).AddJwtBearer(options =>
+            {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()

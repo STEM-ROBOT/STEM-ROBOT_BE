@@ -30,7 +30,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _scheduleRepo.All();
                 if (lst != null)
                 {
-                     res.SetSuccess(lst, "200");
+                    var lstRes = _mapper.Map<List<ScheduleRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
                 else
                 {
@@ -56,7 +57,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    res.setData("200", schedule);
+                    var scheduleRes = _mapper.Map<ScheduleRsp>(schedule);
+                    res.setData("200", scheduleRes);
                 }
             }
             catch (Exception ex)

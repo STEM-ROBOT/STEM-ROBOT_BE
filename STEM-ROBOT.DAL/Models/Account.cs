@@ -7,8 +7,6 @@ public partial class Account
 {
     public int Id { get; set; }
 
-    public int? RoleId { get; set; }
-
     public string? Name { get; set; }
 
     public string? PhoneNumber { get; set; }
@@ -21,9 +19,17 @@ public partial class Account
 
     public string? Status { get; set; }
 
-    public int? Package { get; set; }
+    public int? MaxTournatment { get; set; }
 
-    public virtual Role? Role { get; set; }
+    public int? SchoolId { get; set; }
+
+    public string? Role { get; set; }
+
+    public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
+
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual School? School { get; set; }
 
     public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
 }

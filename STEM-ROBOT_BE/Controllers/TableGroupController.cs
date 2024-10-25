@@ -35,7 +35,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpPost]
-        public IActionResult AddStage(TableGroupReq request)
+        public IActionResult AddTable(TableGroupReq request)
         {
             var res = _tableGroupSvc.AddTable(request);
             if (!res.Success)
@@ -44,8 +44,18 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        /*[HttpPost]
+        public IActionResult AddTables(int stageId, int numberOfTables)
+        {
+            var res = _tableGroupSvc.AddTables(stageId, numberOfTables);
+            if (!res.Success)
+            {
+                res.SetMessage(res.Message);
+            }
+            return Ok(res);
+        }*/
         [HttpPut("id")]
-        public IActionResult UpdateStage(int id, TableGroupReq request)
+        public IActionResult UpdateTable(int id, TableGroupReq request)
         {
             var res = _tableGroupSvc.UpdateTable(id, request);
             if (!res.Success)
@@ -55,7 +65,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpDelete("id")]
-        public IActionResult DeleteStage(int id)
+        public IActionResult DeleteTable(int id)
         {
 
             var res = _tableGroupSvc.DeleteTable(id);

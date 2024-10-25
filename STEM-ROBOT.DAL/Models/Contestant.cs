@@ -23,9 +23,13 @@ public partial class Contestant
 
     public string? Image { get; set; }
 
-    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
+    public string? Avatar { get; set; }
 
-    public virtual School? School { get; set; }
+    public int? AccountId { get; set; }
+
+    public virtual Account? Account { get; set; }
+
+    public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
 
     public virtual Tournament? Tournament { get; set; }
 }

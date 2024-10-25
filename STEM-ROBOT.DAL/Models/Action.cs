@@ -17,7 +17,11 @@ public partial class Action
 
     public int? TeamMatchId { get; set; }
 
+    public int? RefereeId { get; set; }
+
     public virtual MatchHalf? MatchHalf { get; set; }
+
+    public virtual RefereeCompetition? Referee { get; set; }
 
     public virtual ScoreCategory? ScoreCategory { get; set; }
 

@@ -11,19 +11,21 @@ public partial class Team
 
     public string? Name { get; set; }
 
-    public DateTime? UpdateDate { get; set; }
-
-    public DateTime? CreateDate { get; set; }
-
     public string? Status { get; set; }
 
     public int? TableId { get; set; }
 
+    public string? PhoneNumber { get; set; }
+
+    public string? ContactInfo { get; set; }
+
+    public string? Image { get; set; }
+
     public virtual Competition? Competition { get; set; }
 
-    public virtual ICollection<ContestantCompetition> ContestantCompetitions { get; set; } = new List<ContestantCompetition>();
-
-    public virtual TableGroup? Table { get; set; }
+    public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
 
     public virtual ICollection<TeamMatch> TeamMatches { get; set; } = new List<TeamMatch>();
+
+    public virtual ICollection<TeamTable> TeamTables { get; set; } = new List<TeamTable>();
 }

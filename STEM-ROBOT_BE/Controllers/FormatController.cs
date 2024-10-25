@@ -9,11 +9,11 @@ namespace STEM_ROBOT_BE.Controllers
     [Route("api/tournamentformats")]
     [ApiController]
     //[Authorize(Roles = "1")]
-    public class TournamentFormatController : ControllerBase
+    public class FormatController : ControllerBase
     {
-        private readonly TournamentFormatSvc _tournamentFormatSvc;
+        private readonly FormatSvc _tournamentFormatSvc;
 
-        public TournamentFormatController(TournamentFormatSvc tournamentFormatSvc)
+        public FormatController(FormatSvc tournamentFormatSvc)
         {
             _tournamentFormatSvc = tournamentFormatSvc;
         }
@@ -41,7 +41,7 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPost()]
-        public IActionResult CreateTournamentFormat([FromBody] TournamentFormatReq req)
+        public IActionResult CreateTournamentFormat([FromBody] FormatReq req)
         {
 
             if (!ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateTournamentFormat([FromBody] TournamentFormatReq req, int id)
+        public IActionResult UpdateTournamentFormat([FromBody] FormatReq req, int id)
         {
             if (!ModelState.IsValid)
             {

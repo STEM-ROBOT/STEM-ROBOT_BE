@@ -17,10 +17,17 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly CompetitionRepo _competitionRepo;
         private readonly IMapper _mapper;
-        public CompetitionSvc(CompetitionRepo competitionRepo,IMapper mapper)
+        private readonly TeamSvc _teamSvc;
+        private readonly TableGroupSvc _tableGroupSvc;
+        private readonly StageSvc _stageSvc;
+
+        public CompetitionSvc(CompetitionRepo competitionRepo,IMapper mapper, TeamSvc teamSvc, TableGroupSvc tableGroupSvc, StageSvc stageSvc)
         {
             _competitionRepo = competitionRepo;
             _mapper = mapper;
+            _teamSvc = teamSvc;
+            _tableGroupSvc = tableGroupSvc;
+            _stageSvc = stageSvc;
         }
 
         public async Task<MutipleRsp> GetListCompetitions()
@@ -121,6 +128,39 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
+        }
+        public SingleRsp CreateCompetionFormatTable(CompetitionReq request)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var mapper = _mapper.Map<Competition>(request);
+                if (mapper == null)
+                {
+                    res.SetError("Please check again!");
+                }
+                _competitionRepo.Add(mapper);
+                if (request.FormatId == 1)
+                {
+                    _teamSvc.CreateTeams(mapper.Id, request.NumberTeam);
+                    int numberStage = CalculateNumberStage(request.NumberTeam, (int)request.NumberTable);
+                    _stageSvc.CreateStages(mapper.Id, numberStage);
+
+                    // Add tables to the first stage created
+                    var stages = _stageSvc.GetFirstStageByCompetitionId(mapper.Id);
+                    _tableGroupSvc.CreateTables(stages.Id, (int)request.NumberTable);
+                }
+                res.setData("OK", mapper);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public int CalculateNumberStage(int numberTeam, int numberTable)
+        {
+            return (int)Math.Log2(numberTeam / numberTable) + 2;
         }
     }
 }
