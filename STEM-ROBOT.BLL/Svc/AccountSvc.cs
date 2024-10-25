@@ -70,11 +70,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var account = _mapper.Map<Account>(req);
 
-                if (account.RoleId == 1)
-                {
-                    res.SetError("403", "You can't create an account with role Admin");
-                    return res;
-                }
+              
 
                 _accountRepo.Add(account);
                 res.setData("Account added successfully", account);
@@ -102,11 +98,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("400", "Email already exists");
                     return res;
                 }
-                if (account.RoleId == 1 || req.RoleId == 1)
-                {
-                    res.SetError("403", "You can't update an account with role Admin");
-                    return res;
-                }
+              
                 _mapper.Map(req, account);
                 _accountRepo.Update(account);
                 res.setData("200", account);
@@ -129,11 +121,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
-                if (acc.RoleId == 1)
-                {
-                    res.SetError("403", "You can't delete an account with role Admin");
-                    return res;
-                }
+                
                 _accountRepo.Delete(acc.Id);
                 res.setData("200", acc);
 

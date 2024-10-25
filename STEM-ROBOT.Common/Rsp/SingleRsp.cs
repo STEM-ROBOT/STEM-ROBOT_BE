@@ -26,5 +26,9 @@ namespace STEM_ROBOT.Common.Rsp
             Code = code;
             Data = data;
         }
+        public void Setmessage(string message)
+        {
+            message = message;
+        }
     }
 }

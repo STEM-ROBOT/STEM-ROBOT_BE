@@ -11,6 +11,10 @@ public partial class RefereeCompetition
 
     public int? CompetitionId { get; set; }
 
+    public string? Role { get; set; }
+
+    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+
     public virtual Competition? Competition { get; set; }
 
     public virtual Referee? Referee { get; set; }

@@ -22,7 +22,7 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPost]
-        public  IActionResult addTournament(TournamentReq request)
+        public  async Task<IActionResult> addTournament(TournamentReq request)
         {
             var user =  User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
@@ -31,7 +31,7 @@ namespace STEM_ROBOT_BE.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            SingleRsp res = _tournament.AddTournement(userID, request);
+            SingleRsp res = await _tournament.AddTournement(userID, request);
             if (res.Success)
             {
                 return Ok(res.Data);

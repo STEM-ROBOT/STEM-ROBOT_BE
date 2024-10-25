@@ -23,5 +23,5 @@ public partial class School
 
     public string? DistrictCode { get; set; }
 
-    public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
+    public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 }

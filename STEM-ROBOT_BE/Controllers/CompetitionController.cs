@@ -68,5 +68,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpPut("competition-format-config")]
+        public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
+        {
+            var res = await _competionSvc.UpdateCompetitionConfig(request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+
+            }
+            return Ok(res);
+        }
     }
 }
