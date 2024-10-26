@@ -12,5 +12,18 @@ namespace STEM_ROBOT.DAL.Repo
         public StageRepo(StemdbContext context) : base(context)
         {
         }
+        public int GetLatestStageIdByCompetitionIdAndName(int competitionId, string stageName)
+        {
+            var stage = _context.Stages
+                                .Where(s => s.CompetitionId == competitionId && s.Name == stageName)
+                                .FirstOrDefault();
+
+            if (stage == null)
+            {
+                throw new Exception("Stage not found for the given competition and name.");
+            }
+
+            return stage.Id;
+        }
     }
 }

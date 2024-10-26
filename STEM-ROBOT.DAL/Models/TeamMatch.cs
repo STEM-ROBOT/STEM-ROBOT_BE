@@ -13,6 +13,8 @@ public partial class TeamMatch
 
     public string? Result { get; set; }
 
+    public string? NameDefault { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }

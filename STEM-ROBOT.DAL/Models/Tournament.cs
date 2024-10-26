@@ -17,6 +17,8 @@ public partial class Tournament
 
     public string? Image { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
