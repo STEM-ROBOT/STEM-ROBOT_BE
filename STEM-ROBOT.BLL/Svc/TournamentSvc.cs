@@ -30,6 +30,26 @@ namespace STEM_ROBOT.BLL.Svc
             _account = account;
         }
 
+        public async Task<SingleRsp> getStatus(int id)
+        {
+
+            var res = new SingleRsp();
+            try
+            {
+                var tournament = _tournament.GetById(id);
+                if (tournament == null) throw new Exception("No ID");
+                if(tournament.Status == "Pending")
+                {
+                    res.setData("Ok", tournament);
+                }
+                throw new Exception("Not Pending");
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Fail data");
+            }
+            return res;
+        }
         public async Task<SingleRsp> AddTournement(int userID, TournamentReq request)
         {
             var res = new SingleRsp();
