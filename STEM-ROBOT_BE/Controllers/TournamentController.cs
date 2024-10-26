@@ -21,6 +21,14 @@ namespace STEM_ROBOT_BE.Controllers
             _tournament = tournamentSvc;
         }
 
+
+        [HttpGet("get-status")]
+        public async Task<IActionResult> getStatus(int id)
+        {
+            var res =await _tournament.getStatus(id);
+            if (!res.Success) throw new Exception("Please check againt");
+            return Ok(res);
+        }
         [HttpPost]
         public  async Task<IActionResult> addTournament(TournamentReq request)
         {
