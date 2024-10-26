@@ -215,132 +215,150 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
 
-        private async Task<bool> StateSetup(int number, int id)
+        private async Task<bool> StateSetup(int number, int competitionId)
         {
-            if (number < 0)
+            if (number <= 0)
             {
                 throw new Exception("Number must be greater than 0");
             }
 
-            //add team
-            for(int i = 1; i <= number; i++)
+            // Thêm đội vào giải đấu
+            for (int i = 1; i <= number; i++)
             {
-                var Team = new Team()
+                var team = new Team()
                 {
-
-                    CompetitionId = id,
+                    CompetitionId = competitionId,
                     Name = $"Đội #{i}",
                     Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
                 };
-                _teamRepo.Add(Team);
-
+                _teamRepo.Add(team);
             }
+
+            List<Team> teams = await _competitionRepo.GetTeamsByCompetitionId(competitionId);
+            if (teams == null || teams.Count == 0) throw new Exception("No team found for competition.");
+
+            teams = teams.OrderBy(t => t.Id).ToList();
+
            
-            List<Team> teams = await _competitionRepo.GetTeamsByCompetitionId(id);
-            if (teams == null) throw new Exception("No team");
-            Random rand = new Random();
-
-
             bool isPowerOf2 = (number & (number - 1)) == 0;
             int round = (int)Math.Ceiling(Math.Log2(number));
             int closestPowerOf2 = (int)Math.Pow(2, round);
 
-            // Tính số đội dư
             int extraTeams = number - (closestPowerOf2 / 2);
+
             List<Team> winningTeamsFromExtraRound = new List<Team>();
 
-            //vòng thiếu
-            if (!isPowerOf2) 
+           
+            if (!isPowerOf2 && extraTeams > 0)
             {
-            
-
-                if (extraTeams > 0)
+                string roundName = $"Vòng phụ cho vòng 1/{Math.Pow(2, round)}";
+                var stage = new Stage
                 {
-                    string roundName = $"{extraTeams} trận phụ cho vòng 1/{Math.Pow(2, round)}";
+                    CompetitionId = competitionId,
+                    Name = roundName,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddHours(2),
+                    Status = "Vòng phụ"
+                };
+                _stageRepo.Add(stage);
 
-                    var stage = new Stage
+           
+                var teamsForExtraRound = teams.Take(extraTeams * 2).ToList();
+
+               
+                for (int i = 0; i < teamsForExtraRound.Count; i += 2)
+                {
+                    var match = new Match
                     {
-                        CompetitionId = id,
-                        Name = roundName,
+                        StageId = stage.Id,
+                        TableId = null,
                         StartDate = DateTime.Now,
-                        EndDate = DateTime.Now.AddHours(2),
-                        Status = "Vòng phụ"
+                        Status = "Đấu phụ",
+                        TimeIn = DateTime.Now,
+                        TimeOut = DateTime.Now.AddHours(1)
                     };
-                    _stageRepo.Add(stage);
 
-                    var teamsForExtraRound = teams.OrderBy(x => rand.Next()).Take(extraTeams * 2).ToList();
+                    _matchRepo.Add(match);
 
-                    for (int i = 0; i < extraTeams * 2; i += 2)
+                    
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i].Id, NameDefault = teamsForExtraRound[i].Name });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i + 1].Id, NameDefault = teamsForExtraRound[i + 1].Name });
+
+                  
+                    winningTeamsFromExtraRound.Add(new Team
                     {
-                        var match = new Match
-                        {
-                            StageId = stage.Id,
-                            TableId = null,
-                            StartDate = DateTime.Now,
-                            Status = "Đấu phụ",
-                            TimeIn = DateTime.Now,
-                            TimeOut = DateTime.Now.AddHours(1)
-                        };
-
-                        _matchRepo.Add(match);
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i].Id });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i + 1].Id });
-                    }
-
-                    teams = teams.Except(teamsForExtraRound).ToList();
+                        Id = teamsForExtraRound[i].Id,
+                        Name = $"W#{i / 2 + 1} {roundName}" 
+                    });
                 }
+
+             
+                teams = teams.Except(teamsForExtraRound).ToList();
             }
 
+          
             teams.AddRange(winningTeamsFromExtraRound);
 
-           //vòng đủ
+        
             for (int i = round; i > 0; i--)
             {
-                string roundName = $"Vòng {Math.Pow(2, i)}";
+                string roundName;
+                if (i == 1)
+                    roundName = "Chung Kết";
+                else if (i == 2)
+                    roundName = "Bán Kết";
+                else if (i == 3)
+                    roundName = "Tứ Kết";
+                else
+                    roundName = $"Vòng 1/{Math.Pow(2, i)}";
 
                 var stage = new Stage
                 {
-                    CompetitionId = id,
+                    CompetitionId = competitionId,
                     Name = roundName,
                     StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddDays(1), 
+                    EndDate = DateTime.Now.AddDays(1),
                     Status = "Vòng chính"
                 };
-
                 _stageRepo.Add(stage);
 
-               
-                teams = teams.OrderBy(x => rand.Next()).ToList();
-
-                
+             
+                List<Team> teamsInCurrentRound = new List<Team>();
                 for (int j = 0; j < teams.Count - 1; j += 2)
                 {
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        TableId = null, 
+                        TableId = null,
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
                         TimeIn = DateTime.Now,
                         TimeOut = DateTime.Now.AddHours(1)
                     };
 
-                   
                     _matchRepo.Add(match);
 
+                  
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j].Id, NameDefault = teams[j].Name });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j + 1].Id, NameDefault = teams[j + 1].Name });
+
                    
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j].Id });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j + 1].Id });
+                    teamsInCurrentRound.Add(new Team
+                    {
+                        Id = teams[j].Id,
+                        Name = $"W#{j / 2 + 1} {roundName}" 
+                    });
                 }
 
-              
-                teams = teams.Take((int)Math.Pow(2, i) / 2).ToList();
+               
+                teams = teamsInCurrentRound.ToList();
             }
 
             return true;
         }
 
-     
+
+
 
         public int CalculateNumberStage(int numberTeam, int numberTable)
         {

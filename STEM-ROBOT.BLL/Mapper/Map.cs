@@ -42,7 +42,7 @@ namespace STEM_ROBOT.BLL.Mapper
 
         
             CreateMap<TournamentComeptition, Competition>()
-                .ForMember(dest => dest.GenreId, opt => opt.MapFrom(src => src.GenreId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GenreId))
                 .ForMember(dest => dest.RegisterTime, opt => opt.MapFrom(src => src.RegisterTime))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.Regulation, opt => opt.MapFrom(src => src.Regulation))

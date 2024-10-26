@@ -7,9 +7,9 @@ public partial class Competition
 {
     public int Id { get; set; }
 
-    public int? TournamentId { get; set; }
-
     public int? GenreId { get; set; }
+
+    public int? TournamentId { get; set; }
 
     public DateTime? RegisterTime { get; set; }
 

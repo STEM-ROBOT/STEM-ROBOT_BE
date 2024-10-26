@@ -31,5 +31,7 @@ namespace STEM_ROBOT.DAL.Repo
                           .SelectMany(x => x.Teams)  
                           .ToListAsync();
         }
+    
+
     }
 }
