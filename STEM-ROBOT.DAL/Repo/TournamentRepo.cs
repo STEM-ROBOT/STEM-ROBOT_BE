@@ -15,23 +15,49 @@ namespace STEM_ROBOT.DAL.Repo
         {
         }
 
-        public async Task<List<TournamentRep>> GetListTournament()
+        public async Task<List<TournamentRep>> GetListTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
         {
-            var tournament = await _context.Tournaments.Select(t => new TournamentRep
+           
+            var query = _context.Tournaments.AsQueryable();
+
+           
+            if (!string.IsNullOrEmpty(name))
             {
-                Id = t.Id,
-                Name = t.Name,
-                Location = t.Location,
-                Image = t.Image,
-                contestant = t.Contestants.Count(x => x.TournamentId == x.Id),
-                views = null,
-                competitionNumber = t.Competitions.Where(x => x.IsActive == true).Count(x => x.TournamentId == x.Id),
-                competitionActivateNumber = t.Competitions.Where(x => x.IsActive == true).Count(x => x.TournamentId == x.Id),
-                imagesCompetition = t.Competitions.Select(g => new ImageCompetition {imageCompetition = g.Genre.Image }).ToList(),
+                query = query.Where(t => t.Name.Contains(name));
+            }
 
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(t => t.Status == status);
+            }
 
-            }).ToListAsync();
+            if (competitionId.HasValue)
+            {
+                query = query.Where(t => t.Competitions.Any(c => c.Id == competitionId));
+            }
+
+            int skip = (page - 1) * pageSize;
+
+          
+            var tournament = await query
+                .OrderBy(t => t.Id) 
+                .Skip(skip)         
+                .Take(pageSize)     
+                .Select(t => new TournamentRep
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Location = t.Location,
+                    Image = t.Image,
+                    contestant = t.Contestants.Count(),
+                    views = null,
+                    competitionNumber = t.Competitions.Count(c => c.TournamentId == t.Id),
+                    competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true && c.TournamentId == t.Id),
+                    imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
+                }).ToListAsync();
+
             return tournament;
         }
+
     }
 }

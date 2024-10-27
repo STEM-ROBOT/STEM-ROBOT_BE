@@ -105,12 +105,12 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public async Task<MutipleRsp> GetTournament()
+        public async Task<MutipleRsp> GetTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
         {
             var res = new MutipleRsp();
             try
             {
-                var listTournament = await _tournament.GetListTournament();
+                var listTournament = await _tournament.GetListTournament(name,status,competitionId,page,pageSize);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.SetData("data", listTournament);
             }
