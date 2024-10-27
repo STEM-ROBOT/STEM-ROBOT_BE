@@ -38,6 +38,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("list-idtournament")]
+        public async Task<IActionResult> GetToutnamentID(int id)
+        {
+            var res = await _competionSvc.getCompetitionWithIDTournament(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
