@@ -12,17 +12,17 @@ namespace STEM_ROBOT.Web.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly OrderSvc _paymentSvc;
+        private readonly OrderSvc _orderSvc;
         private readonly PayOS _payOS;
-        public OrderController(OrderSvc paymentSvc)
+        public OrderController(OrderSvc orderSvc)
         {
-            _paymentSvc = paymentSvc;
+            _orderSvc = orderSvc;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder(OrderReq request)
         {
-            var result = await _paymentSvc.CreateOrder(request);
+            var result = await _orderSvc.CreateOrder(request);
 
             return Ok(result.Data);
             //return Redirect(result.Data.ToString());
@@ -51,14 +51,25 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("cancel/{orderCode}")]
         public async Task<IActionResult> Cancel(int orderCode)
         {
-            var result = await _paymentSvc.CancelOrder(orderCode);
+            var result = await _orderSvc.CancelOrder(orderCode);
             return Redirect("https://www.youtube.com/");
         }
 
-        [HttpGet("get-revenue")]
+        [HttpGet("get-total-revenue")]
         public IActionResult GetRevenue()
         {
-            var res = _paymentSvc.GetRevenue();
+            var res = _orderSvc.GetRevenue();
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
+
+        [HttpGet("get-revenue-by-time")]
+        public IActionResult GetrevenueByTime(DateTime? fromDate, DateTime? toDate)
+        {
+            var res = _orderSvc.GetRevenueByTime(fromDate, toDate);
             if (res.Success)
             {
                 return Ok(res.Data);

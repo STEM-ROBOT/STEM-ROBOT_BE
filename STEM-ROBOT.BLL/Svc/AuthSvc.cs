@@ -47,15 +47,15 @@ namespace STEM_ROBOT.BLL.Svc
             var secretkey = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
 
             var claims = new List<Claim>
-    {
-         new Claim(ClaimTypes.Name, user.Name),
-         new Claim("Id", user.Id.ToString()),
-         new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-         new Claim("Email", user.Email),
-         new Claim(ClaimTypes.Role, user.Role.ToString()),
-    };
+{
+     new Claim(ClaimTypes.Name, user.Name),
+     new Claim("Id", user.Id.ToString()),
+     new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+     new Claim("Email", user.Email),
+     new Claim(ClaimTypes.Role, user.Role.ToString()),
+};
             var tokendescription = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

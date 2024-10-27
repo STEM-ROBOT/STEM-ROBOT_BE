@@ -137,7 +137,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.GenreId)
-                .HasConstraintName("FK__Competiti__Genre__75A278F5");
+                .HasConstraintName("FK_Competition_Genre");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.TournamentId)
@@ -437,6 +437,7 @@ public partial class StemdbContext : DbContext
         {
             entity.ToTable("TeamMatch");
 
+            entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.Result).HasMaxLength(250);
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
@@ -470,6 +471,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(500);
             entity.Property(e => e.TournamentLevel).HasMaxLength(300);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Tournaments)

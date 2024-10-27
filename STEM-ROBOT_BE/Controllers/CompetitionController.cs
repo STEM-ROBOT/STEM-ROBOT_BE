@@ -18,7 +18,7 @@ namespace STEM_ROBOT.Web.Controllers
             _competionSvc = competitionSvc;
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public async Task<IActionResult> GetListCompetition()
         {
             var res = await _competionSvc.GetListCompetitions();
@@ -37,7 +37,7 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetError("400", res.Message);
             }
             return Ok(res);
-        }
+        }*/
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
@@ -68,15 +68,19 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
         [HttpPost("format-table")]
-        public IActionResult CreateCompetitionFormatTable(CompetitionReq request)
+        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionReq request)
         {
-            var res = _competionSvc.CreateCompetionFormatTable(request);
+            var res = _competionSvc.CreateCompetitionFormatTable(request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
             }
             return Ok(res);
         }
+
+        
+
     }
 }
