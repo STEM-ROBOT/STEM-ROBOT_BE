@@ -11,7 +11,13 @@ public partial class TeamMatch
 
     public int? TeamId { get; set; }
 
-    public string? Result { get; set; }
+    public string? NameDefault { get; set; }
+
+    public bool? IsPlay { get; set; }
+
+    public string? ResultPlay { get; set; }
+
+    public int? TotalScore { get; set; }
 
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 

@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.DAL.Repo
 {
-    public class TeamRepo : GenericRep<Team>
+    public class TeamMatchRepo : GenericRep<TeamMatch>
     {
-        public TeamRepo(StemdbContext context) : base(context)
+        public TeamMatchRepo(StemdbContext context) : base(context)
         {
         }
-       
     }
 }
