@@ -88,4 +88,23 @@ namespace STEM_ROBOT.Common.Rsp
         public int? Point { get; set; }
 
     }
+    public class ListPlayer
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+
+        public int played { get; set; }
+        public int win { get; set; }
+        public int draw { get; set; }
+        public int lost { get; set; }
+
+        public ICollection<MemeberPlayer> members { get; set; } = new List<MemeberPlayer>();
+
+    }
+    public class MemeberPlayer
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? avatar { get; set; }
+    }
 }
