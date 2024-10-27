@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,9 @@ namespace STEM_ROBOT.DAL.Repo
                           .ToListAsync();
         }
     
-
+        public async Task<IEnumerable<Competition>> getListScoreCompetition(int competitionID)
+        {
+            return await  _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.ScoreCategories).ToListAsync();
+        }
     }
 }

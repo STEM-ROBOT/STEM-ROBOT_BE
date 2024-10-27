@@ -80,6 +80,42 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<MutipleRsp> getListScoreCompetion(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListScoreCompetition(competitionId);
+                if (competitons == null) throw new Exception("No data");
+               
+
+                var mapper = _mapper.Map<List<CompetionCore>>(competitons);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
+        public async Task<MutipleRsp> getCompetitionWithIDTournament(int IdTournament)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var id = _competitionRepo.GetById(IdTournament);
+                if(id == null) throw new Exception("No data");
+                var list =  _competitionRepo.All(x => x.TournamentId == IdTournament);
+              
+                var mapper = _mapper.Map<List<ListCompetiton>>(list);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
         public SingleRsp AddCompetion(CompetitionReq request)
         {
             var res = new SingleRsp();

@@ -22,12 +22,17 @@ namespace STEM_ROBOT.BLL.Svc
         //  public IHubContext<TournamentClient> _hubContext;
         private readonly IMailService _mailService;
         private readonly AccountRepo _account;
-        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account)
+        private readonly ContestantRepo _contestantRepo;
+        private readonly CompetitionRepo _competitionRepo;
+
+        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account, ContestantRepo contestantRepo, CompetitionRepo competitionRepo)
         {
             _mapper = mapper;
             _tournament = tournamentRepo;
             _mailService = mailService;
             _account = account;
+            _contestantRepo = contestantRepo;
+            _competitionRepo = competitionRepo;
         }
 
         public async Task<SingleRsp> getStatus(int id)
@@ -40,7 +45,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (tournament == null) throw new Exception("No ID");
                 if(tournament.Status == "Pending")
                 {
-                    res.setData("Ok", tournament);
+                    res.setData("data", tournament);
                 }
                 throw new Exception("Not Pending");
             }
@@ -90,7 +95,7 @@ namespace STEM_ROBOT.BLL.Svc
                 
                 await _mailService.SendEmailAsync(mailRequest);
 
-                res.Setmessage("OK");
+                res.Setmessage("data");
 
             }
             catch (Exception ex)
@@ -100,6 +105,23 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        public async Task<MutipleRsp> GetTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var listTournament = await _tournament.GetListTournament(name,status,competitionId,page,pageSize);
+                if (listTournament == null) throw new Exception("Please Check Againt");
+                res.SetData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+        //sum contestant
+     
         //public async Task<SingleRsp> CountTimeTournament(int tourNamentID)
         //{
         //    var res = new SingleRsp();

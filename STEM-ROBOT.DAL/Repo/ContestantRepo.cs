@@ -1,4 +1,5 @@
 ﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,11 @@ namespace STEM_ROBOT.DAL.Repo
         public async Task BulkInsertAsyncSchool(List<Contestant> schoolList)
         {
             await _context.BulkInsertAsync(schoolList);
+        }
+        //sum contestant 
+        public async Task<int> Sumcontestant(int TournamentID)
+        {
+            return await _context.Contestants.Where(x => x.TournamentId == TournamentID).CountAsync();
         }
     }
 }
