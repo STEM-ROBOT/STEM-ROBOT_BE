@@ -71,4 +71,21 @@ namespace STEM_ROBOT.Common.Rsp
         public DateTime? EndTime { get; set; }
         public string? Status { get; set; }
     }
+    public class CompetionCore
+    {
+        public string? Regulation { get; set; }
+        public string? Type { get; set; }
+        public ICollection<Score> ListCore { get; set; } = new List<Score>();
+
+    }
+    public class Score
+    {
+
+        public int Id { get; set; }
+
+        public string? Description { get; set; }
+
+        public int? Point { get; set; }
+
+    }
 }

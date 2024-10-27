@@ -48,6 +48,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("get-list-score")]
+        public async Task<IActionResult> GetListScore(int competitionID)
+        {
+            var res = await _competionSvc.getListScoreCompetion(competitionID);
+            if (!res.Success)
+            {
+                throw new Exception("Please check again");
+            }
+            return Ok(res);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
