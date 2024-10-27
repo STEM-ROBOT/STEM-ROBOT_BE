@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
+using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
 
 namespace STEM_ROBOT.Web.Controllers
@@ -52,6 +53,16 @@ namespace STEM_ROBOT.Web.Controllers
         public async Task<IActionResult> GetListScore(int competitionID)
         {
             var res = await _competionSvc.getListScoreCompetion(competitionID);
+            if (!res.Success)
+            {
+                throw new Exception("Please check again");
+            }
+            return Ok(res);
+        }
+        [HttpGet("list-teamplayer")]
+        public async Task<IActionResult> GetListTeamPlay()
+        {
+            var res = await _competionSvc.getlistTeamplay();
             if (!res.Success)
             {
                 throw new Exception("Please check again");

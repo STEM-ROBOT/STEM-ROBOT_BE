@@ -37,5 +37,28 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await  _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.ScoreCategories).ToListAsync();
         }
+        public async Task<IEnumerable<ListPlayer>> getListPlayer()
+        {
+            var listplayer = await _context.Competitions
+                .Select(t => new ListPlayer
+                {
+                    Id = t.Id,
+                    Name = t.Genre.Name,
+                    played = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.IsPlay == true),
+                    win = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Draw"),
+                    draw = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Win"),
+                    lost = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Lose"),
+                    members = t.Teams.SelectMany(x => x.ContestantTeams).Select(v => new MemeberPlayer
+                    {
+                       Id = v.Contestant.Id,
+                       Name = v.Contestant.Name,
+                       avatar = v.Contestant.Avatar
+
+
+                    }).ToList()
+
+                }).ToListAsync();
+            return listplayer;
+        }
     }
 }

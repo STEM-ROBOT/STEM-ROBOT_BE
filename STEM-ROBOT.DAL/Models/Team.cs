@@ -21,6 +21,8 @@ public partial class Team
 
     public string? Image { get; set; }
 
+    public int? Point { get; set; }
+
     public virtual Competition? Competition { get; set; }
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();

@@ -98,6 +98,25 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        //listteam play
+        public async Task<MutipleRsp> getlistTeamplay()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListPlayer();
+                if (competitons == null) throw new Exception("No data");
+
+
+               
+                res.SetData("data", competitons);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
         public async Task<MutipleRsp> getCompetitionWithIDTournament(int IdTournament)
         {
             var res = new MutipleRsp();
