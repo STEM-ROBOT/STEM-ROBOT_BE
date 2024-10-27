@@ -29,6 +29,13 @@ namespace STEM_ROBOT_BE.Controllers
             if (!res.Success) throw new Exception("Please check againt");
             return Ok(res);
         }
+        [HttpGet("list-tournament")]
+        public async Task<IActionResult> getListTournament()
+        {
+            var res = await _tournament.GetTournament();
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
         [HttpPost]
         public  async Task<IActionResult> addTournament(TournamentReq request)
         {

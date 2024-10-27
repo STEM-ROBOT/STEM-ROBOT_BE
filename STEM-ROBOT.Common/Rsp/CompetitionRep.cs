@@ -62,4 +62,13 @@ namespace STEM_ROBOT.Common.Rsp
 
         public DateTime? TimeEndPlay { get; set; }
     }
+    public class ListCompetiton
+    {
+        public int Id { get; set; }
+
+        public string? Image { get; set; }
+        public string? Name { get; set; }
+        public DateTime? EndTime { get; set; }
+        public string? Status { get; set; }
+    }
 }

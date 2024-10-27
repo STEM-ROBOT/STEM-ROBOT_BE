@@ -95,6 +95,7 @@ namespace STEM_ROBOT.BLL.Mapper
 
             CreateMap<Competition, CompetitionReq>().ReverseMap();
             CreateMap<Competition, CompetitionConfigReq>().ReverseMap();
+            CreateMap<Competition, ListCompetiton>().ReverseMap();
             //stage
             CreateMap<Stage,StageReq>().ReverseMap();
             CreateMap<Stage,StageRep>().ReverseMap();
