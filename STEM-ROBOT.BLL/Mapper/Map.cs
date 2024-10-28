@@ -129,6 +129,10 @@ namespace STEM_ROBOT.BLL.Mapper
             //action
             CreateMap<Action, ActionReq>().ReverseMap();
             CreateMap<Action, ActionRsp>().ReverseMap();
+
+            //teamtable
+            CreateMap<TeamTable, TeamTableReq>().ReverseMap();
+
         }
     }
 }

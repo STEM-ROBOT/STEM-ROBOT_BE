@@ -46,6 +46,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if(tournament.Status == "Pending")
                 {
                     res.setData("data", tournament);
+                    return res;
                 }
                 throw new Exception("Not Pending");
             }
@@ -53,7 +54,6 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception("Fail data");
             }
-            return res;
         }
         public async Task<SingleRsp> AddTournement(int userID, TournamentReq request)
         {
