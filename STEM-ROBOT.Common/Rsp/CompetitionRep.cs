@@ -62,4 +62,49 @@ namespace STEM_ROBOT.Common.Rsp
 
         public DateTime? TimeEndPlay { get; set; }
     }
+    public class ListCompetiton
+    {
+        public int Id { get; set; }
+
+        public string? Image { get; set; }
+        public string? Name { get; set; }
+        public DateTime? EndTime { get; set; }
+        public string? Status { get; set; }
+    }
+    public class CompetionCore
+    {
+        public string? Regulation { get; set; }
+        public string? Type { get; set; }
+        public ICollection<Score> ListCore { get; set; } = new List<Score>();
+
+    }
+    public class Score
+    {
+
+        public int Id { get; set; }
+
+        public string? Description { get; set; }
+
+        public int? Point { get; set; }
+
+    }
+    public class ListPlayer
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+
+        public int played { get; set; }
+        public int win { get; set; }
+        public int draw { get; set; }
+        public int lost { get; set; }
+
+        public ICollection<MemeberPlayer> members { get; set; } = new List<MemeberPlayer>();
+
+    }
+    public class MemeberPlayer
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? avatar { get; set; }
+    }
 }

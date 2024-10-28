@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS;
 using STEM_ROBOT.BLL;
-
-
+using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.BLL.Mapper;
 
 using STEM_ROBOT.BLL.Svc;
@@ -54,6 +53,11 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<MatchSvc>();
             services.AddScoped<TableGroupRepo>();
             services.AddScoped<TableGroupSvc>();
+
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<TeamMatchRepo>();
+
+
             services.AddScoped<PackageRepo>();
             services.AddScoped<PackageSvc>();
             services.AddScoped<OrderRepo>();

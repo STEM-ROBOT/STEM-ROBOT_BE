@@ -21,8 +21,23 @@ namespace STEM_ROBOT_BE.Controllers
             _tournament = tournamentSvc;
         }
 
+
+        [HttpGet("get-status")]
+        public async Task<IActionResult> getStatus(int id)
+        {
+            var res =await _tournament.getStatus(id);
+            if (!res.Success) throw new Exception("Please check againt");
+            return Ok(res);
+        }
+        [HttpGet("list-tournament")]
+        public async Task<IActionResult> getListTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
+        {
+            var res = await _tournament.GetTournament(name,status,competitionId,page,pageSize);
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
         [HttpPost]
-        public  IActionResult addTournament(TournamentReq request)
+        public  async Task<IActionResult> addTournament(TournamentReq request)
         {
             var user =  User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
@@ -31,7 +46,7 @@ namespace STEM_ROBOT_BE.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            SingleRsp res = _tournament.AddTournement(userID, request);
+            SingleRsp res = await _tournament.AddTournement(userID, request);
             if (res.Success)
             {
                 return Ok(res.Data);

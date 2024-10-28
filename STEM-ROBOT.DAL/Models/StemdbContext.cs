@@ -437,8 +437,9 @@ public partial class StemdbContext : DbContext
         {
             entity.ToTable("TeamMatch");
 
+            entity.Property(e => e.IsPlay).HasColumnName("isPlay");
             entity.Property(e => e.NameDefault).HasMaxLength(500);
-            entity.Property(e => e.Result).HasMaxLength(250);
+            entity.Property(e => e.ResultPlay).HasMaxLength(250);
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.MatchId)

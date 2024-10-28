@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -75,7 +76,61 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<MutipleRsp> getListScoreCompetion(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListScoreCompetition(competitionId);
+                if (competitons == null) throw new Exception("No data");
 
+
+                var mapper = _mapper.Map<List<CompetionCore>>(competitons);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
+        //listteam play
+        public async Task<MutipleRsp> getlistTeamplay()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListPlayer();
+                if (competitons == null) throw new Exception("No data");
+
+
+
+                res.SetData("data", competitons);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
+        public async Task<MutipleRsp> getCompetitionWithIDTournament(int IdTournament)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var id = _competitionRepo.GetById(IdTournament);
+                if (id == null) throw new Exception("No data");
+                var list = _competitionRepo.All(x => x.TournamentId == IdTournament);
+
+                var mapper = _mapper.Map<List<ListCompetiton>>(list);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
         public SingleRsp AddCompetion(CompetitionReq request)
         {
             var res = new SingleRsp();
@@ -96,21 +151,22 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp UpdateCompetition(int id, CompetitionReq request)
         {
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.GetById(id);
-                if (competition == null)
+                var competion = _competitionRepo.GetById(id);
+
+
+                if (competion == null)
                 {
                     res.SetError("Please check ID again!");
                     return res;
                 }
-                _mapper.Map(request, competition);
-                _competitionRepo.Update(competition);
-                res.setData("OK", competition);
+                var mapper = _mapper.Map(request, competion);
+                _competitionRepo.Update(mapper);
+                res.setData("OK", mapper);
             }
             catch (Exception ex)
             {
@@ -140,7 +196,47 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        //update competitionformatconfig
+        public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
+        {
+            var res = new SingleRsp();
+            try
+            {
+
+                var id = _competitionRepo.GetById(request.Id);
+
+                if (id == null)
+                {
+                    res.SetError("No ID");
+                }
+                var map = _mapper.Map(request, id);
+                _competitionRepo.Update(map);
+                if (request.FormatId == 2)
+                {
+                    int teamCount = (int)request.NumberTeam;
+                    var checkBool = await StateSetup(teamCount, request.Id);
+
+                    if (checkBool == false)
+                    {
+                        throw new Exception("Tạo vòng đấu thất bại !!");
+                    }
+
+                }
+
+                res.Setmessage("Ok");
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail Loại trực tiếp");
+            }
+            return res;
+
+        }
+
         public SingleRsp CreateCompetitionFormatTable(CompetitionReq request)
+
         {
             var res = new SingleRsp();
             try
@@ -244,6 +340,156 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+
+        private async Task<bool> StateSetup(int number, int competitionId)
+        {
+            if (number <= 0)
+            {
+                throw new Exception("Number must be greater than 0");
+            }
+
+            // Thêm đội vào giải đấu
+            for (int i = 1; i <= number; i++)
+            {
+                var team = new Team()
+                {
+                    CompetitionId = competitionId,
+                    Name = $"Đội #{i}",
+                    Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                };
+                _teamRepo.Add(team);
+            }
+
+            List<Team> teams = await _competitionRepo.GetTeamsByCompetitionId(competitionId);
+            if (teams == null || teams.Count == 0) throw new Exception("No team found for competition.");
+
+            teams = teams.OrderBy(t => t.Id).ToList();
+
+
+            bool isPowerOf2 = (number & (number - 1)) == 0;
+            int round = (int)Math.Ceiling(Math.Log2(number));
+            int closestPowerOf2 = (int)Math.Pow(2, round);
+
+            int extraTeams = number - (closestPowerOf2 / 2);
+
+            List<Team> winningTeamsFromExtraRound = new List<Team>();
+
+
+            if (!isPowerOf2 && extraTeams > 0)
+            {
+                string roundName = $"Vòng phụ cho vòng 1/{Math.Pow(2, round)}";
+                var stage = new Stage
+                {
+                    CompetitionId = competitionId,
+                    Name = roundName,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddHours(2),
+                    Status = "Vòng phụ"
+                };
+                _stageRepo.Add(stage);
+
+
+                var teamsForExtraRound = teams.Take(extraTeams * 2).ToList();
+
+
+                for (int i = 0; i < teamsForExtraRound.Count; i += 2)
+                {
+                    var match = new Match
+                    {
+                        StageId = stage.Id,
+                        TableId = null,
+                        StartDate = DateTime.Now,
+                        Status = "Đấu phụ",
+                        TimeIn = DateTime.Now,
+                        TimeOut = DateTime.Now.AddHours(1)
+                    };
+
+                    _matchRepo.Add(match);
+
+
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i].Id, NameDefault = teamsForExtraRound[i].Name });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i + 1].Id, NameDefault = teamsForExtraRound[i + 1].Name });
+
+
+                    winningTeamsFromExtraRound.Add(new Team
+                    {
+                        Id = teamsForExtraRound[i].Id,
+                        Name = $"W#{i / 2 + 1} {roundName}"
+                    });
+                }
+
+
+                teams = teams.Except(teamsForExtraRound).ToList();
+            }
+
+
+            teams.AddRange(winningTeamsFromExtraRound);
+
+
+            for (int i = round; i > 0; i--)
+            {
+                string roundName;
+                if (i == 1)
+                    roundName = "Chung Kết";
+                else if (i == 2)
+                    roundName = "Bán Kết";
+                else if (i == 3)
+                    roundName = "Tứ Kết";
+                else
+                    roundName = $"Vòng 1/{Math.Pow(2, i)}";
+
+                var stage = new Stage
+                {
+                    CompetitionId = competitionId,
+                    Name = roundName,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddDays(1),
+                    Status = "Vòng chính"
+                };
+                _stageRepo.Add(stage);
+
+
+                List<Team> teamsInCurrentRound = new List<Team>();
+                for (int j = 0; j < teams.Count - 1; j += 2)
+                {
+                    var match = new Match
+                    {
+                        StageId = stage.Id,
+                        TableId = null,
+                        StartDate = DateTime.Now,
+                        Status = "Loại trực tiếp",
+                        TimeIn = DateTime.Now,
+                        TimeOut = DateTime.Now.AddHours(1)
+                    };
+
+                    _matchRepo.Add(match);
+
+
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j].Id, NameDefault = teams[j].Name });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j + 1].Id, NameDefault = teams[j + 1].Name });
+
+
+                    teamsInCurrentRound.Add(new Team
+                    {
+                        Id = teams[j].Id,
+                        Name = $"W#{j / 2 + 1} {roundName}"
+                    });
+                }
+
+
+                teams = teamsInCurrentRound.ToList();
+            }
+
+            return true;
+        }
+
+
+
+
+        public int CalculateNumberStage(int numberTeam, int numberTable)
+        {
+            return (int)Math.Log2(numberTeam / numberTable) + 2;
+        }
         public StageRep GetStageTableInCompetition(int competitionId)
         {
             var stage = _stageRepo.All().FirstOrDefault(s => s.CompetitionId == competitionId && s.Name == "Vòng bảng");
@@ -471,7 +717,6 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception($"Lỗi khi xếp các đội vào trận đấu: {ex.Message}");
             }
         }
-
         // Hàm thêm đội vào trận đấu
         public void AddTeamToMatch(int teamId, int matchId)
         {
@@ -479,7 +724,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 TeamId = teamId,
                 MatchId = matchId,
-                Result = "Pending", // Đội ban đầu chưa có kết quả
+                ResultPlay = "Pending", // Đội ban đầu chưa có kết quả
 
             };
             _teamMatchRepo.Add(teamMatch);
@@ -623,10 +868,13 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 MatchId = matchId,
                 TeamId = null,
-                Result = "Pending", // Trận đấu ban đầu chưa có kết quả
+                ResultPlay = "Pending", // Trận đấu ban đầu chưa có kết quả
                 NameDefault = nameDefault
             };
             _teamMatchRepo.Add(teamMatch);
         }
     }
+
+    
 }
+

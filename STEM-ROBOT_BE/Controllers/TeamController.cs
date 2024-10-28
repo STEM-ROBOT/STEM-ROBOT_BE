@@ -28,6 +28,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
+    
 
         [HttpGet("{id}")]
         public IActionResult GetTeamById(int id)
