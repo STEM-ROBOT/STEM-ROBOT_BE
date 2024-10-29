@@ -34,6 +34,14 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
+        [HttpGet("get-round")]
+        public async Task<IActionResult> getRoundgame(int StageID)
+        {
+            var res = await _matchSvc.getListRound(StageID);
+            if (!res.Success) throw new Exception("Check again");
+            return Ok(res);
+        }
         [HttpPost]
         public IActionResult AddStage(MatchReq request)
         {

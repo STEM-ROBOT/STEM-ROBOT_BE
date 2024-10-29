@@ -36,6 +36,26 @@ namespace STEM_ROBOT_BE.Controllers
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
+        [HttpGet("list-tournament-moderator")]
+        public async Task<IActionResult> getTournamentModerator()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return BadRequest("Please Login!");
+            }
+
+            int userID = int.Parse(user.Value);
+            MutipleRsp res = await  _tournament.getListTournamentModerator(userID);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }   
+            else
+            {
+                return StatusCode(401, res.Message);
+            }
+        }
         [HttpPost]
         public  async Task<IActionResult> addTournament(TournamentReq request)
         {
@@ -46,10 +66,10 @@ namespace STEM_ROBOT_BE.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            SingleRsp res = await _tournament.AddTournement(userID, request);
+            var res = await _tournament.AddTournement(userID, request);
             if (res.Success)
             {
-                return Ok(res.Data);
+                return Ok(res);
             }
             else
             {

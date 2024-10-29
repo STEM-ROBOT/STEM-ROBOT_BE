@@ -15,9 +15,15 @@ public partial class Match
 
     public string? Status { get; set; }
 
-    public DateTime? TimeIn { get; set; }
+    public TimeSpan? TimeIn { get; set; }
 
-    public DateTime? TimeOut { get; set; }
+    public TimeSpan? TimeOut { get; set; }
+
+    public int? LocationId { get; set; }
+
+    public bool? IsSetup { get; set; }
+
+    public virtual Location? Location { get; set; }
 
     public virtual ICollection<MatchHalf> MatchHalves { get; set; } = new List<MatchHalf>();
 
