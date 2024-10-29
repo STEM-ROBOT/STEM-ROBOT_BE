@@ -50,7 +50,7 @@ namespace STEM_ROBOT_BE.Controllers
             if (res.Success)
             {
                 return Ok(res.Data);
-            }
+            }   
             else
             {
                 return StatusCode(401, res.Message);
@@ -66,10 +66,10 @@ namespace STEM_ROBOT_BE.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            SingleRsp res = await _tournament.AddTournement(userID, request);
+            var res = await _tournament.AddTournement(userID, request);
             if (res.Success)
             {
-                return Ok(res.Data);
+                return Ok(res);
             }
             else
             {

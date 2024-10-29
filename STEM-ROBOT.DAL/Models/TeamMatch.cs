@@ -19,6 +19,10 @@ public partial class TeamMatch
 
     public int? TotalScore { get; set; }
 
+    public bool? IsHome { get; set; }
+
+    public bool? IsSetup { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }

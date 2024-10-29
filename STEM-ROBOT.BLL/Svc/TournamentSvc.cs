@@ -73,6 +73,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var userName = user.Name;
                 var email = user.Email;
                 _tournament.Add(tournament);
+                
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
                         <div>
@@ -98,7 +99,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 await _mailService.SendEmailAsync(mailRequest);
 
-                res.Setmessage("data");
+                res.SetMessage("200");
 
             }
             catch (Exception ex)

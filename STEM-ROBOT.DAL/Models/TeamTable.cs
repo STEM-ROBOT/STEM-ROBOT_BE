@@ -11,6 +11,8 @@ public partial class TeamTable
 
     public int? TableGroupId { get; set; }
 
+    public bool? IsSetup { get; set; }
+
     public virtual TableGroup? TableGroup { get; set; }
 
     public virtual Team? Team { get; set; }
