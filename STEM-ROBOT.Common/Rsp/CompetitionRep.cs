@@ -74,6 +74,10 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Name { get; set; }
         public DateTime? EndTime { get; set; }
         public string? Status { get; set; }
+
+        public string? isActive { get; set; }
+
+
     }
     public class CompetionCore
     {

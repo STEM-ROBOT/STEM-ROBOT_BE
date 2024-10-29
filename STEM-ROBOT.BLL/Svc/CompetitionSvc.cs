@@ -139,10 +139,10 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var id = _competitionRepo.GetById(IdTournament);
-                if (id == null) throw new Exception("No data");
+                //var id = _competitionRepo.GetById(IdTournament);
+                //if (id == null) throw new Exception("No data");
+                
                 var list = _competitionRepo.All(x => x.TournamentId == IdTournament);
-
                 var mapper = _mapper.Map<List<ListCompetiton>>(list);
                 res.SetData("data", mapper);
             }
