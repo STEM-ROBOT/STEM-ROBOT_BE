@@ -73,8 +73,10 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public string? Name { get; set; }
         public DateTime? EndTime { get; set; }
-        public string? Status { get; set; }
+        public string? Mode { get; set; }
+
     }
+   
     public class CompetionCore
     {
         public string? Regulation { get; set; }

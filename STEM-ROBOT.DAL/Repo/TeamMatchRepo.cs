@@ -12,5 +12,6 @@ namespace STEM_ROBOT.DAL.Repo
         public TeamMatchRepo(StemdbContext context) : base(context)
         {
         }
+
     }
 }
