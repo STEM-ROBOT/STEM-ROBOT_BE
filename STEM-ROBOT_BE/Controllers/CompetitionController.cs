@@ -123,9 +123,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-
-
+        [HttpGet("Infor")]
+        public IActionResult GetInfor(int id)
+        {
+            var res = _competionSvc.GetCompetitionInfor(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
     }
 }
 
