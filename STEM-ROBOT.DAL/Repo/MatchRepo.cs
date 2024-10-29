@@ -14,10 +14,11 @@ namespace STEM_ROBOT.DAL.Repo
         public MatchRepo(StemdbContext context) : base(context)
         {
         }
-        public async Task<IEnumerable<roundParent>> getRoundGame(int stageID)
+
+        public async Task<IEnumerable<roundParent>> getRoundGame(List<int> competitionID)
         {
             var listRoundParent = await _context.Stages
-                .Where(x => x.Id == stageID)
+                .Where(x =>  competitionID.Contains(x.Id ))
                 .Select(st => new roundParent
                 {
                     IsAsign = st.TableGroups.FirstOrDefault().IsAsign,
@@ -31,34 +32,38 @@ namespace STEM_ROBOT.DAL.Repo
                             Id = tb.Id,
                             tableName = gr.Name,
                             matches = gr.Matches
-                                .Select(match => new 
+                                .Select(match => new
                                 {
 
-                                   
-                                    match.Id, // Match ID
+
+                                    match.Id, 
                                     match.StartDate,
                                     match.TimeIn,
-                                    Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList() // List of Team names in this Match
+                                    Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList() 
                                 })
-                                .Where(m => m.Teams.Count == 2) // Ensure there are exactly two teams
+                                .Where(m => m.Teams.Count == 2) 
                                 .Select(m => new TeamMatchRound
                                 {
                                     IdMatch = m.Id,
-                                    TeamNameA = m.Teams[0], // First team
-                                    TeamNameB = m.Teams[1],  // Second team
-                                   // date = (DateTime)m.StartDate,
-                                  //  time = (DateTime)m.TimeIn,
-                                    
+                                    TeamNameA = m.Teams[0], 
+                                    TeamNameB = m.Teams[1],
+                             //       date = m.StartDate.HasValue ? m.StartDate.Value : default(DateTime),
+                               //     time = m.TimeIn.HasValue ? m.TimeIn.Value : default(TimeSpan),
+
+
+
                                     filed = null
-                                    
+
                                 })
                                 .ToList()
                         }).ToList()
-                    }).FirstOrDefault()
+                    }).FirstOrDefault(),
+                   
                 }).ToListAsync();
-
             return listRoundParent;
+            
         }
+
 
     }
 }

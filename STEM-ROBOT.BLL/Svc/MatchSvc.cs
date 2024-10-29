@@ -127,12 +127,12 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> getListRound(int StageID)
+        public async Task<MutipleRsp> getListRound(List<int> competitionID)
         {
             var res = new MutipleRsp();
             try
             {
-                var list = await _matchRepo.getRoundGame(StageID);
+                var list = await _matchRepo.getRoundGame(competitionID);
                 if (list == null) throw new Exception("No data");
                 res.SetData("data", list);
 

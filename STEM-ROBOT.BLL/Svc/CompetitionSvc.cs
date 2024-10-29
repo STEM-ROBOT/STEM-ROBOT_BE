@@ -139,9 +139,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var id = _competitionRepo.GetById(IdTournament);
-                if (id == null) throw new Exception("No data");
-                var list = _competitionRepo.All(x => x.TournamentId == IdTournament);
+                var list = await _competitionRepo.getListCompetitionGener(IdTournament);
+                if (list == null) throw new Exception("no data");
 
                 var mapper = _mapper.Map<List<ListCompetiton>>(list);
                 res.SetData("data", mapper);
@@ -457,7 +456,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else if (i == 3)
                     roundName = "Tứ Kết";
                 else
-                    roundName = $"Vòng 1/{Math.Pow(2, i)}";
+                    roundName = $"Vòng 1/{Math.Pow(2, i-1)}";
 
                 var stage = new Stage
                 {
@@ -465,7 +464,9 @@ namespace STEM_ROBOT.BLL.Svc
                     Name = roundName,
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(1),
-                    Status = "Vòng chính"
+                    StageCheck = "Vòng chính",
+                    StageMode = "Knockout"
+                    
                 };
                 _stageRepo.Add(stage);
 
@@ -637,14 +638,19 @@ namespace STEM_ROBOT.BLL.Svc
                     int numberMatchesInTable = numberTeamsInTable * (numberTeamsInTable - 1) / 2;
                     for (int i = 0; i < numberMatchesInTable; i++)
                     {
+                        TimeSpan timeIn = new TimeSpan(9, 0, 0).Add(TimeSpan.FromMinutes(i * 30)); // 09:00 + 30 phút mỗi trận
+
                         var match = new Match
                         {
                             StageId = groupStage.Id,
                             TableId = table.Id,
                             StartDate = DateTime.Now, // Ngày giờ bắt đầu có thể thêm sau
-                            Status = "Pending"
-
+                            Status = "Pending",
+                            TimeIn = timeIn, // Gán giá trị TimeSpan
+                            
+                            
                         };
+
                         _matchRepo.Add(match);
                     }
                 }
