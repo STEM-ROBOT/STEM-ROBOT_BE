@@ -78,11 +78,17 @@ namespace STEM_ROBOT.Common.Rsp
     public class CompetionCore
     {
         public string? Regulation { get; set; }
-        public string? Type { get; set; }
-        public ICollection<Score> ListCore { get; set; } = new List<Score>();
+
+        public ICollection<ScoreCompetition> scoreCompetition { get; set; } = new List<ScoreCompetition>();
 
     }
-    public class Score
+    public class ScoreCompetition
+    {
+        public string? Type { get; set; }
+        public ICollection<ScoreList> score { get; set; } = new List<ScoreList>();
+    }
+
+    public class ScoreList
     {
 
         public int Id { get; set; }
@@ -96,7 +102,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-
+        public string? Logo { get; set; }
         public int played { get; set; }
         public int win { get; set; }
         public int draw { get; set; }
