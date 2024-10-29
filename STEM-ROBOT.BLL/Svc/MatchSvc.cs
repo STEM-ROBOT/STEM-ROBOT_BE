@@ -13,18 +13,29 @@ namespace STEM_ROBOT.BLL.Svc
 {
     public class MatchSvc
     {
-        private readonly MatchRepo _repo;
+        private readonly MatchRepo _matchRepo;
         private readonly IMapper _mapper;
-        public MatchSvc(MatchRepo repo, IMapper mapper)
+        private readonly TeamTableRepo _teamTableRepo;
+        private readonly TableGroupRepo _tableGroupRepo;
+        private readonly TeamRepo _teamRepo;
+        private readonly StageRepo _stageRepo;
+        private readonly StageSvc _stageSvc;
+        public MatchSvc(MatchRepo repo, IMapper mapper, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc)
         {
-            _repo = repo;
+            _matchRepo = repo;
+            _teamTableRepo = teamTableRepo;
+            _mapper = mapper;
+            _tableGroupRepo = tableGroupRepo;
+            _teamRepo = teamRepo;
+            _stageRepo = stageRepo;
+            _stageSvc = stageSvc;
         }
         public MutipleRsp GetListMatch()
         {
             var res = new MutipleRsp();
             try
             {
-                var list = _repo.All();
+                var list = _matchRepo.All();
                 if (list == null)
                 {
                     res.SetError("No data");
@@ -44,7 +55,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var list = _repo.GetById(id);
+                var list = _matchRepo.GetById(id);
                 if (list == null)
                 {
                     res.SetError("No data");
@@ -69,7 +80,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("Please check data");
                 }
-                _repo.Add(mapper);
+                _matchRepo.Add(mapper);
                 res.setData("Ok", mapper);
             }
             catch (Exception ex)
@@ -88,7 +99,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("Please check data");
                 }
-                _repo.Add(mapper);
+                _matchRepo.Add(mapper);
                 res.setData("Ok", mapper);
             }
             catch (Exception ex)
@@ -102,12 +113,12 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var match = _repo.GetById(id);
+                var match = _matchRepo.GetById(id);
                 if (match == null)
                 {
                     res.SetError("Please check data");
                 }
-                _repo.Delete(match.Id);
+                _matchRepo.Delete(match.Id);
                 res.setData("Ok", match);
             }
             catch (Exception ex)
@@ -116,5 +127,6 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        
     }
 }

@@ -31,6 +31,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public string imageCompetition { get; set; }
     }
+
     public class TournamentModerator
     {
         public int Id { get; set; }
@@ -47,5 +48,6 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int IsActive { get; set; }
        
+
     }
 }
