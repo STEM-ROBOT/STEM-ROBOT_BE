@@ -151,5 +151,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             return _stageRepo.All().FirstOrDefault(s => s.CompetitionId == competitionId);
         }
+
+    
     }
 }

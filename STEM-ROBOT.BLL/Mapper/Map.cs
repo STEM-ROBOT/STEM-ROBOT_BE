@@ -37,35 +37,13 @@ namespace STEM_ROBOT.BLL.Mapper
 
             CreateMap<Format, FormatReq>().ReverseMap();
 
-            CreateMap<Tournament,TournamentReq>().ReverseMap();
+            CreateMap<Tournament,TournamentReq>()
+                 .ForMember(dest => dest.competition, opt => opt.MapFrom(src => src.Competitions)).ReverseMap();
 
 
-        
-            CreateMap<TournamentComeptition, Competition>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GenreId))
-                .ForMember(dest => dest.RegisterTime, opt => opt.MapFrom(src => src.RegisterTime))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Regulation, opt => opt.MapFrom(src => src.Regulation))
-                .ForMember(dest => dest.NumberContestantTeam, opt => opt.MapFrom(src => src.NumberContestantTeam))
-                .ForMember(dest => dest.IsTop, opt => opt.MapFrom(src => src.IsTop))
-                .ForMember(dest => dest.NumberView, opt => opt.MapFrom(src => src.NumberView))
-                .ForMember(dest => dest.FormatId, opt => opt.MapFrom(src => src.FormatId))
-                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                .ForMember(dest => dest.Mode, opt => opt.MapFrom(src => src.Mode))
-                .ForMember(dest => dest.NumberTeam, opt => opt.MapFrom(src => src.NumberTeam))
-                .ForMember(dest => dest.NumberTeamNextRound, opt => opt.MapFrom(src => src.NumberTeamNextRound))
-                .ForMember(dest => dest.NumberTable, opt => opt.MapFrom(src => src.NumberTable))
-                .ForMember(dest => dest.WinScore, opt => opt.MapFrom(src => src.WinScore))
-                .ForMember(dest => dest.LoseScore, opt => opt.MapFrom(src => src.LoseScore))
-                .ForMember(dest => dest.TieScore, opt => opt.MapFrom(src => src.TieScore))
-                .ForMember(dest => dest.NumberSubReferee, opt => opt.MapFrom(src => src.NumberSubReferee))
-                .ForMember(dest => dest.NumberTeamReferee, opt => opt.MapFrom(src => src.NumberTeamReferee))
-                .ForMember(dest => dest.TimeOfMatch, opt => opt.MapFrom(src => src.TimeOfMatch))
-                .ForMember(dest => dest.TimeBreak, opt => opt.MapFrom(src => src.TimeBreak))
-                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
-                .ForMember(dest => dest.TimeStartPlay, opt => opt.MapFrom(src => src.TimeStartPlay))
-                .ForMember(dest => dest.TimeEndPlay, opt => opt.MapFrom(src => src.TimeEndPlay));
+
+            CreateMap<TournamentComeptition, Competition>()  ;
+               
         
 
         //location
