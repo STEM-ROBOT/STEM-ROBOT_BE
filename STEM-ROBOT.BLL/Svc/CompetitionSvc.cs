@@ -81,12 +81,13 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var competitons = await _competitionRepo.getListScoreCompetition(competitionId);
-                if (competitons == null) throw new Exception("No data");
+                
+                var list_score = await _competitionRepo.getListScoreCompetition(competitionId);
+                if (list_score == null) throw new Exception("No data");
 
 
-                var mapper = _mapper.Map<List<CompetionCore>>(competitons);
-                res.SetData("data", mapper);
+                //var mapper = _mapper.Map<List<CompetionCore>>(list_score);
+                res.SetData("data", list_score);
             }
             catch (Exception ex)
             {
@@ -95,12 +96,13 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //listteam play
-        public async Task<MutipleRsp> getlistTeamplay()
+        public async Task<MutipleRsp> getlistTeamplay(int competitionId)
         {
             var res = new MutipleRsp();
             try
             {
-                var competitons = await _competitionRepo.getListPlayer();
+                var competitons = await _competitionRepo.getListPlayer(competitionId);
+
                 if (competitons == null) throw new Exception("No data");
 
 

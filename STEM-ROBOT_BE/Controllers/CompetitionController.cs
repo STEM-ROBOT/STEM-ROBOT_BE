@@ -39,7 +39,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("list-idtournament")]
+        [HttpGet("tournament")]
         public async Task<IActionResult> GetToutnamentID(int id)
         {
             var res = await _competionSvc.getCompetitionWithIDTournament(id);
@@ -49,7 +49,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("get-list-score")]
+        [HttpGet("score-competition")]
         public async Task<IActionResult> GetListScore(int competitionID)
         {
             var res = await _competionSvc.getListScoreCompetion(competitionID);
@@ -59,10 +59,10 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("list-teamplayer")]
-        public async Task<IActionResult> GetListTeamPlay()
+        [HttpGet("team-competition")]
+        public async Task<IActionResult> GetListTeamPlay(int competitionId)
         {
-            var res = await _competionSvc.getlistTeamplay();
+            var res = await _competionSvc.getlistTeamplay(competitionId);
             if (!res.Success)
             {
                 throw new Exception("Please check again");
