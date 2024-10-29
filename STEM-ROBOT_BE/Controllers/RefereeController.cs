@@ -52,6 +52,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+        [HttpPost("list-referee")]
+        public IActionResult AddListReferee([FromBody] List<RefereeReq> referees)
+        {
+            var res = _refereeSvc.AddListReferee(referees);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
 
         [HttpPut("{id}")]
         public IActionResult UpdateReferee([FromBody] RefereeReq req, int id)

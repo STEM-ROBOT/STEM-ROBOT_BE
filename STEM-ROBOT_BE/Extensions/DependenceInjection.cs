@@ -67,6 +67,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<TeamTableSvc>();
             services.AddScoped<TeamMatchRepo>();
             services.AddScoped<TeamMatchSvc>();
+            services.AddScoped<StorageSvc>();
             return services;
         }
 
