@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
 using STEM_ROBOT.Common.Req;
@@ -18,11 +19,13 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly IMapper _mapper;
         private readonly ContestantRepo _contestantRepo;
         private readonly TournamentRepo _tournamentRepo;
-        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor)
         {
             _tournamentRepo = tournamentRepo;
             _contestantRepo = contestantRepo;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<MutipleRsp> AddContestant(IFormFile file)
         {
@@ -81,6 +84,45 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        
+        public MutipleRsp AddListContestant(List<ContestantReq> contestants, int accountId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+
+
+                var contestantList = new List<Contestant>();
+
+                foreach (var item in contestants)
+                {
+                    var contestant = new Contestant
+                    {
+                        TournamentId = item.TournamentId,
+                        AccountId = accountId,
+                        Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
+                        Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
+                        Status = string.IsNullOrEmpty(item.Status) ? "Không có dữ liệu" : item.Status,
+                        Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
+                        Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
+                        Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
+                    };
+
+                    contestantList.Add(contestant);
+                }
+
+                _contestantRepo.BulkInsertAsyncSchool(contestantList);
+                res.SetData("200", contestantList);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+
         public SingleRsp GetListContestants()
         {
             var res = new SingleRsp();
@@ -105,7 +147,6 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                // Lấy danh sách các thí sinh thuộc tournamentId
                 var contestants = _contestantRepo.All(
                     filter: x => x.TournamentId == tournamentId,
                     includeProperties: "Tournament"
@@ -116,8 +157,6 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("No Data");
                     return res;
                 }
-
-                // Map từ danh sách contestants sang danh sách ContestantInTournament
                 var contestantRsp = contestants.Select(c => new ContestantInTournament
                 {
                     Id = c.Id,
@@ -136,19 +175,6 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
-        }
-
-
-        // Response model để trả về danh sách các contestant
-        public class ContestantResponse
-        {
-            public int Id { get; set; }
-            public string Image { get; set; }
-            public string SchoolName { get; set; }
-            public string Name { get; set; }
-            public string Email { get; set; }
-            public string Gender { get; set; }
-            public string Phone { get; set; }
         }
 
 
