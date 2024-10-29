@@ -193,6 +193,6 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception($"Lỗi khi tính tổng số lượng đội tham gia: {ex.Message}");
             }
         }
-
+        
     }
 }
