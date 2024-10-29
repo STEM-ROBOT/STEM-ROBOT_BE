@@ -17,8 +17,10 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly IMapper _mapper;
         private readonly ContestantRepo _contestantRepo;
-        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper)
+        private readonly TournamentRepo _tournamentRepo;
+        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo)
         {
+            _tournamentRepo = tournamentRepo;
             _contestantRepo = contestantRepo;
             _mapper = mapper;
         }
@@ -97,6 +99,59 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public MutipleRsp GetListContestantByTournament(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                // Lấy danh sách các thí sinh thuộc tournamentId
+                var contestants = _contestantRepo.All(
+                    filter: x => x.TournamentId == tournamentId,
+                    includeProperties: "Tournament"
+                ).ToList();
+
+                if (contestants == null || !contestants.Any())
+                {
+                    res.SetError("No Data");
+                    return res;
+                }
+
+                // Map từ danh sách contestants sang danh sách ContestantInTournament
+                var contestantRsp = contestants.Select(c => new ContestantInTournament
+                {
+                    Id = c.Id,
+                    Image = c.Image,
+                    SchoolName = c.Account?.School?.SchoolName,
+                    Name = c.Name,
+                    Email = c.Email,
+                    Gender = c.Gender,
+                    Phone = c.Phone
+                }).ToList();
+
+                res.SetData("Ok", contestantRsp);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+
+        // Response model để trả về danh sách các contestant
+        public class ContestantResponse
+        {
+            public int Id { get; set; }
+            public string Image { get; set; }
+            public string SchoolName { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string Gender { get; set; }
+            public string Phone { get; set; }
+        }
+
+
         public SingleRsp GetContestantID(int ID)
         {
             var res = new SingleRsp();
@@ -115,7 +170,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-       public SingleRsp UpdateContestant(int  contestantID, ContestantReq contestantReq)
+        public SingleRsp UpdateContestant(int contestantID, ContestantReq contestantReq)
         {
             var res = new SingleRsp();
             try
@@ -143,7 +198,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     _contestantRepo.Delete(contestant.Id);
-                    res.setData("Ok",contestant);
+                    res.setData("Ok", contestant);
                 }
             }
             catch (Exception ex)

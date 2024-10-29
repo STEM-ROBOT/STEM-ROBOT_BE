@@ -132,7 +132,33 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public SingleRsp GetRevenueByTime(DateTime? fromDate, DateTime? toDate)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var query = _paymentRepo.All(p => p.Status == "Success");
 
-        
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(p => p.PurchaseDate >= fromDate.Value);
+                }
+
+                if (toDate.HasValue)
+                {
+                    query = query.Where(p => p.PurchaseDate <= toDate.Value);
+                }
+
+                var totalRevenue = query.Sum(p => p.Amount);
+                res.setData("200", totalRevenue);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+
     }
 }

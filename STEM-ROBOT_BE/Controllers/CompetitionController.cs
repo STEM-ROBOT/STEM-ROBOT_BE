@@ -113,9 +113,9 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpPost("format-table")]
-        public IActionResult CreateCompetitionFormatTable(CompetitionReq request)
+        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionReq request)
         {
-            var res = _competionSvc.CreateCompetionFormatTable(request);
+            var res = _competionSvc.CreateCompetitionFormatTable(request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
@@ -123,6 +123,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("Infor")]
+        public IActionResult GetInfor(int id)
+        {
+            var res = _competionSvc.GetCompetitionInfor(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
     }
 }
 

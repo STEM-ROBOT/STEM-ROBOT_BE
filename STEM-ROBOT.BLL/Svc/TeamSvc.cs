@@ -17,10 +17,11 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly IMapper _mapper;
         private readonly CompetitionRepo _competitionRepo;
 
-        public TeamSvc(TeamRepo teamRepo, IMapper mapper)
+        public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo)
         {
             _teamRepo = teamRepo;
             _mapper = mapper;
+            _competitionRepo = competitionRepo;
         }
 
         public MutipleRsp GetTeams()
@@ -128,38 +129,6 @@ namespace STEM_ROBOT.BLL.Svc
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public MutipleRsp CreateTeams(int competitionId, int numberTeam)
-        {
-            var res = new MutipleRsp();
-            try
-            {
-                var competition = _competitionRepo.GetById(competitionId);
-                if (competition == null)
-                {
-                    res.SetError("No Competition found");
-                    return res;
-                }
-                var createdTeams = new List<Team>();
-                for (int i = 1; i <= numberTeam; i++)
-                {
-                    var team = new Team
-                    {
-                        CompetitionId = competition.Id,
-                        Name = "Team " + i,
-                    };
-                    _teamRepo.Add(team);
-                    createdTeams.Add(team);
-                }
-                res.SetData("200", createdTeams);
-                return res;
-            }
-            catch (Exception ex)
-            {
-                res.SetError(ex.Message);
             }
             return res;
         }

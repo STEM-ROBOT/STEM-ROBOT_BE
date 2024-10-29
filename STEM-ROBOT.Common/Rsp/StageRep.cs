@@ -19,11 +19,6 @@ namespace STEM_ROBOT.Common.Rsp
         public DateTime? EndDate { get; set; }
 
         public string? Status { get; set; }
-
-
-     
-
-
     }
 
     
