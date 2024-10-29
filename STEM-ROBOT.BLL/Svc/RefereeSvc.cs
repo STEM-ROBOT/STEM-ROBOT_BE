@@ -145,5 +145,28 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public MutipleRsp GetListRefereeByTournament(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var lst = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
+                if (lst == null)
+                {
+                    res.SetError("404", "No data found");
+                }
+                else
+                {
+                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }
