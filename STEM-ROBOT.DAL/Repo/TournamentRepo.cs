@@ -17,10 +17,10 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<List<TournamentRep>> GetListTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
         {
-           
+
             var query = _context.Tournaments.AsQueryable();
 
-           
+
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(t => t.Name.Contains(name));
@@ -38,11 +38,11 @@ namespace STEM_ROBOT.DAL.Repo
 
             int skip = (page - 1) * pageSize;
 
-          
+
             var tournament = await query
-                .OrderBy(t => t.Id) 
-                .Skip(skip)         
-                .Take(pageSize)     
+                .OrderBy(t => t.Id)
+                .Skip(skip)
+                .Take(pageSize)
                 .Select(t => new TournamentRep
                 {
                     Id = t.Id,
@@ -57,6 +57,23 @@ namespace STEM_ROBOT.DAL.Repo
                 }).ToListAsync();
 
             return tournament;
+        }
+
+        public async Task<IEnumerable<TournamentModerator>> getTournamentModerator(int userId)
+        {
+            var listTournamentModerator = await _context.Tournaments.Where(x => x.AccountId == userId)
+                .Select(x => new TournamentModerator
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    genre = x.Competitions.Select(x => x.Genre.Name).Distinct().Count(),
+                    Status = x.Status,
+                    IsActive = x.Competitions.Count(x=> x.IsActive == true)
+
+
+                })
+            .ToListAsync();
+            return listTournamentModerator;
         }
 
     }

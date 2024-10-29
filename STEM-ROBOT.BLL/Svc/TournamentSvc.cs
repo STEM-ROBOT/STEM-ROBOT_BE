@@ -10,6 +10,7 @@ using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -113,6 +114,22 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var listTournament = await _tournament.GetListTournament(name, status, competitionId, page, pageSize);
+                if (listTournament == null) throw new Exception("Please Check Againt");
+                res.SetData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+        //list tournament 
+        public async Task<MutipleRsp> getListTournamentModerator(int userID)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var listTournament = await _tournament.getTournamentModerator(userID);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.SetData("data", listTournament);
             }
