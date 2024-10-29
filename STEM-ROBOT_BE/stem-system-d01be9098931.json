@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "stem-system",
+  "private_key_id": "d01be90989319487181ae56cd894259af1732263",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDdWn33zEr/nmhL\nyioJVjAF+j4fxHnDcy4rcFc/DtTeE4gTIkr95Ti2qy2+6ZfPypRxfI6HWX54dlwZ\nM0pxPToBUnKEZBKmTls1gS9te/rzcezK55il2s8fvPJSiMmDR8dPtLboiDNMu7vL\nZVNRq50ZGr8l19QcBLBZUc3kMeOSCW9VsfcwElwYdxhNwUMzZ+K82DC3xgMuuhgc\nh4H7dDE7/rQHuI61S7mYjQM68/SdimASuiUWjHycgwrTNxrz1skL64YYDHBnB2NG\nhaRJvRTpco75DkTcfDwLzkA2mNp9QDrrml6oC86VNsVK7yAsZTdMhzv+IEgY2dJk\nGiEtXQDxAgMBAAECggEAB8fvTydhiIhJOsbNwPvEXuVryyKVNCtnl1PQ4VDUZ0UQ\n/rkxISkuW+97AW/FLCL/IlkiSnw5H6Nre+BLcN0Z3aOIDoLVC/8Loj8bC3J1ARtD\nW2OWQFhHeSJjc0bHLKP4i+L6ngRxpzQfNxhl/CQ39sKzrvEeDekVSOKBBhFB4md9\nPAbV4w/33gA81BJmAeGevJrjy8r3BJ9qtzlcrhI8rEajcLP+z9hrWrRt7SE3I7n8\ncU0x7zj+meyw8n5COq6AdWsId4Ao78A+fPT2GV3HVL2tVZ7clOz8KPBHfeQy9/Rx\nULIsVzhPJAxK9+B7ggjfr4KzuO4c/eaZmtriciawcQKBgQD8zg/Y9FsUf0g+oBLn\n1CQthkp3eyTvo6o+7CjELUy1kKAM9pGnT3yqXW5jyoI+vfHermedbjO4KfhuyMfP\nsdDCVtd/65qGNp1ERDJ06YRK55QPRw4sJgkyKqhlX3SHGsmWOeUZpVWhq/cfrLnW\nnnk4+BEXyMcbDAE+Wktl4YgCmQKBgQDgJquoEKv7ENK/h7USMbe1E7PScQXGYt7O\nMyrUbSAJ2Z4w57XOfvr1b8KufWbt6eqNFVqkube2wq8u7NNHtWY3KnsTa9q9HF1Q\nvf1kSiZSGm0sLlNOKKYXFXdCo2SSCn3WGc3S3wZBUW8YQB69+1Xz5a8mRvrJF+R+\n39T6BXLAGQKBgAYv9OtWb7Q8uUPvHwdVhd0nYEM0XF8RHmWT2huTEEGRXJl0n3P8\n2gxBZSZEGpP2iijtE9Qikll7jX0IpPtMWtOm1HdpCMsoIwk8sg9yd65tpI4LKymh\ndLApox14DJ4R5cUrfZP3G/VtBAteat352vWt/J0caOMclBs2konXz0BhAoGAcN/I\nTSeoExPTrJNAAVt78Pls8insCIy9OgTWKoaRPaSSXnowOT4EThfrZ0bK0D+c11LL\nhGvpMWU0JmMnudKFGH6R36POULC55PDnattUFMAt/bOOS6t4h+NNXQc+m7QgzfHM\njcW1Nqs1UHbphC3OiLU+z/2qSB15+NHqQ8T+lfECgYEA3rSSMtx4RqY+AOKC+/5i\noqvW9HNc+J0FSsMnYnnsM5LqGKeggmA9wuA1LFr+q87aLWA3KLUnZLDGRr4UFq5+\ncPzaY2BH293CTyrBtDVDBjQ6YFI1PGwHJ+R1PhduJ8evXSKkA90UEb4rEzR4xg6d\nbWaxDCZVi04ZdQDEBsQly9E=\n-----END PRIVATE KEY-----\n",
+  "client_email": "stem-system-storage-upload@stem-system.iam.gserviceaccount.com",
+  "client_id": "104363274939532521644",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/stem-system-storage-upload%40stem-system.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
