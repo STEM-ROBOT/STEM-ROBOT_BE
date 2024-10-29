@@ -132,7 +132,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var list = await _repo.getRoundGame(StageID);
+                var list = await _matchRepo.getRoundGame(StageID);
                 if (list == null) throw new Exception("No data");
                 res.SetData("data", list);
 
