@@ -17,5 +17,5 @@ public partial class Location
 
     public virtual Competition? Competition { get; set; }
 
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
 }

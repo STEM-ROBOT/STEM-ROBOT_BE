@@ -14,5 +14,6 @@ namespace STEM_ROBOT.Common.Rsp
         public string PhoneNumber { get; set; }
         public string Status { get; set; }
         public int TournamentId { get; set; }
+        public string Image { get; set; }
     }
 }

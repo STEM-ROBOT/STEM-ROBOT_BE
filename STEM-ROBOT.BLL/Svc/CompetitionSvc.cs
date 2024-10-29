@@ -113,6 +113,27 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public SingleRsp GetCompetitionInfor(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(id);
+                if (competition == null)
+                {
+                    res.SetError("404", "No ID");
+                };
+                var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
+                var tourmanetRsp = _mapper.Map<CompetitionInforRsp>(competition);
+
+                res.setData("data", tourmanetRsp);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail data");
+            }
+            return res;
+        }
         public async Task<MutipleRsp> getCompetitionWithIDTournament(int IdTournament)
         {
             var res = new MutipleRsp();
@@ -400,8 +421,8 @@ namespace STEM_ROBOT.BLL.Svc
                         TableId = null,
                         StartDate = DateTime.Now,
                         Status = "Đấu phụ",
-                        TimeIn = DateTime.Now,
-                        TimeOut = DateTime.Now.AddHours(1)
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero
                     };
 
                     _matchRepo.Add(match);
@@ -458,8 +479,8 @@ namespace STEM_ROBOT.BLL.Svc
                         TableId = null,
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
-                        TimeIn = DateTime.Now,
-                        TimeOut = DateTime.Now.AddHours(1)
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero
                     };
 
                     _matchRepo.Add(match);
@@ -873,8 +894,7 @@ namespace STEM_ROBOT.BLL.Svc
             };
             _teamMatchRepo.Add(teamMatch);
         }
-    }
 
-    
+    }
 }
 

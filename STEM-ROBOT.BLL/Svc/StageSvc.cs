@@ -116,6 +116,42 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public MutipleRsp CreateStages(int competitionId, int numberStage)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competition = _stageRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("No Competition found");
+                    return res;
+                }
+                var createdStages = new List<Stage>();
+                for (int i = 1; i <= numberStage; i++)
+                {
+                    var stage = new Stage
+                    {
+                        CompetitionId = competitionId,
+                        Name = "Vòng " + i,
+                    };
+                    _stageRepo.Add(stage);
+                    createdStages.Add(stage);
+                }
+                res.SetData("200", createdStages);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.SetError($"{ex.Message}");
+            }
+            return res;
+        }
+        public Stage GetFirstStageByCompetitionId(int competitionId)
+        {
+            return _stageRepo.All().FirstOrDefault(s => s.CompetitionId == competitionId);
+        }
 
+    
     }
 }

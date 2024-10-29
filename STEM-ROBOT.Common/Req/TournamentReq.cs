@@ -19,8 +19,9 @@ namespace STEM_ROBOT.Common.Req
         public string? Location { get; set; }
 
         public string? Image { get; set; }
+        public string? Status { get; set; }
 
-
+        public string? Phone { get; set; }
         public ICollection<TournamentComeptition> competition {  get; set; } = new List<TournamentComeptition>();
     }
     public class TournamentComeptition
@@ -29,61 +30,61 @@ namespace STEM_ROBOT.Common.Req
 
         public int? GenreId { get; set; }
 
-        public DateTime? RegisterTime { get; set; }
+        public DateTime? RegisterTime = DateTime.UtcNow;
 
-        public bool? IsActive { get; set; }
+        public bool? IsActive = false;
 
-        public string? Regulation { get; set; }
+        public string? Regulation = null;
 
-        public int? NumberContestantTeam { get; set; }
+        public int? NumberContestantTeam = null;
 
-        public bool? IsTop { get; set; }
+        public bool? IsTop = null;
 
-        public int? NumberView { get; set; }
+        public int? NumberView = null;
 
-        public int? FormatId { get; set; }
+        public int? FormatId = null;
 
-        public DateTime? StartTime { get; set; }
+        public DateTime? StartTime = DateTime.UtcNow;
 
-        public string? Status { get; set; }
+        public string? Status = null;
 
-        public string? Mode { get; set; }
+        public string? Mode = null;
 
-        public int? NumberTeam { get; set; }
+        public int? NumberTeam = null!;
 
-        public int? NumberTeamNextRound { get; set; }
+        public int? NumberTeamNextRound = null!;
 
-        public int? NumberTable { get; set; }
+        public int? NumberTable = null!;
 
-        public int? WinScore { get; set; }
+        public int? WinScore = null!;
 
-        public int? LoseScore { get; set; }
+        public int? LoseScore = null!;
 
-        public int? TieScore { get; set; }
+        public int? TieScore = null!;
 
-        public int? NumberSubReferee { get; set; }
+        public int? NumberSubReferee = null!;
 
-        public int? NumberTeamReferee { get; set; }
+        public int? NumberTeamReferee = null!;
 
-        public TimeSpan? TimeOfMatch { get; set; }
+        public TimeSpan? TimeOfMatch = null!;
 
 
-      
-        public string Name { get; set; } = null!;
+
+        public string Name  = null!;
 
        
-        public string Location { get; set; } = null!;
+        public string Location  = null!;
 
-        public string Image { get; set; } = null!;
+        public string Image = null!;
 
 
-        public TimeSpan? TimeBreak { get; set; }
+        public TimeSpan? TimeBreak = TimeSpan.Zero;
 
-        public DateTime? EndTime { get; set; }
+        public DateTime? EndTime = DateTime.UtcNow;
 
-        public DateTime? TimeStartPlay { get; set; }
+        public DateTime? TimeStartPlay =DateTime.UtcNow;
 
-        public DateTime? TimeEndPlay { get; set; }
+        public DateTime? TimeEndPlay = DateTime.UtcNow;
     }
 }
 
