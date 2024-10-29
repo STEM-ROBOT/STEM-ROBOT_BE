@@ -32,6 +32,10 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int? FormatId { get; set; }
 
+        public string? FormatName { get; set; }
+
+        public int? NumberView { get; set; }
+
         public DateTime? StartTime { get; set; }
 
         public string? Mode { get; set; }
@@ -106,5 +110,14 @@ namespace STEM_ROBOT.Common.Rsp
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? avatar { get; set; }
+    }
+
+    public class CompetitionInforRsp
+    {
+        public string? Name { get; set; }
+        public string? Location { get; set; }
+        public string? Image { get; set; }
+        public int? NumberTeam { get; set; }
+        public string? TournamentName { get; set; }
     }
 }

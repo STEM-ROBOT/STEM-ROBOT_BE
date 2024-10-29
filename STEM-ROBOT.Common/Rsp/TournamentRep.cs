@@ -31,4 +31,11 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public string imageCompetition { get; set; }
     }
+    public class TournamentInforRsp
+    {
+        public string? Name { get; set; }
+        public string? Location { get; set; }
+        public string? Image { get; set; }
+        public int? NumberTeam { get; set; }
+    }
 }

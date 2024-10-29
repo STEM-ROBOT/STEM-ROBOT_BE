@@ -66,5 +66,12 @@ namespace STEM_ROBOT_BE.Controllers
         //    }
         //    return Ok(res.Data);
         //}
+        [HttpGet("{id}")]
+        public  IActionResult getTournament(int id)
+        {
+            var res =  _tournament.GetById(id);
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
     }
 }
