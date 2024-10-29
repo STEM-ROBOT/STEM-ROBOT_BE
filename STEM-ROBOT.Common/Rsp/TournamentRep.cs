@@ -38,4 +38,22 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public int? NumberTeam { get; set; }
     }
+    public class TournamentModerator
+    {
+        public int Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Location { get; set; }
+
+        public string? Image { get; set; }
+
+        public string? Status { get; set; }
+
+        public int genre { get; set; }
+
+        public int IsActive { get; set; }
+       
+
+    }
 }

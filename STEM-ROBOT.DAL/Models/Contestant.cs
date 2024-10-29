@@ -7,8 +7,6 @@ public partial class Contestant
 {
     public int Id { get; set; }
 
-    public int? SchoolId { get; set; }
-
     public int? TournamentId { get; set; }
 
     public string? Name { get; set; }
@@ -22,8 +20,6 @@ public partial class Contestant
     public string? Phone { get; set; }
 
     public string? Image { get; set; }
-
-    public string? Avatar { get; set; }
 
     public int? AccountId { get; set; }
 
