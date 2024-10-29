@@ -10,6 +10,7 @@ using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,6 +73,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var userName = user.Name;
                 var email = user.Email;
                 _tournament.Add(tournament);
+                
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
                         <div>
@@ -97,7 +99,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 await _mailService.SendEmailAsync(mailRequest);
 
-                res.Setmessage("data");
+                res.SetMessage("200");
 
             }
             catch (Exception ex)
@@ -113,6 +115,22 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var listTournament = await _tournament.GetListTournament(name, status, competitionId, page, pageSize);
+                if (listTournament == null) throw new Exception("Please Check Againt");
+                res.SetData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+        //list tournament 
+        public async Task<MutipleRsp> getListTournamentModerator(int userID)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var listTournament = await _tournament.getTournamentModerator(userID);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.SetData("data", listTournament);
             }
@@ -193,6 +211,6 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception($"Lỗi khi tính tổng số lượng đội tham gia: {ex.Message}");
             }
         }
-
+        
     }
 }

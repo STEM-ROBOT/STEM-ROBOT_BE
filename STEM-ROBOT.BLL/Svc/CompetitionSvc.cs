@@ -421,8 +421,8 @@ namespace STEM_ROBOT.BLL.Svc
                         TableId = null,
                         StartDate = DateTime.Now,
                         Status = "Đấu phụ",
-                        TimeIn = DateTime.Now,
-                        TimeOut = DateTime.Now.AddHours(1)
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero
                     };
 
                     _matchRepo.Add(match);
@@ -479,8 +479,8 @@ namespace STEM_ROBOT.BLL.Svc
                         TableId = null,
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
-                        TimeIn = DateTime.Now,
-                        TimeOut = DateTime.Now.AddHours(1)
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero
                     };
 
                     _matchRepo.Add(match);
@@ -895,7 +895,6 @@ namespace STEM_ROBOT.BLL.Svc
             _teamMatchRepo.Add(teamMatch);
         }
 
-        
     }
 }
 

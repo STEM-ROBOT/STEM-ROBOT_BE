@@ -52,8 +52,7 @@ namespace STEM_ROBOT.DAL.Repo
                     {
                        Id = v.Contestant.Id,
                        Name = v.Contestant.Name,
-                       avatar = v.Contestant.Avatar
-
+                        avatar = v.Contestant.Image
 
                     }).ToList()
 

@@ -23,6 +23,8 @@ public partial class Team
 
     public int? Point { get; set; }
 
+    public bool? IsSetup { get; set; }
+
     public virtual Competition? Competition { get; set; }
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();

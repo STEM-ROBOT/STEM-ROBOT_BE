@@ -91,7 +91,38 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public MutipleRsp AddListReferee(List<RefereeReq> referees)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var refereeList = new List<Referee>();
 
+                foreach (var item in referees)
+                {
+                    var referee = new Referee
+                    {
+                        TournamentId = item.TournamentId,
+                        Name = string.IsNullOrEmpty(item.Name) ? "No data" : item.Name,
+                        Email = string.IsNullOrEmpty(item.Email) ? "No data" : item.Email,
+                        Status = string.IsNullOrEmpty(item.Status) ? "No data" : item.Status,
+                        PhoneNumber = string.IsNullOrEmpty(item.PhoneNumber) ? "No data" : item.PhoneNumber,
+                        Image = string.IsNullOrEmpty(item.Image) ? "No data" : item.Image,
+                    };
+
+                    refereeList.Add(referee);
+                    _refereeRepo.Add(referee);
+                }
+
+                
+                res.SetData("200", refereeList);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
         public SingleRsp Update(RefereeReq req, int id)
         {
             var res = new SingleRsp();
@@ -137,6 +168,29 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _refereeRepo.Delete(id);
                     res.SetMessage("Delete successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp GetListRefereeByTournament(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var lst = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
+                if (lst == null)
+                {
+                    res.SetError("404", "No data found");
+                }
+                else
+                {
+                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    res.SetSuccess(lstRes, "200");
                 }
             }
             catch (Exception ex)

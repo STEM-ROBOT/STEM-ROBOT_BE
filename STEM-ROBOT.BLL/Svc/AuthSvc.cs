@@ -21,13 +21,13 @@ namespace STEM_ROBOT.BLL.Svc
     public class AuthSvc : GenericSvc<Account>
     {
         private readonly AccountRepo _accountRep;
-
+        private readonly SchoolRepo _schoolRep;
         private readonly IConfiguration _configuration;
 
-        public AuthSvc(AccountRepo accountRep, IConfiguration configuration) : base(accountRep)
+        public AuthSvc(AccountRepo accountRep, IConfiguration configuration, SchoolRepo schoolRepo) : base(accountRep)
         {
             _accountRep = accountRep;
-
+            _schoolRep = schoolRepo;
             _configuration = configuration;
         }
         public async Task<TokenRsp> Login(LoginReq loginReq)
@@ -35,13 +35,17 @@ namespace STEM_ROBOT.BLL.Svc
             var user = _accountRep.Find(x => x.Email == loginReq.Email && x.Password == loginReq.Password).FirstOrDefault();
             if (user == null) { throw new AggregateException("No user"); }
             var token = await GenarateToken(user);
-            return token;
+            var res = new TokenRsp
+            {
+                Token = token.Token
+            };  
+            return res;
         }
 
 
         public async Task<TokenRsp> GenarateToken(Account user)
         {
-
+            var school = _schoolRep.Find(x => x.Id == user.SchoolId).FirstOrDefault();
 
             var jwttokenHandler = new JwtSecurityTokenHandler();
             var secretkey = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
@@ -54,7 +58,8 @@ namespace STEM_ROBOT.BLL.Svc
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
          new Claim("Email", user.Email),
-
+         new Claim("SchoolName", school.SchoolName),
+         new Claim("Image", user.Image),
          new Claim(ClaimTypes.Role, user.Role.ToString()),
 
     };

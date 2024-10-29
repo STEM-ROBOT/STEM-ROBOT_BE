@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
 using STEM_ROBOT.Common.Req;
@@ -17,10 +18,14 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly IMapper _mapper;
         private readonly ContestantRepo _contestantRepo;
-        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper)
+        private readonly TournamentRepo _tournamentRepo;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor)
         {
+            _tournamentRepo = tournamentRepo;
             _contestantRepo = contestantRepo;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<MutipleRsp> AddContestant(IFormFile file)
         {
@@ -42,7 +47,7 @@ namespace STEM_ROBOT.BLL.Svc
                             var contestants = new Contestant
                             {
 
-                                SchoolId = int.TryParse(workSheet.Cells[row, 1].Value?.ToString().Trim(), out var schoolId)? schoolId: 0,  
+                            //    SchoolId = int.TryParse(workSheet.Cells[row, 1].Value?.ToString().Trim(), out var schoolId)? schoolId: 0,  
                                 TournamentId = int.TryParse(workSheet.Cells[row, 2].Value?.ToString().Trim(), out var tournamentId) ? tournamentId: 0,
                                 Name = string.IsNullOrEmpty(workSheet.Cells[row, 3].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
@@ -79,6 +84,45 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        
+        public MutipleRsp AddListContestant(List<ContestantReq> contestants, int accountId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+
+
+                var contestantList = new List<Contestant>();
+
+                foreach (var item in contestants)
+                {
+                    var contestant = new Contestant
+                    {
+                        TournamentId = item.TournamentId,
+                        AccountId = accountId,
+                        Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
+                        Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
+                        Status = string.IsNullOrEmpty(item.Status) ? "Không có dữ liệu" : item.Status,
+                        Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
+                        Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
+                        Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
+                    };
+
+                    contestantList.Add(contestant);
+                }
+
+                _contestantRepo.BulkInsertAsyncSchool(contestantList);
+                res.SetData("200", contestantList);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+
         public SingleRsp GetListContestants()
         {
             var res = new SingleRsp();
@@ -97,6 +141,43 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public MutipleRsp GetListContestantByTournament(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var contestants = _contestantRepo.All(
+                    filter: x => x.TournamentId == tournamentId,
+                    includeProperties: "Tournament"
+                ).ToList();
+
+                if (contestants == null || !contestants.Any())
+                {
+                    res.SetError("No Data");
+                    return res;
+                }
+                var contestantRsp = contestants.Select(c => new ContestantInTournament
+                {
+                    Id = c.Id,
+                    Image = c.Image,
+                    SchoolName = c.Account?.School?.SchoolName,
+                    Name = c.Name,
+                    Email = c.Email,
+                    Gender = c.Gender,
+                    Phone = c.Phone
+                }).ToList();
+
+                res.SetData("Ok", contestantRsp);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+
         public SingleRsp GetContestantID(int ID)
         {
             var res = new SingleRsp();
@@ -115,7 +196,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-       public SingleRsp UpdateContestant(int  contestantID, ContestantReq contestantReq)
+        public SingleRsp UpdateContestant(int contestantID, ContestantReq contestantReq)
         {
             var res = new SingleRsp();
             try
@@ -143,7 +224,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     _contestantRepo.Delete(contestant.Id);
-                    res.setData("Ok",contestant);
+                    res.setData("Ok", contestant);
                 }
             }
             catch (Exception ex)
