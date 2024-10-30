@@ -8,8 +8,6 @@ namespace STEM_ROBOT.Common.Req
 {
     public class ContestantReq
     {
-        public int? SchoolId { get; set; }
-
         public int? TournamentId { get; set; }
 
         public string? Name { get; set; }

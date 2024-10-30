@@ -26,37 +26,62 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<List<Competition>> getListCompetitionbyID(int id)
         {
-            return await _context.Competitions.Where(x=> x.Id == id).Include(x => x.Locations)
+            return await _context.Competitions.Where(x => x.Id == id).Include(x => x.Locations)
                 .Include(x => x.Genre).ToListAsync();
         }
         public async Task<List<Team>> GetTeamsByCompetitionId(int competitionId)
         {
             return await _context.Competitions
                           .Where(x => x.Id == competitionId)
-                          .Include(x => x.Teams)  
-                          .SelectMany(x => x.Teams)  
+                          .Include(x => x.Teams)
+                          .SelectMany(x => x.Teams)
                           .ToListAsync();
         }
-    
-        public async Task<IEnumerable<Competition>> getListScoreCompetition(int competitionID)
+
+        public async Task<CompetionCore> getListScoreCompetition(int competitionId)
         {
-            return await  _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.ScoreCategories).ToListAsync();
+            var score_data = await _context.Competitions
+                       .Where(x => x.Id == competitionId)
+                       .Include(x => x.ScoreCategories).SelectMany(x => x.ScoreCategories).ToListAsync();
+            var groupedScores = score_data
+       .GroupBy(s => s.Type)
+       .Select(g => new ScoreCompetition
+       {
+           Type = g.Key,
+           score = g.Select(s => new ScoreList
+           {
+               Id = s.Id,
+               Description = s.Description,
+               Point = s.Point
+           }).ToList()
+       })
+       .ToList();
+            var competition_data = await _context.Competitions.Where(c => c.Id == competitionId).FirstOrDefaultAsync();
+            var competioncore = new CompetionCore
+            {
+                Regulation = competition_data.Regulation,
+                scoreCompetition = groupedScores,
+            };
+
+            return competioncore;
         }
-        public async Task<IEnumerable<ListPlayer>> getListPlayer()
+        public async Task<IEnumerable<ListPlayer>> getListPlayer(int competitionId)
         {
-            var listplayer = await _context.Competitions
+            var listplayer = await _context.Teams.Where(c => c.CompetitionId == competitionId)
                 .Select(t => new ListPlayer
                 {
                     Id = t.Id,
-                    Name = t.Genre.Name,
-                    played = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.IsPlay == true),
-                    win = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Draw"),
-                    draw = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Win"),
-                    lost = t.Teams.SelectMany(x => x.TeamMatches).Count(x => x.ResultPlay == "Lose"),
-                    members = t.Teams.SelectMany(x => x.ContestantTeams).Select(v => new MemeberPlayer
+                    Name = t.Name,
+                    Logo = t.Image,
+
+                    played = t.TeamMatches.Count(x => x.IsPlay == true),
+                    win = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
+                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    lost = t.TeamMatches.Count(x => x.ResultPlay == "Lose"),
+                    members = t.ContestantTeams.Select(v => new MemeberPlayer
                     {
-                       Id = v.Contestant.Id,
-                       Name = v.Contestant.Name,
+                        Id = v.Contestant.Id,
+                        Name = v.Contestant.Name,
                         avatar = v.Contestant.Image
 
                     }).ToList()

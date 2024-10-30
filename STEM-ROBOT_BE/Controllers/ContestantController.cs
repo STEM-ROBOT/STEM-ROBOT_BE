@@ -1,8 +1,10 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using System.Collections.Generic;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -25,6 +27,24 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetError("500", res.Message);
             }
             return Ok(res);
+        }
+
+        [HttpPost("list-contestant")]
+        public IActionResult AddListContestant([FromBody] List<ContestantReq> contestants)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return BadRequest("Please Login!");
+            }
+
+            int userID = int.Parse(user.Value);
+            var res =  _contestantSvc.AddListContestant(contestants,userID);
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res.Data);
         }
         [HttpGet]
         public async Task<IActionResult> GetListContestant()
