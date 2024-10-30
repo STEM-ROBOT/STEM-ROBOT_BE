@@ -115,24 +115,34 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp GetCompetitionInfor(int id)
+        public async Task<SingleRsp> GetCompetitionInfor(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.GetById(id);
+                var competition = await _competitionRepo.getCompetition(id);
+
                 if (competition == null)
                 {
-                    res.SetError("404", "No ID");
-                };
-                var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
-                var tourmanetRsp = _mapper.Map<CompetitionInforRsp>(competition);
+                    res.SetError("404", "Competition not found with the provided ID.");
+                    return res;
+                }
 
-                res.setData("data", tourmanetRsp);
+                if (competition.Tournament == null || competition.Genre == null)
+                {
+                    res.SetError("400", "Competition is missing related Tournament or Genre information.");
+                    return res;
+                }
+              
+
+                var competitionRsp = _mapper.Map<CompetitionInforRsp>(competition);
+
+                res.setData("data", competitionRsp);
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail data");
+                res.SetError("500", "Failed to retrieve competition data.");
+                throw new Exception("Failed to retrieve competition data", ex);
             }
             return res;
         }

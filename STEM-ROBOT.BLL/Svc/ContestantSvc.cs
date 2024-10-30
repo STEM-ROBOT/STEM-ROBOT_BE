@@ -97,14 +97,15 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var contestant = new Contestant
                     {
-                        TournamentId = tournamentId,
+                        TournamentId = int.Parse(item.TournamentId),
                         AccountId = accountId,
                         Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
                         Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
-                        Status = string.IsNullOrEmpty(item.Status) ? "Không có dữ liệu" : item.Status,
+                        Status = "active",
                         Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
                         Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
                         Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
+
                     };
 
                     contestantList.Add(contestant);
