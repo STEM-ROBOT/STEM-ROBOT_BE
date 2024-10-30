@@ -91,6 +91,15 @@ namespace STEM_ROBOT.BLL.Mapper
             //    .ForMember(x => x.Type, op => op.MapFrom(x => x.ScoreCategories.FirstOrDefault().Type))
             //    .ForMember(x => x.ListCore, op => op.MapFrom(x => x.ScoreCategories));
 
+            CreateMap<Competition, ListCompetiton>()
+
+                .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre.Name))
+                .ForMember(x => x.Image, op => op.MapFrom(x => x.Genre.Image))
+                .ReverseMap();
+            //CreateMap<Competition, CompetionCore>()
+            //    .ForMember(x => x.Type, op => op.MapFrom(x => x.ScoreCategories.FirstOrDefault().Type))
+            //    .ForMember(x => x.ListCore, op => op.MapFrom(x => x.ScoreCategories));
+
             CreateMap<Competition, CompetitionInforRsp>()
        .ForMember(x => x.TournamentName, op => op.MapFrom(x => x.Tournament != null ? x.Tournament.Name : ""))
        .ForMember(x => x.Location, op => op.MapFrom(x => x.Tournament != null ? x.Tournament.Location : ""))

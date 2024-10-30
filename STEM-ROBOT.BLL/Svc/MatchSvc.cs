@@ -127,9 +127,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public async Task<MutipleRsp> getListRound(int competitionID)
-
         {
             var res = new MutipleRsp();
             try
