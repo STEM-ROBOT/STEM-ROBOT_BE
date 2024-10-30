@@ -68,6 +68,8 @@ namespace STEM_ROBOT.DAL.Repo
                     Name = x.Name,
                     genre = x.Competitions.Select(x => x.Genre.Name).Distinct().Count(),
                     Status = x.Status,
+                    Image =x.Image,
+                    Location = x.Location,
                     IsActive = x.Competitions.Count(x=> x.IsActive == true)
 
 
