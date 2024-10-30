@@ -18,14 +18,22 @@ namespace STEM_ROBOT.BLL.Svc
 
         private readonly RefereeRepo _refereeRepo;
         private readonly IMapper _mapper;
+
+        private readonly RefereeCompetitionRepo _refereeCompetitionRepo;
+        private readonly ScheduleRepo _scheduleRepo;
+        private readonly CompetitionRepo _competitionRepo;
         private readonly IMailService _mailSerivce;
         private readonly AccountRepo _accountRepo;
-        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, IMailService mailSerivce, AccountRepo accountRepo)
+        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, RefereeCompetitionRepo refereeCompetitionRepo, ScheduleRepo scheduleRepo, CompetitionRepo competitionRepo, IMailService mailSerivce, AccountRepo accountRepo)
         {
             _refereeRepo = refereeRepo;
             _mapper = mapper;
-            _mailSerivce = mailSerivce;
+            _refereeCompetitionRepo = refereeCompetitionRepo;
+            _scheduleRepo = scheduleRepo;
+            _competitionRepo = competitionRepo;
+               _mailSerivce = mailSerivce;
             _accountRepo = accountRepo;
+
         }
 
         public MutipleRsp GetReferees()
@@ -231,6 +239,8 @@ namespace STEM_ROBOT.BLL.Svc
 </body>
 </html>";
 
+
+
                         var mailRequest = new MailReq()
                         {
                             ToEmail = referee.Email,
@@ -245,6 +255,7 @@ namespace STEM_ROBOT.BLL.Svc
                 
 
             }
+
 
 
                 res.SetData("200", refereeList);
@@ -331,5 +342,70 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        /*public MutipleRsp GetListRefereeAvailable(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                // Lấy tournamentId từ competitionId
+                var tournamentId = _competitionRepo.All()
+                    .Where(c => c.Id == competitionId)
+                    .Select(c => c.TournamentId)
+                    .FirstOrDefault();
+
+                if (tournamentId == null)
+                {
+                    throw new Exception("Không tìm thấy giải đấu cho cuộc thi này.");
+                }
+
+                // Lấy danh sách RefereeId từ RefereeCompetition dựa trên competitionId
+                var refereeCompetitionList = _refereeCompetitionRepo.All()
+                    .Where(rc => rc.CompetitionId == competitionId)
+                    .ToList();
+
+                if (refereeCompetitionList == null || !refereeCompetitionList.Any())
+                {
+                    throw new Exception("Không tìm thấy trọng tài nào trong cuộc thi này.");
+                }
+
+                var refereeIds = refereeCompetitionList.Select(rc => rc.RefereeId).Distinct().ToList();
+
+                // Lọc danh sách trọng tài phải thuộc giải đấu của tournamentId
+                var tournamentReferees = _refereeRepo.All()
+                    .Where(r => r.TournamentId == tournamentId && refereeIds.Contains(r.Id))
+                    .Select(r => r.Id)
+                    .ToList();
+
+                // Lấy danh sách các trọng tài đang bận từ bảng Schedule
+                var busyRefereeIds = _scheduleRepo.All()
+                    .Where(s => s.StartTime > DateTime.Now)  // Lấy lịch trong tương lai
+                    .Select(s => s.RefereeId)
+                    .Distinct()
+                    .ToList();
+
+                // Lấy danh sách trọng tài rảnh (những người nằm trong danh sách tournamentReferees và không bận)
+                var availableReferees = _refereeRepo.All()
+                    .Where(r => tournamentReferees.Contains(r.Id) && !busyRefereeIds.Contains(r.Id))
+                    .ToList();
+
+                if (availableReferees == null || !availableReferees.Any())
+                {
+                    res.SetSuccess("200", "Không có trọng tài rảnh.");
+                    return res;
+                }
+
+                var availableReferees_mapper = _mapper.Map<List<RefereeRsp>>(availableReferees);
+                res.SetData("200", availableReferees_mapper);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }*/
     }
+
+
+
 }
