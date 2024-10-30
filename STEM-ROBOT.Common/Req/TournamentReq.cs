@@ -48,7 +48,7 @@ namespace STEM_ROBOT.Common.Req
 
         public string? Status = null;
 
-        public string? Mode = null;
+        public string? Mode { get; set; }
 
         public int? NumberTeam = null!;
 

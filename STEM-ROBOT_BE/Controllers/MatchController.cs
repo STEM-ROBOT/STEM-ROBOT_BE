@@ -36,9 +36,16 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpGet("get-round")]
-        public async Task<IActionResult> getRoundgame(int StageID)
+        public async Task<IActionResult> getRoundgame(int CompetitionID)
         {
-            var res = await _matchSvc.getListRound(StageID);
+            var res = await _matchSvc.getListRound(CompetitionID);
+            if (!res.Success) throw new Exception("Check again");
+            return Ok(res);
+        }
+        [HttpGet("get-round-knockout")]
+        public async Task<IActionResult> getRoundKnockoutgame(int CompetitionID)
+        {
+            var res = await _matchSvc.getListKnockOut(CompetitionID);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
