@@ -26,6 +26,6 @@ namespace STEM_ROBOT.Common.Req
 
         public int? SchoolId { get; set; }
 
-        public string? Role { get; set; }
+        public string? Role = "MD";
     }
 }

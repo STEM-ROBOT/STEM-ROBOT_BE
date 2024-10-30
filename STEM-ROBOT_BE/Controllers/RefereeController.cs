@@ -53,9 +53,9 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
         [HttpPost("list-referee")]
-        public IActionResult AddListReferee([FromBody] List<RefereeReq> referees)
+        public async Task<IActionResult> AddListReferee([FromBody] List<RefereeReq> referees)
         {
-            var res = _refereeSvc.AddListReferee(referees);
+            var res = await _refereeSvc.AddListReferee(referees);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -88,15 +88,15 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
-        [HttpGet("tournamentId")]
-        public IActionResult GetListRefereeInTournamentId(int tournamentId)
+        /*[HttpGet("free-referee")]
+        public IActionResult GetListRefereeInTournamentId(int competitionId)
         {
-            var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
+            var res = _refereeSvc.GetListRefereeAvailable(competitionId);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);
             }
             return Ok(res);
-        }
+        }*/
     }
 }
