@@ -32,9 +32,9 @@ namespace STEM_ROBOT.DAL.Repo
                         Name = stage.Name,
                         matchrounds = stage.TableGroups.Select(tableGroup => new Table
                         {
-                            Id = tb.Id,
-                            tableName = gr.Name,
-                            matches = gr.Matches
+                            Id = tableGroup.Id,
+                            tableName = tableGroup.Name,
+                            matches = tableGroup.Matches
                                 .Select(match => new
                                 {
 
@@ -63,29 +63,7 @@ namespace STEM_ROBOT.DAL.Repo
                     }).FirstOrDefault(),
                    
                 }).ToListAsync();
-                            Id = tableGroup.Id,
-                            tableName = tableGroup.Name,
-                            matches = tableGroup.Matches.Select(t => new
-                            {
-                                t.Id,
-                                t.StartDate,
-                                t.TimeIn,
-                                Teams = t.TeamMatches.Select(tm => tm.Team.Name).ToList()
-
-                            }).Where(x=> x.Teams.Count == 2)
-                            .Select(t => new TeamMatchRound{
-                                IdMatch = t.Id,
-                                TeamNameA = t.Teams[0],
-                                TeamNameB = t.Teams[1],
-                                    date = t.StartDate.HasValue ? t.StartDate.Value : default(DateTime),
-                                    time = t.TimeIn.HasValue ? t.TimeIn.Value : default(TimeSpan),
-                                filed = null
-                            }).ToList()
-                        }).ToList()
-                    }).FirstOrDefault(),
-                   
-                    
-                }).ToListAsync();
+                          
             var knockoutData = await getKnockOut(competitionID);
 
             
