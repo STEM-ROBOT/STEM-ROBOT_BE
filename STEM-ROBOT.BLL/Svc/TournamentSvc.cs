@@ -72,7 +72,22 @@ namespace STEM_ROBOT.BLL.Svc
                 tournament.AccountId = userID;
                 var userName = user.Name;
                 var email = user.Email;
+                var status = request.Status;
+
+                
                 _tournament.Add(tournament);
+                foreach(var competition in request.competition)
+                {
+                    var compettiondata = new Competition
+                    {
+                        TournamentId = tournament.Id,
+                        Mode = status,
+                        GenreId = competition.GenreId
+                    };
+                    _competitionRepo.Update(compettiondata);
+                    break;
+                }
+                
                 
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
@@ -173,7 +188,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No ID");
                 };
-                var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
+                //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
                 int totalTeams = CalculateTotalTeamsInTournament(id);
                 tourmanetRsp.NumberTeam = totalTeams;

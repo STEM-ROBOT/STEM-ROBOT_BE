@@ -17,6 +17,10 @@ public partial class Stage
 
     public string? Status { get; set; }
 
+    public string? StageMode { get; set; }
+
+    public string? StageCheck { get; set; }
+
     public virtual Competition? Competition { get; set; }
 
     public virtual ICollection<Match> Matches { get; set; } = new List<Match>();

@@ -81,12 +81,13 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var competitons = await _competitionRepo.getListScoreCompetition(competitionId);
-                if (competitons == null) throw new Exception("No data");
+                
+                var list_score = await _competitionRepo.getListScoreCompetition(competitionId);
+                if (list_score == null) throw new Exception("No data");
 
 
-                var mapper = _mapper.Map<List<CompetionCore>>(competitons);
-                res.SetData("data", mapper);
+                //var mapper = _mapper.Map<List<CompetionCore>>(list_score);
+                res.SetData("data", list_score);
             }
             catch (Exception ex)
             {
@@ -95,12 +96,13 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //listteam play
-        public async Task<MutipleRsp> getlistTeamplay()
+        public async Task<MutipleRsp> getlistTeamplay(int competitionId)
         {
             var res = new MutipleRsp();
             try
             {
-                var competitons = await _competitionRepo.getListPlayer();
+                var competitons = await _competitionRepo.getListPlayer(competitionId);
+
                 if (competitons == null) throw new Exception("No data");
 
 
@@ -113,24 +115,34 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp GetCompetitionInfor(int id)
+        public async Task<SingleRsp> GetCompetitionInfor(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.GetById(id);
+                var competition = await _competitionRepo.getCompetition(id);
+
                 if (competition == null)
                 {
-                    res.SetError("404", "No ID");
-                };
-                var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
-                var tourmanetRsp = _mapper.Map<CompetitionInforRsp>(competition);
+                    res.SetError("404", "Competition not found with the provided ID.");
+                    return res;
+                }
 
-                res.setData("data", tourmanetRsp);
+                if (competition.Tournament == null || competition.Genre == null)
+                {
+                    res.SetError("400", "Competition is missing related Tournament or Genre information.");
+                    return res;
+                }
+              
+
+                var competitionRsp = _mapper.Map<CompetitionInforRsp>(competition);
+
+                res.setData("data", competitionRsp);
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail data");
+                res.SetError("500", "Failed to retrieve competition data.");
+                throw new Exception("Failed to retrieve competition data", ex);
             }
             return res;
         }
@@ -139,10 +151,9 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                //var id = _competitionRepo.GetById(IdTournament);
-                //if (id == null) throw new Exception("No data");
-                
-                var list = _competitionRepo.All(x => x.TournamentId == IdTournament);
+                var list = await _competitionRepo.getListCompetitionGener(IdTournament);
+                if (list == null) throw new Exception("no data");
+
                 var mapper = _mapper.Map<List<ListCompetiton>>(list);
                 res.SetData("data", mapper);
             }
@@ -457,7 +468,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else if (i == 3)
                     roundName = "Tứ Kết";
                 else
-                    roundName = $"Vòng 1/{Math.Pow(2, i)}";
+                    roundName = $"Vòng 1/{Math.Pow(2, i-1)}";
 
                 var stage = new Stage
                 {
@@ -465,7 +476,9 @@ namespace STEM_ROBOT.BLL.Svc
                     Name = roundName,
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(1),
-                    Status = "Vòng chính"
+                    StageCheck = "Vòng chính",
+                    StageMode = "Knockout"
+                    
                 };
                 _stageRepo.Add(stage);
 
@@ -637,14 +650,19 @@ namespace STEM_ROBOT.BLL.Svc
                     int numberMatchesInTable = numberTeamsInTable * (numberTeamsInTable - 1) / 2;
                     for (int i = 0; i < numberMatchesInTable; i++)
                     {
+                        TimeSpan timeIn = new TimeSpan(9, 0, 0).Add(TimeSpan.FromMinutes(i * 30)); // 09:00 + 30 phút mỗi trận
+
                         var match = new Match
                         {
                             StageId = groupStage.Id,
                             TableId = table.Id,
                             StartDate = DateTime.Now, // Ngày giờ bắt đầu có thể thêm sau
-                            Status = "Pending"
-
+                            Status = "Pending",
+                            TimeIn = timeIn, // Gán giá trị TimeSpan
+                            
+                            
                         };
+
                         _matchRepo.Add(match);
                     }
                 }

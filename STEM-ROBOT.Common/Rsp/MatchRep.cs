@@ -65,7 +65,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? TeamNameB { get; set; }
         public DateTime date { get; set; }
         public string? filed { get; set; }
-        public DateTime time { get; set; }
+        public TimeSpan time { get; set; }
     }
  
 }
