@@ -33,8 +33,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _genreRepo.All();
                 if (lst != null)
                 {
-                    var lstRes = _mapper.Map<List<GenreRsp>>(lst);
-                    res.SetData("200",lst);
+                    var lstRsp = _mapper.Map<List<GenreRsp>>(lst);
+                    res.SetData("200",lstRsp);
                 }
                 else
                 {
@@ -135,5 +135,23 @@ namespace STEM_ROBOT.BLL.Svc
 
         }
 
+        public async Task<SingleRsp> getGenerCompetitionID(int CompetitionID)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var genre = await _genreRepo.getGenerCompetitionID(CompetitionID);
+                if (genre == null)
+                {
+                    throw new Exception("No data");
+                }
+                res.setData("data", genre);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail getGenerCompetitionID ");
+            }
+            return res;
+        }
     }
 }

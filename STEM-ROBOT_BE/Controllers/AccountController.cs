@@ -41,7 +41,7 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
 
-        [HttpPost()]
+        [HttpPost("signup-moderator")]
         public IActionResult CreateAccount([FromBody] AccountReq req)
         {
             if (!ModelState.IsValid)

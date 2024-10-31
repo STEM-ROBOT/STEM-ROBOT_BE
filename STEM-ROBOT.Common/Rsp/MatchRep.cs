@@ -28,7 +28,7 @@ namespace STEM_ROBOT.Common.Rsp
     public class roundParent
     {
         public RoundGame groups { get; set; } 
-      //  public RoundGame knockout { get; set; }
+      public RoundGame knockout { get; set; }
 
         public bool? IsAsign { get; set; }
     }

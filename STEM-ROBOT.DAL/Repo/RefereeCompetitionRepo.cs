@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.DAL.Repo
 {
-    public class CompetionFormatRepo : GenericRep<Competition>
+    public class RefereeCompetitionRepo : GenericRep<RefereeCompetition>
     {
-        public CompetionFormatRepo(StemdbContext context) : base(context)
+        public RefereeCompetitionRepo(StemdbContext context) : base(context)
         {
         }
     }
+
 }

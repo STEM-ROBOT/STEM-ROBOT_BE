@@ -35,11 +35,12 @@ namespace STEM_ROBOT.BLL.Mapper
             .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
 
-            CreateMap<Format, FormatReq>().ReverseMap();
+            CreateMap<CompetitionFormat, FormatReq>().ReverseMap();
+            CreateMap<CompetitionFormat, FormatRsp>().ReverseMap();
 
             CreateMap<Tournament,TournamentReq>() .ReverseMap();
 
-
+            CreateMap<Tournament,TournamentInforRsp>().ReverseMap();
 
             CreateMap<TournamentComeptition, Competition>()  ;
                
@@ -75,6 +76,14 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Competition, CompetitionReq>().ReverseMap();
             CreateMap<Competition, CompetitionConfigReq>().ReverseMap();
             CreateMap<Competition, ListCompetiton>()
+                .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre.Name))
+                .ForMember(x => x.Image, op => op.MapFrom(x => x.Genre.Image))
+                
+            //CreateMap<Competition, CompetionCore>()
+            //    .ForMember(x => x.Type, op => op.MapFrom(x => x.ScoreCategories.FirstOrDefault().Type))
+            //    .ForMember(x => x.ListCore, op => op.MapFrom(x => x.ScoreCategories));
+
+
 
                 .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre.Name))
                 .ForMember(x => x.Image, op => op.MapFrom(x => x.Genre.Image))
@@ -83,11 +92,24 @@ namespace STEM_ROBOT.BLL.Mapper
             //    .ForMember(x => x.Type, op => op.MapFrom(x => x.ScoreCategories.FirstOrDefault().Type))
             //    .ForMember(x => x.ListCore, op => op.MapFrom(x => x.ScoreCategories));
 
+            CreateMap<Competition, ListCompetiton>()
+
+                .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre.Name))
+                .ForMember(x => x.Image, op => op.MapFrom(x => x.Genre.Image))
+                .ReverseMap();
+            //CreateMap<Competition, CompetionCore>()
+            //    .ForMember(x => x.Type, op => op.MapFrom(x => x.ScoreCategories.FirstOrDefault().Type))
+            //    .ForMember(x => x.ListCore, op => op.MapFrom(x => x.ScoreCategories));
 
             CreateMap<Competition, CompetitionInforRsp>()
-                .ForMember(x => x.TournamentName, op => op.MapFrom(x => x.Tournament.Name))
-                .ForMember(x => x.Location, op => op.MapFrom(x => x.Tournament.Location))
-                .ReverseMap();
+       .ForMember(x => x.TournamentName, op => op.MapFrom(x => x.Tournament != null ? x.Tournament.Name : ""))
+       .ForMember(x => x.Location, op => op.MapFrom(x => x.Tournament != null ? x.Tournament.Location : ""))
+       .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre != null ? x.Genre.Name : ""))
+       .ForMember(x => x.Image, op => op.MapFrom(x => x.Genre != null ? x.Genre.Image : ""))
+       .ReverseMap();
+
+
+           
             //score
             //CreateMap<ScoreCategory, Score>().ReverseMap();
             //stage
@@ -121,6 +143,9 @@ namespace STEM_ROBOT.BLL.Mapper
             //teamtable
             CreateMap<TeamTable, TeamTableReq>().ReverseMap();
 
+            //genre
+            CreateMap<Genre, GenreReq>().ReverseMap();
+            CreateMap<Genre, GenreRsp>().ReverseMap();
         }
     }
 }
