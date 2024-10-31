@@ -23,6 +23,8 @@ public partial class Contestant
 
     public int? AccountId { get; set; }
 
+    public string? SchoolName { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();

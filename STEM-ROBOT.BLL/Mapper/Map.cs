@@ -35,7 +35,8 @@ namespace STEM_ROBOT.BLL.Mapper
             .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
 
-            CreateMap<Format, FormatReq>().ReverseMap();
+            CreateMap<CompetitionFormat, FormatReq>().ReverseMap();
+            CreateMap<CompetitionFormat, FormatRsp>().ReverseMap();
 
             CreateMap<Tournament,TournamentReq>() .ReverseMap();
 
@@ -142,6 +143,9 @@ namespace STEM_ROBOT.BLL.Mapper
             //teamtable
             CreateMap<TeamTable, TeamTableReq>().ReverseMap();
 
+            //genre
+            CreateMap<Genre, GenreReq>().ReverseMap();
+            CreateMap<Genre, GenreRsp>().ReverseMap();
         }
     }
 }
