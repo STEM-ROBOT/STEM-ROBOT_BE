@@ -113,7 +113,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpPost("format-table")]
-        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionReq request)
+        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionFormatTableReq request)
         {
             var res = _competionSvc.CreateCompetitionFormatTable(request);
             if (!res.Success)
