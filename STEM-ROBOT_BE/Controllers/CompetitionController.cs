@@ -143,6 +143,18 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+        [HttpPost("addRegulation/{competitionId}")]
+
+        public async Task<IActionResult> AddRegulation(string filerule,int competitionId)
+        {
+            var res = await _competionSvc.AddRule(filerule, competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
     }
 }
 

@@ -963,6 +963,30 @@ namespace STEM_ROBOT.BLL.Svc
             _teamMatchRepo.Add(teamMatch);
         }
 
+        public async Task<SingleRsp> AddRule(string file, int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    throw new Exception("Không tìm thấy competitionId");
+                }
+
+                competition.Regulation = file; 
+                _competitionRepo.Update(competition);
+
+                res.setData("success", competition);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
+
     }
 }
 
