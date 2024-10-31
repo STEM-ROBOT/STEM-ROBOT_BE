@@ -428,6 +428,7 @@ namespace STEM_ROBOT.BLL.Svc
                 winningTeamsFromExtraRound.Add(team);
             }
             var index = 0;
+
             // Create extra round if teams are not a power of 2
             if (!isPowerOf2 && extraTeams > 0)
             {
@@ -542,12 +543,20 @@ namespace STEM_ROBOT.BLL.Svc
                     };
                     _matchRepo.Add(match);
 
+                    if(currentRound == round && extraTeams == 0)
+                    {
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                    }else
+                    {
+                        // Add two teams to the match
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = match.MatchCode });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = match.MatchCode });
+                    }
 
-                    // Add two teams to the match
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = match.MatchCode });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = match.MatchCode });
+                  
                     index += 2;
-
+                    
                     // Assume first team wins (placeholder for actual logic)
                     winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
                 }
