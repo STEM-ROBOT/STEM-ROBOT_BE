@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.BLL;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -17,17 +18,22 @@ namespace STEM_ROBOT.BLL.Svc
 
         private readonly RefereeRepo _refereeRepo;
         private readonly IMapper _mapper;
+
         private readonly RefereeCompetitionRepo _refereeCompetitionRepo;
         private readonly ScheduleRepo _scheduleRepo;
         private readonly CompetitionRepo _competitionRepo;
-
-        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, RefereeCompetitionRepo refereeCompetitionRepo, ScheduleRepo scheduleRepo, CompetitionRepo competitionRepo)
+        private readonly IMailService _mailSerivce;
+        private readonly AccountRepo _accountRepo;
+        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, RefereeCompetitionRepo refereeCompetitionRepo, ScheduleRepo scheduleRepo, CompetitionRepo competitionRepo, IMailService mailSerivce, AccountRepo accountRepo)
         {
             _refereeRepo = refereeRepo;
             _mapper = mapper;
             _refereeCompetitionRepo = refereeCompetitionRepo;
             _scheduleRepo = scheduleRepo;
             _competitionRepo = competitionRepo;
+               _mailSerivce = mailSerivce;
+            _accountRepo = accountRepo;
+
         }
 
         public MutipleRsp GetReferees()
@@ -97,7 +103,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public MutipleRsp AddListReferee(List<RefereeReq> referees)
+        public async Task<MutipleRsp> AddListReferee(List<RefereeReq> referees)
         {
             var res = new MutipleRsp();
             try
@@ -118,7 +124,138 @@ namespace STEM_ROBOT.BLL.Svc
 
                     refereeList.Add(referee);
                     _refereeRepo.Add(referee);
-                }
+                    for (int i = 0; i < 10; i++)
+                    {
+                        string email;
+                        do
+                        {
+                            Random random = new Random();
+                            int number = random.Next(10000000, 100000000);
+                            email = $"{referee.TournamentId}{number}@referee.stem.vn";
+                        } while (_accountRepo.Find(a => a.Email == email).Any()); // Kiểm tra xem email đã tồn tại chưa
+
+                        Random randoms = new Random();
+                        int numberPass = randoms.Next(0, 10000);
+                        string password = $"Referee{referee.TournamentId}{numberPass}";
+                        var passwords = BCrypt.Net.BCrypt.HashPassword(password);
+                        var account = new Account
+                        {
+                            Email = email,
+                            Password = passwords,
+                            Role = "RF"
+
+                        };
+
+                        _accountRepo.Add(account);
+
+                        var emailbody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }}
+        .container {{
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }}
+        .header {{
+            text-align: left;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }}
+        .header img {{
+            max-width: 150px;
+        }}
+        .content {{
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.5;
+        }}
+        .content h3 {{
+            font-size: 18px;
+            color: #000;
+        }}
+        .details {{
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+        }}
+        .footer {{
+            text-align: center;
+            color: #666666;
+            font-size: 14px;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }}
+        .link {{
+            color: #007bff;
+            text-decoration: none;
+        }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <img src='https://scontent.fsgn2-7.fna.fbcdn.net/v/t1.6435-9/86806991_598042060775413_5903084531446972416_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEM7N0NmVsmlSlPKPzgOqpz6T6HsIvg59vpPoewi-Dn206PKMh76ZL4wsfdceIr5pRjlLAYFExbu_QujRdab3AC&_nc_ohc=SkPF3QR6dZgQ7kNvgGONk8I&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=AWk_5ffEAWSTiNkQnHg1ynP&oh=00_AYA9ZUvz8oDIgbycVMTS3sZc9jjdcmZOz0u7Wctp3-9WIg&oe=6749301C' alt='STEM'>
+        </div>
+        <div class='content'>
+            <p>Kính gửi {referee.Email} ,</p>
+            <p>Chúng tôi vui mừng thông báo với bạn rằng bạn đã được phân công trong một giải đấu.</p>
+            <h3>Chi tiết thông tin tài khoản</h3>
+            <div class='details'>
+                <p><strong>STEM</strong></p>              
+            <br>
+            <table style='width:100%; border-collapse: collapse; margin-top: 20px;'>
+                <tr>
+                    <th style='border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;'>Email</th>
+                    <th style='border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;'>Password</th>
+                </tr>
+                <tr>
+                    <td style='border: 1px solid #ddd; padding: 8px;'>{account.Email}</td>
+                    <td style='border: 1px solid #ddd; padding: 8px;'>{password}</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+        <div class='footer'>
+            <p>---<br>TRUMVPS<br><a href='https://www.facebook.com/profile.php?id=100017088730777' class='link'>https://www.facebook.com/profile.php?id=100017088730777</a></p>
+            <p>Trang Chủ | Đăng Nhập | Gửi Ticket</p>
+            <p>Copyright © 2021 STEM, All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+
+
+                        var mailRequest = new MailReq()
+                        {
+                            ToEmail = referee.Email,
+                            Subject = "[STEM PLATFORM]",
+                            Body = emailbody
+                        };
+
+                        await _mailSerivce.SendEmailAsync(mailRequest);
+                        break;
+                    }
+                
+                
+
+            }
+
 
 
                 res.SetData("200", refereeList);
