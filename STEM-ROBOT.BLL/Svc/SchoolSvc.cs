@@ -18,10 +18,12 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly SchoolRepo _schoolRepo;
         private readonly IMapper _mapper;
-        public SchoolSvc(SchoolRepo schoolRepo, IMapper mapper)
+        private readonly DistrictRepo _districtRepo;
+        public SchoolSvc(SchoolRepo schoolRepo, IMapper mapper, DistrictRepo districtRepo)
         {
             _schoolRepo = schoolRepo;
             _mapper = mapper;
+            _districtRepo = districtRepo;
         }
 
         public async Task<MutipleRsp> ImportSchool(IFormFile file)
@@ -38,37 +40,27 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         ExcelWorksheet workSheet = package.Workbook.Worksheets[0];
                         int rowCount = workSheet.Dimension.Rows;
-                        for (int row = 3; row < rowCount; row++)
+                        for (int row = 2; row <= rowCount; row++)
                         {
 
                             var schools = new School
                             {
-
-                                SchoolName = string.IsNullOrEmpty(workSheet.Cells[row, 8].Value?.ToString().Trim())
+                                SchoolName = string.IsNullOrEmpty(workSheet.Cells[row, 2].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 8].Value?.ToString().Trim(),
-                                SchoolCode = string.IsNullOrEmpty(workSheet.Cells[row, 7].Value?.ToString().Trim())
+                                              : workSheet.Cells[row, 2].Value?.ToString().Trim(),
+                                SchoolCode = string.IsNullOrEmpty(workSheet.Cells[row, 1].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 7].Value?.ToString().Trim(),
-                                Address = string.IsNullOrEmpty(workSheet.Cells[row, 9].Value?.ToString().Trim())
-                                              ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 9].Value?.ToString().Trim(),
-                                Province = string.IsNullOrEmpty(workSheet.Cells[row, 4].Value?.ToString().Trim())
-                                              ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 4].Value?.ToString().Trim(),
-                                District = string.IsNullOrEmpty(workSheet.Cells[row, 6].Value?.ToString().Trim())
-                                              ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 6].Value?.ToString().Trim(),
-                                ProvinceCode = string.IsNullOrEmpty(workSheet.Cells[row, 3].Value?.ToString().Trim())
+                                              : workSheet.Cells[row, 1].Value?.ToString().Trim(),
+                                Address = string.IsNullOrEmpty(workSheet.Cells[row, 3].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
                                               : workSheet.Cells[row, 3].Value?.ToString().Trim(),
-                                DistrictCode = string.IsNullOrEmpty(workSheet.Cells[row, 5].Value?.ToString().Trim())
+                                ProvinceCode = string.IsNullOrEmpty(workSheet.Cells[row, 5].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
                                               : workSheet.Cells[row, 5].Value?.ToString().Trim(),
-                                Area = string.IsNullOrEmpty(workSheet.Cells[row, 10].Value?.ToString().Trim())
+                                DistrictCode = string.IsNullOrEmpty(workSheet.Cells[row, 4].Value?.ToString().Trim())
                                               ? "Không có dữ liệu"
-                                              : workSheet.Cells[row, 10].Value?.ToString().Trim(),
-
+                                              : workSheet.Cells[row, 4].Value?.ToString().Trim(),
+                                DistrictId = GetIdDistrict(workSheet.Cells[row, 5].Value?.ToString().Trim(), workSheet.Cells[row, 4].Value?.ToString().Trim())
                             };
                             school.Add(schools);
                         }
@@ -76,8 +68,7 @@ namespace STEM_ROBOT.BLL.Svc
                     }
                 }
                 await _schoolRepo.BulkInsertAsyncSchool(school);
-
-
+                res.SetMessage("Import thành công");
             }
             catch (Exception ex)
             {
@@ -178,5 +169,19 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public int GetIdDistrict(string provinceCode, string districtCode)
+        {
+            var district = _districtRepo.All()
+        .Where(d => d.ProvinceCode == provinceCode && d.DistrictCode == districtCode)
+        .FirstOrDefault();
+
+            if (district == null)
+            {
+                throw new Exception("Không tìm thấy quận/huyện với mã tỉnh và mã huyện này.");
+            }
+
+            return district.Id; // Trả về DistrictId
+        }
+
     }
 }

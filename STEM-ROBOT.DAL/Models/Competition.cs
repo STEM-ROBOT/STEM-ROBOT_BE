@@ -57,6 +57,8 @@ public partial class Competition
 
     public DateTime? TimeEndPlay { get; set; }
 
+    public string? RegulationScore { get; set; }
+
     public virtual CompetitionFormat? Format { get; set; }
 
     public virtual Genre? Genre { get; set; }

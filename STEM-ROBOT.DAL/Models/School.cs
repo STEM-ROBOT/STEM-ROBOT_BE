@@ -13,15 +13,13 @@ public partial class School
 
     public string? Address { get; set; }
 
-    public string? Area { get; set; }
-
-    public string? Province { get; set; }
-
-    public string? District { get; set; }
-
     public string? ProvinceCode { get; set; }
 
     public string? DistrictCode { get; set; }
 
+    public int? DistrictId { get; set; }
+
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
+
+    public virtual District? District { get; set; }
 }
