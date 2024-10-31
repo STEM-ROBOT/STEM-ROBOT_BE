@@ -63,9 +63,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=LAPTOP-I2GP951T\\SQLEXPRESS;uid=sa;pwd=12345;Database=STEMDb;TrustServerCertificate=True");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=LAPTOP-I2GP951T\\SQLEXPRESS;uid=sa;pwd=12345;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -230,6 +230,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -453,6 +456,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchWinCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
 
