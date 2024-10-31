@@ -33,8 +33,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _genreRepo.All();
                 if (lst != null)
                 {
-                    var lstRes = _mapper.Map<List<GenreRsp>>(lst);
-                    res.SetData("200",lst);
+                    var lstRsp = _mapper.Map<List<GenreRsp>>(lst);
+                    res.SetData("200",lstRsp);
                 }
                 else
                 {
