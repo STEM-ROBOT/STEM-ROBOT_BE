@@ -75,6 +75,8 @@ namespace STEM_ROBOT.Common.Rsp
         public DateTime? EndTime { get; set; }
         public string? Mode { get; set; }
 
+        public bool? isActive { get; set; }
+
     }
    
     public class CompetionCore
@@ -127,5 +129,6 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public int? NumberTeam { get; set; }
         public string? TournamentName { get; set; }
+        public bool? isActive { get;set; }
     }
 }

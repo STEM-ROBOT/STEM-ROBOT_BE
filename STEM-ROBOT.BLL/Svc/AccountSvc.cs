@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Crypto.Generators;
 using STEM_ROBOT.Common.BLL;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -89,9 +90,9 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
 
-
+                account.Password = BCrypt.Net.BCrypt.HashPassword(req.Password);
                 _accountRepo.Add(account);
-                res.setData("Account added successfully", account);
+                res.SetMessage("Regiter Data");
             }
             catch (Exception ex)
             {
@@ -99,6 +100,8 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        //hash password 
         public SingleRsp Update([FromBody] AccountReq req, int id)
         {
             var res = new SingleRsp();
