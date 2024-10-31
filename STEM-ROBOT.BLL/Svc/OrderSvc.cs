@@ -80,11 +80,10 @@ namespace STEM_ROBOT.BLL.Svc
 
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
-#if DEBUG
+
             PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/payments/cancel/{orderCode}", $"https://localhost:7283/api/payments/success/{orderCode}");
-#else
-           
-#endif
+
+ 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
