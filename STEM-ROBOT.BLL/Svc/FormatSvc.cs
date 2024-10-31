@@ -73,7 +73,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var newFormat = _mapper.Map<Format>(tournamentFormat);
+                var newFormat = _mapper.Map<CompetitionFormat>(tournamentFormat);
                 _formatSvc.Add(newFormat);
                 res.setData("200", newFormat);
             }

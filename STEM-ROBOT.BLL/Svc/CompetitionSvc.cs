@@ -287,7 +287,7 @@ namespace STEM_ROBOT.BLL.Svc
 
         }
 
-        public SingleRsp CreateCompetitionFormatTable(CompetitionReq request)
+        public SingleRsp CreateCompetitionFormatTable(CompetitionFormatTableReq request)
 
         {
             var res = new SingleRsp();
@@ -659,7 +659,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var team = new Team
                 {
                     CompetitionId = competitionId,
-                    Name = "Team " + (i + 1)
+                    Name = "Team " + (i + 1),
+                    Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
                 };
                 _teamRepo.Add(team);
             }
@@ -821,7 +822,6 @@ namespace STEM_ROBOT.BLL.Svc
                 var teamsInTable = _teamTableRepo.All()
                     .Where(tt => tt.TableGroupId == table.Id)
                     .Join(_teamRepo.All(), tt => tt.TeamId, t => t.Id, (tt, t) => t)
-                    .OrderByDescending(t => t.Point)
                     .ToList();
 
                 if (teamsInTable.Any())
@@ -920,15 +920,15 @@ namespace STEM_ROBOT.BLL.Svc
                             // Vòng đầu tiên sau vòng bảng
                             if (i < qualifiedTeams.Count - 1)
                             {
-                                AddTeamMatchWithPlaceholder(matches[i].Id, $"Nhất bảng {tables[i % tables.Count].Name}");
-                                AddTeamMatchWithPlaceholder(matches[i].Id, $"Nhì bảng {tables[(i + 1) % tables.Count].Name}");
+                                AddTeamMatchWithPlaceholder(matches[i].Id, $"W#1 {tables[i % tables.Count].Name}");
+                                AddTeamMatchWithPlaceholder(matches[i].Id, $"W#2 {tables[(i + 1) % tables.Count].Name}");
                             }
                         }
                         else
                         {
                             // Các vòng tiếp theo (bán kết, chung kết)
-                            AddTeamMatchWithPlaceholder(matches[i].Id, $"Win trận {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 1}");
-                            AddTeamMatchWithPlaceholder(matches[i].Id, $"Win trận {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 2}");
+                            AddTeamMatchWithPlaceholder(matches[i].Id, $"W# {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 1}");
+                            AddTeamMatchWithPlaceholder(matches[i].Id, $"W# {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 2}");
                         }
                     }
 
