@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  stem-robot.web:
+    image: ${DOCKER_REGISTRY-}stemrobotweb
+    container_name: apiStem
+    build:
+      context: .
+      dockerfile: STEM-ROBOT_BE/Dockerfile
+    ports:
+      - "5000:5000" 
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: always
+

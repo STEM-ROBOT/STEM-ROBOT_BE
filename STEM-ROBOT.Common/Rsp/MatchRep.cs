@@ -68,4 +68,8 @@ namespace STEM_ROBOT.Common.Rsp
         public TimeSpan time { get; set; }
     }
  
+
+    // round loại trực tiếp
+
+    
 }

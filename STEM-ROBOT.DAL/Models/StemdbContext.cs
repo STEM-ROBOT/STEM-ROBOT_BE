@@ -19,6 +19,8 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Action> Actions { get; set; }
 
+    public virtual DbSet<Area> Areas { get; set; }
+
     public virtual DbSet<Competition> Competitions { get; set; }
 
     public virtual DbSet<CompetitionFormat> CompetitionFormats { get; set; }
@@ -26,6 +28,8 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Contestant> Contestants { get; set; }
 
     public virtual DbSet<ContestantTeam> ContestantTeams { get; set; }
+
+    public virtual DbSet<District> Districts { get; set; }
 
     public virtual DbSet<Genre> Genres { get; set; }
 
@@ -40,6 +44,8 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Package> Packages { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<Province> Provinces { get; set; }
 
     public virtual DbSet<Referee> Referees { get; set; }
 
@@ -63,9 +69,6 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=LAPTOP-I2GP951T\\SQLEXPRESS;uid=sa;pwd=12345;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -114,6 +117,15 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK_Action_TeamMatch");
         });
 
+        modelBuilder.Entity<Area>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Area_1");
+
+            entity.ToTable("Area");
+
+            entity.Property(e => e.Name).HasMaxLength(500);
+        });
+
         modelBuilder.Entity<Competition>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Competit__3213E83F125E57BB");
@@ -126,6 +138,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Mode).HasMaxLength(500);
             entity.Property(e => e.RegisterTime).HasColumnType("date");
             entity.Property(e => e.Regulation).HasColumnType("text");
+            entity.Property(e => e.RegulationScore).HasColumnType("ntext");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.TimeEndPlay).HasColumnType("datetime");
@@ -166,6 +179,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.SchoolName).HasMaxLength(500);
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Contestants)
@@ -190,6 +204,19 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.ContestantTeams)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK_ContestantCompetition_Team");
+        });
+
+        modelBuilder.Entity<District>(entity =>
+        {
+            entity.ToTable("District");
+
+            entity.Property(e => e.DistrictCode).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(500);
+            entity.Property(e => e.ProvinceCode).HasMaxLength(50);
+
+            entity.HasOne(d => d.Province).WithMany(p => p.Districts)
+                .HasForeignKey(d => d.ProvinceId)
+                .HasConstraintName("FK_District_Province");
         });
 
         modelBuilder.Entity<Genre>(entity =>
@@ -230,6 +257,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -303,6 +333,18 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK_Payment_Order");
         });
 
+        modelBuilder.Entity<Province>(entity =>
+        {
+            entity.ToTable("Province");
+
+            entity.Property(e => e.Name).HasMaxLength(500);
+            entity.Property(e => e.ProvinceCode).HasMaxLength(50);
+
+            entity.HasOne(d => d.Area).WithMany(p => p.Provinces)
+                .HasForeignKey(d => d.AreaId)
+                .HasConstraintName("FK_Province_Area");
+        });
+
         modelBuilder.Entity<Referee>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Referee__3213E83FF479F0DE");
@@ -361,13 +403,14 @@ public partial class StemdbContext : DbContext
             entity.ToTable("School");
 
             entity.Property(e => e.Address).HasMaxLength(500);
-            entity.Property(e => e.Area).HasMaxLength(200);
-            entity.Property(e => e.District).HasMaxLength(200);
             entity.Property(e => e.DistrictCode).HasMaxLength(200);
-            entity.Property(e => e.Province).HasMaxLength(200);
             entity.Property(e => e.ProvinceCode).HasMaxLength(200);
             entity.Property(e => e.SchoolCode).HasMaxLength(250);
             entity.Property(e => e.SchoolName).HasMaxLength(500);
+
+            entity.HasOne(d => d.District).WithMany(p => p.Schools)
+                .HasForeignKey(d => d.DistrictId)
+                .HasConstraintName("FK_School_District");
         });
 
         modelBuilder.Entity<ScoreCategory>(entity =>
@@ -392,10 +435,8 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.Name).HasMaxLength(250);
-            entity.Property(e => e.StageCheck)
-                .HasMaxLength(200)
-                .IsFixedLength();
-            entity.Property(e => e.StageMode).HasColumnType("ntext");
+            entity.Property(e => e.StageCheck).HasMaxLength(500);
+            entity.Property(e => e.StageMode).HasMaxLength(500);
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -453,6 +494,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchWinCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
 
