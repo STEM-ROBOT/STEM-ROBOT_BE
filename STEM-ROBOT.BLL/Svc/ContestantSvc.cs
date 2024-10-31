@@ -86,27 +86,26 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         
-        public MutipleRsp AddListContestant(List<ContestantReq> contestants, int accountId)
+        public MutipleRsp AddListContestant(List<ContestantReq> contestants, int accountId, int tournamentId)
         {
             var res = new MutipleRsp();
             try
             {
-
-
                 var contestantList = new List<Contestant>();
 
                 foreach (var item in contestants)
                 {
                     var contestant = new Contestant
                     {
-                        TournamentId = item.TournamentId,
+                        TournamentId = int.Parse(item.TournamentId),
                         AccountId = accountId,
                         Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
                         Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
-                        Status = string.IsNullOrEmpty(item.Status) ? "Không có dữ liệu" : item.Status,
+                        Status = "active",
                         Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
                         Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
                         Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
+
                     };
 
                     contestantList.Add(contestant);
@@ -132,7 +131,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<IEnumerable<Contestant>>(contestant);
-                    res.setData("Ok", mapper);
+                    res.setData("200", mapper);
                 }
             }
             catch (Exception ex)
@@ -168,7 +167,7 @@ namespace STEM_ROBOT.BLL.Svc
                     Phone = c.Phone
                 }).ToList();
 
-                res.SetData("Ok", contestantRsp);
+                res.SetData("200", contestantRsp);
             }
             catch (Exception ex)
             {
@@ -187,7 +186,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<Contestant>(contestant);
-                    res.setData("Ok", mapper);
+                    res.setData("200", mapper);
                 }
             }
             catch (Exception ex)
@@ -206,7 +205,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(contestantReq, contestant);
                     _contestantRepo.Update(contestant);
-                    res.setData("OK", contestant);
+                    res.setData("200", contestant);
                 }
             }
             catch (Exception ex)
@@ -224,7 +223,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     _contestantRepo.Delete(contestant.Id);
-                    res.setData("Ok", contestant);
+                    res.setData("200", contestant);
                 }
             }
             catch (Exception ex)

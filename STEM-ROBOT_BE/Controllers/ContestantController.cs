@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using STEM_ROBOT.DAL.Models;
 using System.Collections.Generic;
 
 namespace STEM_ROBOT.Web.Controllers
@@ -29,8 +30,8 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpPost("list-contestant")]
-        public IActionResult AddListContestant([FromBody] List<ContestantReq> contestants)
+        [HttpPost("{tournamentId}/list-contestant")]
+        public IActionResult AddListContestant([FromBody] List<ContestantReq> contestants,int tournamentId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
@@ -39,7 +40,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            var res =  _contestantSvc.AddListContestant(contestants,userID);
+            var res =  _contestantSvc.AddListContestant(contestants,userID, tournamentId);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);

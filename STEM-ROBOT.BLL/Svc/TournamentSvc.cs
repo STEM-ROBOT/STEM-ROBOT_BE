@@ -188,7 +188,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No ID");
                 };
-                var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
+                //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
                 int totalTeams = CalculateTotalTeamsInTournament(id);
                 tourmanetRsp.NumberTeam = totalTeams;
