@@ -21,10 +21,11 @@ namespace STEM_ROBOT_BE.Controllers
             var res = await _schooSvc.ImportSchool(file);
             if (!res.Success)
             {
-               return StatusCode(500, res.Message);
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }
+        
         [HttpGet]
         public async Task<IActionResult> GetListSchool()
         {
@@ -58,7 +59,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
         [HttpPut("id")]
-        public async Task<IActionResult> UpdateSchool(int id,SchoolReq request)
+        public async Task<IActionResult> UpdateSchool(int id, SchoolReq request)
         {
             var res = _schooSvc.UpdateSchool(id, request);
             if (!res.Success)

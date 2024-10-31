@@ -73,6 +73,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public string? Name { get; set; }
         public DateTime? EndTime { get; set; }
+        public Boolean? IsActive { get; set; }
         public string? Mode { get; set; }
 
         public bool? isActive { get; set; }
