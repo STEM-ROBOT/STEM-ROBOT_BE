@@ -23,6 +23,8 @@ public partial class Match
 
     public bool? IsSetup { get; set; }
 
+    public string? MatchCode { get; set; }
+
     public virtual Location? Location { get; set; }
 
     public virtual ICollection<MatchHalf> MatchHalves { get; set; } = new List<MatchHalf>();

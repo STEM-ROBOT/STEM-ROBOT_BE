@@ -40,16 +40,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpGet("gener-competitionID")]
-        public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
-        {
-            var res = await _genreSvc.getGenerCompetitionID(competitionID);
-            if (!res.Success)
-            {
-                throw new Exception("Please check input");
-            }
-            return Ok(res.Data);
-        }
+      
 
 
         [HttpPost()]

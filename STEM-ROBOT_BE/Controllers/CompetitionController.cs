@@ -133,7 +133,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
+        [HttpGet("config-register")]
+        public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
+        {
+            var res = await _competionSvc.getGenerCompetitionID(competitionID);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
     }
 }
 

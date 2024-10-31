@@ -23,6 +23,8 @@ public partial class TeamMatch
 
     public bool? IsSetup { get; set; }
 
+    public string? MatchWinCode { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }
