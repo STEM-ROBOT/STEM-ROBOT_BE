@@ -69,6 +69,10 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<TeamMatchSvc>();
             services.AddScoped<StorageSvc>();
             services.AddScoped<RefereeCompetitionRepo>();
+            services.AddScoped<ProvinceRepo>();
+            services.AddScoped<ProvinceSvc>();
+            services.AddScoped<DistrictRepo>();
+            services.AddScoped<DistrictSvc>();
             return services;
         }
 
