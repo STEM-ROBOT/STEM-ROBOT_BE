@@ -21,8 +21,6 @@ public partial class Team
 
     public string? Image { get; set; }
 
-    public int? Point { get; set; }
-
     public bool? IsSetup { get; set; }
 
     public virtual Competition? Competition { get; set; }
