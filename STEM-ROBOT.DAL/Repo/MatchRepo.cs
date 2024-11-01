@@ -141,7 +141,7 @@ namespace STEM_ROBOT.DAL.Repo
                 rounds.rounds.Add(roundsGame);
 
             }
-            rounds.teamsBye = await teamBye(competitionID);
+            rounds.teams = await teamBye(competitionID);
             return rounds; 
 
         }
@@ -172,7 +172,7 @@ namespace STEM_ROBOT.DAL.Repo
                     matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
                     teamsmatch = stage.Stages.SelectMany(x=> x.Matches).SelectMany(match => match.TeamMatches).Select(x=> new RoundGameTeamMatch
                     {
-                        teamId =x.Id,
+                        teamId = (int)x.TeamId,
                         teamMatchId = (int)x.MatchId,
                         teamName = x.NameDefault
                     }).ToList(),
