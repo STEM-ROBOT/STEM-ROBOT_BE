@@ -1,4 +1,5 @@
-﻿using STEM_ROBOT.DAL.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,16 @@ namespace STEM_ROBOT.DAL.Repo
         public TeamRepo(StemdbContext context) : base(context)
         {
         }
-       
+
+        public List<Team> GetTeamsByCompetition(int id)
+        {
+            return _context.Teams
+        .Where(x => x.CompetitionId == id)
+        .Include(c => c.Competition)
+        .Include(c => c.ContestantTeams)
+            .ThenInclude(ct => ct.Contestant) 
+        .ToList();
+        }
+
     }
 }

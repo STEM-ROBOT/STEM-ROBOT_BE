@@ -10,6 +10,8 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int? CompetitionId { get; set; }
 
+        public int? ContestantInTeam { get; set;}
+
         public string? Name { get; set; }
 
         public string? Status { get; set; }
@@ -21,5 +23,14 @@ namespace STEM_ROBOT.Common.Rsp
         public string? ContactInfo { get; set; }
 
         public string? Image { get; set; }
+
+        public List<Constestant> member { get; set; }
+    }
+
+    public class Constestant
+    {
+        public int? ContestantId { get; set; }
+
+        public string? ContestantName { get; set; }
     }
 }

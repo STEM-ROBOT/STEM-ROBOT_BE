@@ -8,11 +8,13 @@ namespace STEM_ROBOT.Common.Req
 {
     public  class TeamMatchReq
     {
-        public int? MatchId { get; set; }
+        public int TeamId { get; set; }
+        public bool IsHome { get; set; }
 
-        public int? TeamId { get; set; }
-
-        public string? Result { get; set; }
-
+    }
+    public class AssignTeamsToMatchesInStageTableReq
+    {
+        public int MatchId { get; set; }
+        public List<TeamMatchReq> Teams { get; set; }
     }
 }
