@@ -21,7 +21,15 @@ public class GenericRep<T> : IGenericRep<T> where T : class
         _dbSet.Add(entity);
         _context.SaveChanges();  // Thêm SaveChanges để cập nhật vào DB
     }
-
+    public void AddChange(T entity)
+    {
+        _dbSet.Add(entity);
+    }
+    public void Save()
+    {
+        _context.SaveChanges();
+    }
+    
     public virtual IEnumerable<T> All(
     Expression<Func<T, bool>> filter = null,
     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,

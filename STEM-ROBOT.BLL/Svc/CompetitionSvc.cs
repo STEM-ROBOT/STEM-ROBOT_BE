@@ -81,7 +81,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                
+
                 var list_score = await _competitionRepo.getListScoreCompetition(competitionId);
                 if (list_score == null) throw new Exception("No data");
 
@@ -133,7 +133,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("400", "Competition is missing related Tournament or Genre information.");
                     return res;
                 }
-              
+
 
                 var competitionRsp = _mapper.Map<CompetitionInforRsp>(competition);
 
@@ -228,6 +228,26 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+
+        //competition gener
+        public async Task<SingleRsp> getGenerCompetitionID(int CompetitionID)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var genre = await _competitionRepo.getGenerCompetitionID(CompetitionID);
+                if (genre == null)
+                {
+                    throw new Exception("No data");
+                }
+                res.setData("data", genre);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail getGenerCompetitionID ");
+            }
+            return res;
+        }
         //update competitionformatconfig
         public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
         {
@@ -379,8 +399,9 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception("Number must be greater than 0");
             }
+            Dictionary<int, string> originalTeamNames = new Dictionary<int, string>();
 
-            // Thêm đội vào giải đấu
+            // Add teams and save original names
             for (int i = 1; i <= number; i++)
             {
                 var team = new Team()
@@ -390,26 +411,35 @@ namespace STEM_ROBOT.BLL.Svc
                     Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
                 };
                 _teamRepo.Add(team);
+                originalTeamNames[team.Id] = team.Name;
             }
-
-            List<Team> teams = await _competitionRepo.GetTeamsByCompetitionId(competitionId);
-            if (teams == null || teams.Count == 0) throw new Exception("No team found for competition.");
-
-            teams = teams.OrderBy(t => t.Id).ToList();
-
 
             bool isPowerOf2 = (number & (number - 1)) == 0;
             int round = (int)Math.Ceiling(Math.Log2(number));
             int closestPowerOf2 = (int)Math.Pow(2, round);
-
             int extraTeams = number - (closestPowerOf2 / 2);
 
-            List<Team> winningTeamsFromExtraRound = new List<Team>();
+            List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+              // Instantiate once for unique codes
 
+            for(int i = 0;i < number; i++)
+            {
+                TeamMatch team = new TeamMatch();
+                winningTeamsFromExtraRound.Add(team);
+            }
+            var index = 0;
 
+            // Create extra round if teams are not a power of 2
             if (!isPowerOf2 && extraTeams > 0)
             {
-                string roundName = $"Vòng phụ cho vòng 1/{Math.Pow(2, round)}";
+                string roundName = round switch
+                {
+                    1 => "Chung Kết",
+                    2 => "Bán Kết",
+                    3 => "Tứ Kết",
+                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
+                };
+               
                 var stage = new Stage
                 {
                     CompetitionId = competitionId,
@@ -421,11 +451,17 @@ namespace STEM_ROBOT.BLL.Svc
                 _stageRepo.Add(stage);
 
 
-                var teamsForExtraRound = teams.Take(extraTeams * 2).ToList();
+                // so doi o vong du
+                var teamsForExtraRound = extraTeams * 2;
+               // number = number - teamsForExtraRound;
+     
 
-
-                for (int i = 0; i < teamsForExtraRound.Count; i += 2)
+                var winMatchNumber = 1;
+                for (int i = 0; i < teamsForExtraRound; i += 2)
                 {
+                    Random randomCode = new Random();
+                    int randomCodes = randomCode.Next(100000, 1000000);
+
                     var match = new Match
                     {
                         StageId = stage.Id,
@@ -433,42 +469,45 @@ namespace STEM_ROBOT.BLL.Svc
                         StartDate = DateTime.Now,
                         Status = "Đấu phụ",
                         TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero
+                        TimeOut = TimeSpan.Zero,
+                        MatchCode = randomCodes.ToString()
                     };
 
                     _matchRepo.Add(match);
 
+                    // Thêm các đội vào trận đấu
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
 
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i].Id, NameDefault = teamsForExtraRound[i].Name });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teamsForExtraRound[i + 1].Id, NameDefault = teamsForExtraRound[i + 1].Name });
+                    // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
 
-
-                    winningTeamsFromExtraRound.Add(new Team
+                    TeamMatch teamNew = new TeamMatch
                     {
-                        Id = teamsForExtraRound[i].Id,
-                        Name = $"W#{i / 2 + 1} {roundName}"
-                    });
+                        NameDefault = $"W#{winMatchNumber} {roundName}",
+                        MatchWinCode = match.MatchCode
+                    };
+
+                   
+                    winningTeamsFromExtraRound.Add(teamNew);
+                    winMatchNumber++;
+                    index += 2;
+                   
                 }
-
-
-                teams = teams.Except(teamsForExtraRound).ToList();
+                round -= 1;
             }
 
 
-            teams.AddRange(winningTeamsFromExtraRound);
 
-
-            for (int i = round; i > 0; i--)
+            // Main rounds
+            for (int currentRound = round; currentRound > 0; currentRound--)
             {
-                string roundName;
-                if (i == 1)
-                    roundName = "Chung Kết";
-                else if (i == 2)
-                    roundName = "Bán Kết";
-                else if (i == 3)
-                    roundName = "Tứ Kết";
-                else
-                    roundName = $"Vòng 1/{Math.Pow(2, i-1)}";
+                string roundName = currentRound switch
+                {
+                    1 => "Chung Kết",
+                    2 => "Bán Kết",
+                    3 => "Tứ Kết",
+                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
+                };
 
                 var stage = new Stage
                 {
@@ -478,14 +517,20 @@ namespace STEM_ROBOT.BLL.Svc
                     EndDate = DateTime.Now.AddDays(1),
                     StageCheck = "Vòng chính",
                     StageMode = "Knockout"
-                    
                 };
                 _stageRepo.Add(stage);
 
+                // Prepare teams for the round
+                List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
 
-                List<Team> teamsInCurrentRound = new List<Team>();
-                for (int j = 0; j < teams.Count - 1; j += 2)
+                var numbeMatchRounds = Math.Pow(2, currentRound);
+                // Create matches in pairs
+                for (int i = 0; i < numbeMatchRounds; i += 2)
                 {
+                    Random randomCode = new Random();
+
+                    int matchCode = randomCode.Next(100000, 1000000);
+
                     var match = new Match
                     {
                         StageId = stage.Id,
@@ -493,29 +538,34 @@ namespace STEM_ROBOT.BLL.Svc
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
                         TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero
+                        TimeOut = TimeSpan.Zero,
+                        MatchCode = matchCode.ToString()
                     };
-
                     _matchRepo.Add(match);
 
-
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j].Id, NameDefault = teams[j].Name });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = teams[j + 1].Id, NameDefault = teams[j + 1].Name });
-
-
-                    teamsInCurrentRound.Add(new Team
+                    if(currentRound == round && extraTeams == 0)
                     {
-                        Id = teams[j].Id,
-                        Name = $"W#{j / 2 + 1} {roundName}"
-                    });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                    }else
+                    {
+                        // Add two teams to the match
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = match.MatchCode });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = match.MatchCode });
+                    }
+
+                  
+                    index += 2;
+                    
+                    // Assume first team wins (placeholder for actual logic)
+                    winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
                 }
-
-
-                teams = teamsInCurrentRound.ToList();
             }
 
             return true;
         }
+
+
 
 
 
@@ -660,8 +710,8 @@ namespace STEM_ROBOT.BLL.Svc
                             StartDate = DateTime.Now, // Ngày giờ bắt đầu có thể thêm sau
                             Status = "Pending",
                             TimeIn = timeIn, // Gán giá trị TimeSpan
-                            
-                            
+
+
                         };
 
                         _matchRepo.Add(match);
@@ -912,6 +962,30 @@ namespace STEM_ROBOT.BLL.Svc
             };
             _teamMatchRepo.Add(teamMatch);
         }
+
+        public async Task<SingleRsp> AddRule(string file, int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    throw new Exception("Không tìm thấy competitionId");
+                }
+
+                competition.Regulation = file; 
+                _competitionRepo.Update(competition);
+
+                res.setData("success", competition);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
 
     }
 }
