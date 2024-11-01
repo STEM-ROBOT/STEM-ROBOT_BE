@@ -14,12 +14,14 @@ namespace STEM_ROBOT.BLL.Svc
     public class ScoreCategorySvc
     {
         private readonly ScoreCategoryRepo _scoreCategoryRepo;
+        private readonly CompetitionRepo _competitionRepo;
         private readonly IMapper _mapper;
 
-        public ScoreCategorySvc(ScoreCategoryRepo scoreCategoryRepo, IMapper mapper)
+        public ScoreCategorySvc(ScoreCategoryRepo scoreCategoryRepo, IMapper mapper,CompetitionRepo competitionRepo)
         {
             _scoreCategoryRepo = scoreCategoryRepo;
             _mapper = mapper;
+            _competitionRepo = competitionRepo;
         }
 
         public MutipleRsp GetScoreCategories()
@@ -68,14 +70,25 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Create(ScoreCategoryReq req)
+        public SingleRsp Create(List<ScoreCategoryReq> reqList, int competitionId)
         {
             var res = new SingleRsp();
             try
-            {
-                var newScoreCategory = _mapper.Map<ScoreCategory>(req);
-                _scoreCategoryRepo.Add(newScoreCategory);
-                res.setData("200", newScoreCategory);
+            {        
+                var competition = _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
+                if (competition == null)
+                {
+                    throw new Exception("Competition not found");
+                }
+
+                var newScoreCategories = _mapper.Map<List<ScoreCategory>>(reqList);
+                foreach (var scoreCategory in newScoreCategories)
+                {
+                    scoreCategory.CompetitionId = competitionId;
+                    _scoreCategoryRepo.Add(scoreCategory);
+                }
+
+                res.setData("data", "add success");
             }
             catch (Exception ex)
             {

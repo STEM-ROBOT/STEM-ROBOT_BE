@@ -11,4 +11,11 @@ namespace STEM_ROBOT.Common.Req
         public int TeamId { get; set; }
         public int TableGroupId { get; set; }
     }
+
+    public class TableAssignmentReq
+    {
+        public int TableGroupId { get; set; }
+        public List<int> Teams { get; set; }
+    }
+
 }

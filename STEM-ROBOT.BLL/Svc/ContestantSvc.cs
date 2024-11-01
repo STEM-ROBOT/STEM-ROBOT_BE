@@ -112,7 +112,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
 
                 _contestantRepo.BulkInsertAsyncSchool(contestantList);
-                res.SetData("200", contestantList);
+                res.SetData("data", contestantList);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace STEM_ROBOT.BLL.Svc
                     Phone = c.Phone
                 }).ToList();
 
-                res.SetData("200", contestantRsp);
+                res.SetData("data", contestantRsp);
             }
             catch (Exception ex)
             {

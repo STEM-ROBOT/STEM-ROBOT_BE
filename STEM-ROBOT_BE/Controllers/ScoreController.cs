@@ -39,15 +39,15 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPost()]
-        public IActionResult CreateScoreCategory([FromBody] ScoreCategoryReq req)
+        [HttpPost("{competitionId}")]
+        public IActionResult CreateScoreCategory([FromBody] List<ScoreCategoryReq>  req,int competitionId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var res = _scoreCategorySvc.Create(req);
+            var res = _scoreCategorySvc.Create(req, competitionId);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
