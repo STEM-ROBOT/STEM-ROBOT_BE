@@ -52,8 +52,13 @@ namespace STEM_ROBOT.BLL.Mapper
 
             //school
             CreateMap<School, SchoolReq>().ReverseMap();
+
+            //referee
             CreateMap<Referee, RefereeReq>().ReverseMap();
             CreateMap<Referee, RefereeRsp>().ReverseMap();
+            CreateMap<Referee, AssginRefereeReq>().ReverseMap();
+
+            //scorecategory
             CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
             CreateMap<ScoreCategory, ScoreCategoryRsp>().ReverseMap();
 
