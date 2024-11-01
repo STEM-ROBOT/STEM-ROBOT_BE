@@ -103,7 +103,7 @@ namespace STEM_ROBOT.DAL.Repo
                               name = genre.Name,
                               status = competition.Status,
                               image = genre.Image,
-                              registerTime = competition.StartTime ?? DateTime.UtcNow,
+                              registerTime = (DateTime)competition.RegisterTime ,
                               numberContestantTeam = competition.NumberContestantTeam ?? 0
                           }).FirstOrDefaultAsync();
         }
