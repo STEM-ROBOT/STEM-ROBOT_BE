@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -255,37 +256,222 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
 
-                var id = _competitionRepo.GetById(request.Id);
+                var competition_data = _competitionRepo.GetById(request.Id);
 
-                if (id == null)
+                if (competition_data == null)
                 {
                     res.SetError("No ID");
                 }
-                var map = _mapper.Map(request, id);
-                _competitionRepo.Update(map);
-                if (request.FormatId == 2)
+                competition_data.FormatId = request.FormatId;
+                _competitionRepo.Update(competition_data);
+
+                if (request.FormatId == 1)
                 {
                     int teamCount = (int)request.NumberTeam;
-                    var checkBool = await StateSetup(teamCount, request.Id);
 
-                    if (checkBool == false)
+                    var create_team = await TeamsSetup(teamCount, request.Id);
+
+                    if (create_team == true)
                     {
-                        throw new Exception("Tạo vòng đấu thất bại !!");
+                        List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                        for (int i = 0; i < teamCount; i++)
+                        {
+                            TeamMatch team = new TeamMatch();
+                            winningTeamsFromExtraRound.Add(team);
+                        }
+                        var checkBool = await StateSetup(teamCount, request.Id, winningTeamsFromExtraRound);
+
+                        if (checkBool == false)
+                        {
+                            throw new Exception("Tạo vòng đấu thất bại !!");
+                        }
+                        res.Setmessage("Ok");
                     }
-
+                    else
+                    {
+                        throw new Exception("Tạo vòng đội thất bại !!");
+                    }
+                   
                 }
-
-                res.Setmessage("Ok");
-
-
+                return res;
             }
             catch (Exception ex)
             {
                 throw new Exception("Fail Loại trực tiếp");
             }
-            return res;
-
+      
         }
+        private async Task<bool> TeamsSetup(int number, int competitionId)
+        {
+            if (number <= 0)
+            {
+                return false;
+                throw new Exception("Number must be greater than 0");
+
+            }
+            Dictionary<int, string> originalTeamNames = new Dictionary<int, string>();
+            for (int i = 1; i <= number; i++)
+            {
+                var team = new Team()
+                {
+                    CompetitionId = competitionId,
+                    Name = $"Đội #{i}",
+                    Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                };
+                _teamRepo.Add(team);
+                originalTeamNames[team.Id] = team.Name;
+            }
+            return true;
+        }
+
+        private async Task<bool> StateSetup(int number, int competitionId, List<TeamMatch> winningTeamsFromExtraRound)
+        {
+            // tính số vòng đấu đủ hay dư
+            bool isPowerOf2 = (number & (number - 1)) == 0;
+            int round = (int)Math.Ceiling(Math.Log2(number));
+            int closestPowerOf2 = (int)Math.Pow(2, round);
+            int extraTeams = number - (closestPowerOf2 / 2);
+
+            // chuẩn bị danh sách team 
+           
+            var index = 0;
+
+            // tạo vòng đấu cho số đội dư 
+            if (!isPowerOf2 && extraTeams > 0)
+            {
+                string roundName = round switch
+                {
+                    1 => "Chung Kết",
+                    2 => "Bán Kết",
+                    3 => "Tứ Kết",
+                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
+                };
+
+                var stage = new Stage
+                {
+                    CompetitionId = competitionId,
+                    Name = roundName,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddHours(2),
+                    Status = "Vòng phụ"
+                };
+                _stageRepo.Add(stage);
+
+                // so doi o vong dư
+                var teamsForExtraRound = extraTeams * 2;
+
+                // đánh số thứ tự trận win
+                var winMatchNumber = 1;
+
+                for (int i = 0; i < teamsForExtraRound; i += 2)
+                {
+                    Random randomCode = new Random();
+                    int randomCodes = randomCode.Next(100000, 1000000);
+
+                    var match = new Match
+                    {
+                        StageId = stage.Id,
+                        TableId = null,
+                        StartDate = DateTime.Now,
+                        Status = "Đấu phụ",
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero,
+                        MatchCode = randomCodes.ToString()
+                    };
+
+                    _matchRepo.Add(match);
+
+                    // Thêm các đội vào trận đấu
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+
+                    // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
+
+                    TeamMatch teamNew = new TeamMatch
+                    {
+                        NameDefault = $"W#{winMatchNumber} {roundName}",
+                        MatchWinCode = match.MatchCode
+                    };
+
+
+                    winningTeamsFromExtraRound.Add(teamNew);
+                    winMatchNumber++;
+                    index += 2;
+
+                }
+                round -= 1;
+            }
+
+            // Main rounds
+            for (int currentRound = round; currentRound > 0; currentRound--)
+            {
+                string roundName = currentRound switch
+                {
+                    1 => "Chung Kết",
+                    2 => "Bán Kết",
+                    3 => "Tứ Kết",
+                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
+                };
+
+                var stage = new Stage
+                {
+                    CompetitionId = competitionId,
+                    Name = roundName,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddDays(1),
+                    StageCheck = "Vòng chính",
+                    StageMode = "Knockout"
+                };
+                _stageRepo.Add(stage);
+
+                // Prepare teams for the round
+               // List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
+
+                var numbeMatchRounds = Math.Pow(2, currentRound);
+                // Create matches in pairs
+                for (int i = 0; i < numbeMatchRounds; i += 2)
+                {
+                    Random randomCode = new Random();
+
+                    int matchCode = randomCode.Next(100000, 1000000);
+
+                    var match = new Match
+                    {
+                        StageId = stage.Id,
+                        TableId = null,
+                        StartDate = DateTime.Now,
+                        Status = "Loại trực tiếp",
+                        TimeIn = TimeSpan.Zero,
+                        TimeOut = TimeSpan.Zero,
+                        MatchCode = matchCode.ToString()
+                    };
+                    _matchRepo.Add(match);
+
+                    if (currentRound == round && extraTeams == 0)
+                    {
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                    }
+                    else
+                    {
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index].MatchWinCode });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index + 1].MatchWinCode });
+
+                    }
+
+                    index += 2;  
+                    winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
+                }
+            }
+
+            return true;
+        }
+
+
+
+
+
+
 
         public SingleRsp CreateCompetitionFormatTable(CompetitionFormatTableReq request)
 
@@ -391,180 +577,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
-
-        private async Task<bool> StateSetup(int number, int competitionId)
-        {
-            if (number <= 0)
-            {
-                throw new Exception("Number must be greater than 0");
-            }
-            Dictionary<int, string> originalTeamNames = new Dictionary<int, string>();
-
-            // Add teams and save original names
-            for (int i = 1; i <= number; i++)
-            {
-                var team = new Team()
-                {
-                    CompetitionId = competitionId,
-                    Name = $"Đội #{i}",
-                    Image = "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
-                };
-                _teamRepo.Add(team);
-                originalTeamNames[team.Id] = team.Name;
-            }
-
-            bool isPowerOf2 = (number & (number - 1)) == 0;
-            int round = (int)Math.Ceiling(Math.Log2(number));
-            int closestPowerOf2 = (int)Math.Pow(2, round);
-            int extraTeams = number - (closestPowerOf2 / 2);
-
-            List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
-              // Instantiate once for unique codes
-
-            for(int i = 0;i < number; i++)
-            {
-                TeamMatch team = new TeamMatch();
-                winningTeamsFromExtraRound.Add(team);
-            }
-            var index = 0;
-
-            // Create extra round if teams are not a power of 2
-            if (!isPowerOf2 && extraTeams > 0)
-            {
-                string roundName = round switch
-                {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
-                };
-               
-                var stage = new Stage
-                {
-                    CompetitionId = competitionId,
-                    Name = roundName,
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddHours(2),
-                    Status = "Vòng phụ"
-                };
-                _stageRepo.Add(stage);
-
-
-                // so doi o vong du
-                var teamsForExtraRound = extraTeams * 2;
-               // number = number - teamsForExtraRound;
-     
-
-                var winMatchNumber = 1;
-                for (int i = 0; i < teamsForExtraRound; i += 2)
-                {
-                    Random randomCode = new Random();
-                    int randomCodes = randomCode.Next(100000, 1000000);
-
-                    var match = new Match
-                    {
-                        StageId = stage.Id,
-                        TableId = null,
-                        StartDate = DateTime.Now,
-                        Status = "Đấu phụ",
-                        TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero,
-                        MatchCode = randomCodes.ToString()
-                    };
-
-                    _matchRepo.Add(match);
-
-                    // Thêm các đội vào trận đấu
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-
-                    // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
-
-                    TeamMatch teamNew = new TeamMatch
-                    {
-                        NameDefault = $"W#{winMatchNumber} {roundName}",
-                        MatchWinCode = match.MatchCode
-                    };
-
-                   
-                    winningTeamsFromExtraRound.Add(teamNew);
-                    winMatchNumber++;
-                    index += 2;
-                   
-                }
-                round -= 1;
-            }
-
-
-
-            // Main rounds
-            for (int currentRound = round; currentRound > 0; currentRound--)
-            {
-                string roundName = currentRound switch
-                {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
-                };
-
-                var stage = new Stage
-                {
-                    CompetitionId = competitionId,
-                    Name = roundName,
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddDays(1),
-                    StageCheck = "Vòng chính",
-                    StageMode = "Knockout"
-                };
-                _stageRepo.Add(stage);
-
-                // Prepare teams for the round
-                List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
-
-                var numbeMatchRounds = Math.Pow(2, currentRound);
-                // Create matches in pairs
-                for (int i = 0; i < numbeMatchRounds; i += 2)
-                {
-                    Random randomCode = new Random();
-
-                    int matchCode = randomCode.Next(100000, 1000000);
-
-                    var match = new Match
-                    {
-                        StageId = stage.Id,
-                        TableId = null,
-                        StartDate = DateTime.Now,
-                        Status = "Loại trực tiếp",
-                        TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero,
-                        MatchCode = matchCode.ToString()
-                    };
-                    _matchRepo.Add(match);
-
-                    if(currentRound == round && extraTeams == 0)
-                    {
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-                    }else
-                    {
-                        // Add two teams to the match
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = match.MatchCode });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = match.MatchCode });
-                    }
-
-                  
-                    index += 2;
-                    
-                    // Assume first team wins (placeholder for actual logic)
-                    winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
-                }
-            }
-
-            return true;
-        }
-
+        // Add teams and save original names
 
 
 
@@ -974,7 +987,7 @@ namespace STEM_ROBOT.BLL.Svc
                     throw new Exception("Không tìm thấy competitionId");
                 }
 
-                competition.Regulation = file; 
+                competition.Regulation = file;
                 _competitionRepo.Update(competition);
 
                 res.setData("success", competition);

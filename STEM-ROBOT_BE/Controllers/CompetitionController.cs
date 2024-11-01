@@ -39,6 +39,8 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
+        //nội dung thi đấu của giải
         [HttpGet("tournament")]
         public async Task<IActionResult> GetToutnamentID(int id)
         {
@@ -49,6 +51,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        //luật tính điểm của nội dung thi đấu
         [HttpGet("score-competition")]
         public async Task<IActionResult> GetListScore(int competitionID)
         {
@@ -59,6 +62,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        // danh sách đội của nội dung thi đấu
         [HttpGet("team-competition")]
         public async Task<IActionResult> GetListTeamPlay(int competitionId)
         {
@@ -69,38 +73,8 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpPost]
-        public async Task<IActionResult> AddCompetition(CompetitionReq request)
-        {
-            var res = _competionSvc.AddCompetion(request);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-        [HttpPut("id")]
-        public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
-        {
-            var res = _competionSvc.UpdateCompetition(id, request);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-        [HttpDelete("id")]
-        public async Task<IActionResult> DeleteCompetition(int id)
-        {
-            var res = _competionSvc.DeleteCompetition(id);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-        [HttpPut("competition-format-config")]
+        //cấu hình hình thức thi đấu của nội dung thi đấu
+        [HttpPut("format-config")]
         public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
         {
             var res = await _competionSvc.UpdateCompetitionConfig(request);
@@ -112,6 +86,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        //cấu hình hình thức thi đấu của nội dung thi đấu
         [HttpPost("format-table")]
         public async Task<IActionResult> AddCompetitionFormatTable(CompetitionFormatTableReq request)
         {
@@ -123,16 +98,8 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("Infor")]
-        public async Task<IActionResult> GetInfor(int id)
-        {
-            var res = await _competionSvc.GetCompetitionInfor(id);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
+
+        //thông tin cấu hình đăng kí thí sinh tham gia nội dung
         [HttpGet("config-register")]
         public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
         {
@@ -143,9 +110,60 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddCompetition(CompetitionReq request)
+        {
+            var res = _competionSvc.AddCompetion(request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+
+        [HttpPut("id")]
+        public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
+        {
+            var res = _competionSvc.UpdateCompetition(id, request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+
+        [HttpDelete("id")]
+        public async Task<IActionResult> DeleteCompetition(int id)
+        {
+            var res = _competionSvc.DeleteCompetition(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+
+
+        [HttpGet("Infor")]
+        public async Task<IActionResult> GetInfor(int id)
+        {
+            var res = await _competionSvc.GetCompetitionInfor(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+
         [HttpPost("addRegulation/{competitionId}")]
 
-        public async Task<IActionResult> AddRegulation(string filerule,int competitionId)
+        public async Task<IActionResult> AddRegulation(string filerule, int competitionId)
         {
             var res = await _competionSvc.AddRule(filerule, competitionId);
             if (!res.Success)

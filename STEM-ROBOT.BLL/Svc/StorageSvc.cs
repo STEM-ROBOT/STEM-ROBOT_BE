@@ -26,9 +26,8 @@ namespace STEM_ROBOT.BLL.Svc
             var url = urlSigner.Sign(
                _bucketName,
                 fileName,
-                TimeSpan.FromDays(60), // Thời gian hiệu lực của URL
+                TimeSpan.FromDays(7), // Thời gian hiệu lực của URL
                 HttpMethod.Get); // HTTP method (GET)
-
             return url;
         }
     }
