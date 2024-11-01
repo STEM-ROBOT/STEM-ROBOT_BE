@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -250,6 +249,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //update competitionformatconfig
+        //update competitionformatconfig
         public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
         {
             var res = new SingleRsp();
@@ -269,120 +269,39 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     int teamCount = (int)request.NumberTeam;
 
-                    if (checkBool == false)
+                    var create_team = await TeamsSetup(teamCount, request.Id);
+
+                    if (create_team == true)
                     {
-                        throw new Exception("Tạo vòng đấu thất bại !!");
+                        List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                        for (int i = 0; i < teamCount; i++)
+                        {
+                            TeamMatch team = new TeamMatch();
+                            winningTeamsFromExtraRound.Add(team);
+                        }
+                        var checkBool = await StateSetup(teamCount, request.Id, winningTeamsFromExtraRound);
+
+                        if (checkBool == false)
+                        {
+                            throw new Exception("Tạo vòng đấu thất bại !!");
+                        }
+                        res.Setmessage("Ok");
+                    }
+                    else
+                    {
+                        throw new Exception("Tạo vòng đội thất bại !!");
                     }
 
                 }
-
-                res.Setmessage("Ok");
-
-
+                return res;
             }
             catch (Exception ex)
             {
                 throw new Exception("Fail Loại trực tiếp");
             }
-            return res;
 
         }
-
-        public SingleRsp CreateCompetitionFormatTable(CompetitionFormatTableReq request)
-
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var competition = _mapper.Map<Competition>(request);
-                if (competition == null)
-                {
-                    res.SetError("Please check again!");
-                    return res;
-                }
-                _competitionRepo.Add(competition);
-
-                if (request.FormatId == 1)
-                {
-                    // Create teams
-                    CreateTeams(competition.Id, request.NumberTeam);
-
-                    // Create stages
-                    List<string> stages = CalculateStages(request.NumberTeam, request.NumberTeamNextRound);
-                    CreateStages(competition.Id, stages);
-
-                    // Get stage table(Vòng bảng)
-                    var stageTable = GetStageTableInCompetition(competition.Id);
-                    if (stageTable == null)
-                    {
-                        res.SetError("Stage table not found for the given competition ID.");
-                        return res;
-                    }
-
-                    // Create tables
-                    CreateTables(stageTable.Id, request.NumberTable);
-
-                    // Assign teams to tables
-                    AssignTeamsToTables(competition.Id, stageTable.Id, request.NumberTeam, request.NumberTable);
-
-                    // Create matches
-                    CreateMatches(competition.Id, request.NumberTeam, request.NumberTable, request.NumberTeamNextRound);
-
-                    // AssignTeamsToMatchesInStageTable
-                    AssignTeamsToMatchesInStageTable(competition.Id, stageTable.Id);
-
-                    // Assign qualified teams to next round
-                    AssignTeamsToNextRoundMatches(competition.Id, request.NumberTeamNextRound);
-                }
-
-                res.setData("200", "Success");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Fail Loại trực tiếp");
-            }
-      
-        }
-        // Hàm tính toán số lượng trận đấu cần có trong giải đấu
-        public int CalculateTotalMatches(int numberOfTeams, int numberOfTables, int numberOfQualifiedTeams)
-        {
-            // Số trận đấu vòng bảng
-            int groupStageMatches = (numberOfTeams / numberOfTables) * (numberOfTeams / numberOfTables - 1) / 2 * numberOfTables;
-
-            // Số trận đấu vòng loại trực tiếp
-            int knockoutStageMatches = numberOfQualifiedTeams - 1;
-
-            return groupStageMatches + knockoutStageMatches;
-        }
-        public MutipleRsp CreateStages(int competitionId, List<string> stageNames)
-        {
-            var res = new MutipleRsp();
-            try
-            {
-                var stages = stageNames.Select(stageName => new Stage
-                {
-                    CompetitionId = competitionId,
-                    Name = stageName,
-                    Status = "Pending",
-                    StartDate = null,
-                    EndDate = null
-                }).ToList();
-
-                foreach (var stage in stages)
-                {
-                    _stageRepo.Add(stage);
-                }
-                res.SetData("200", stages);
-            }
-            catch (Exception ex)
-            {
-                res.SetError(ex.Message);
-            }
-            return res;
-        }
-
-
-        private async Task<bool> StateSetup(int number, int competitionId)
+        private async Task<bool> TeamsSetup(int number, int competitionId)
         {
             if (number <= 0)
             {
@@ -414,7 +333,7 @@ namespace STEM_ROBOT.BLL.Svc
             int extraTeams = number - (closestPowerOf2 / 2);
 
             // chuẩn bị danh sách team 
-           
+
             var index = 0;
 
             // tạo vòng đấu cho số đội dư 
@@ -506,7 +425,7 @@ namespace STEM_ROBOT.BLL.Svc
                 _stageRepo.Add(stage);
 
                 // Prepare teams for the round
-               // List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
+                // List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
 
                 var numbeMatchRounds = Math.Pow(2, currentRound);
                 // Create matches in pairs
@@ -540,7 +459,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     }
 
-                    index += 2;  
+                    index += 2;
                     winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
                 }
             }
@@ -549,26 +468,21 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
 
-
-
-
-
-
-        public SingleRsp CreateCompetitionFormatTable(CompetitionFormatTableReq request)
+        public SingleRsp CreateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
 
         {
             var res = new SingleRsp();
             try
             {
-                var competition = _mapper.Map<Competition>(request);
+                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
                 if (competition == null)
                 {
-                    res.SetError("Please check again!");
+                    res.SetError("Competition not found with the provided ID.");
                     return res;
                 }
-                _competitionRepo.Add(competition);
-
-                if (request.FormatId == 1)
+                var competitionFormat = _mapper.Map(request, competition);
+                _competitionRepo.Update(competitionFormat);
+                if (competitionFormat.FormatId == 2)
                 {
                     // Create teams
                     CreateTeams(competition.Id, request.NumberTeam);
@@ -588,17 +502,9 @@ namespace STEM_ROBOT.BLL.Svc
                     // Create tables
                     CreateTables(stageTable.Id, request.NumberTable);
 
-                    // Assign teams to tables
-                    AssignTeamsToTables(competition.Id, stageTable.Id, request.NumberTeam, request.NumberTable);
-
                     // Create matches
                     CreateMatches(competition.Id, request.NumberTeam, request.NumberTable, request.NumberTeamNextRound);
 
-                    // AssignTeamsToMatchesInStageTable
-                    AssignTeamsToMatchesInStageTable(competition.Id, stageTable.Id);
-
-                    // Assign qualified teams to next round
-                    AssignTeamsToNextRoundMatches(competition.Id, request.NumberTeamNextRound);
                 }
 
                 res.setData("200", "Success");
@@ -622,16 +528,40 @@ namespace STEM_ROBOT.BLL.Svc
             return stages;
         }
         // Hàm tính toán số lượng trận đấu cần có trong giải đấu
-        public int CalculateTotalMatches(int numberOfTeams, int numberOfTables, int numberOfQualifiedTeams)
+        public SingleRsp CalculateTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
         {
-            // Số trận đấu vòng bảng
-            int groupStageMatches = (numberOfTeams / numberOfTables) * (numberOfTeams / numberOfTables - 1) / 2 * numberOfTables;
+            var res = new SingleRsp();
+            try
+            {
+                int totalMatches = 0;
 
-            // Số trận đấu vòng loại trực tiếp
-            int knockoutStageMatches = numberOfQualifiedTeams - 1;
+                // Step 1: Calculate matches for each group (group stage)
+                int teamsPerGroup = numberOfTeams / numberOfGroups;
+                int extraTeams = numberOfTeams % numberOfGroups; // To handle cases where teams don't divide evenly
 
-            return groupStageMatches + knockoutStageMatches;
+                for (int i = 0; i < numberOfGroups; i++)
+                {
+                    // If there are extra teams, add one more team to this group
+                    int teamsInThisGroup = (i < extraTeams) ? teamsPerGroup + 1 : teamsPerGroup;
+
+                    // Calculate round-robin matches for this group
+                    int groupMatches = (teamsInThisGroup * (teamsInThisGroup - 1)) / 2;
+                    totalMatches += groupMatches;
+                }
+
+                // Step 2: Calculate matches for the knockout stage
+                // In knockout rounds, we need (numberTeamsNextRound - 1) matches to determine a winner
+                int knockoutMatches = numberTeamsNextRound - 1;
+                totalMatches += knockoutMatches;
+                res.setData("200", totalMatches);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("400", ex.Message);
+            }
+            return res;
         }
+
         public MutipleRsp CreateStages(int competitionId, List<string> stageNames)
         {
             var res = new MutipleRsp();
@@ -658,7 +588,9 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        // Add teams and save original names
+
+
+
 
 
 
@@ -876,4 +808,3 @@ namespace STEM_ROBOT.BLL.Svc
 
     }
 }
-
