@@ -25,8 +25,7 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<List<Competition>> getListCompetitionGener(int idTournament)
         {
-            return await _context.Competitions.Where(x=> x.TournamentId == idTournament).Include(x => x.Genre)
-                .Include(x => x.Genre).ToListAsync();
+            return await _context.Competitions.Where(x=> x.TournamentId == idTournament).Include(x => x.Genre).ToListAsync();
         }
         public async Task<List<Competition>> getListCompetitionbyID(int id)
         {
@@ -104,7 +103,7 @@ namespace STEM_ROBOT.DAL.Repo
                               name = genre.Name,
                               status = competition.Status,
                               image = genre.Image,
-                              registerTime = competition.StartTime ?? DateTime.UtcNow,
+                              registerTime = (DateTime)competition.RegisterTime ,
                               numberContestantTeam = competition.NumberContestantTeam ?? 0
                           }).FirstOrDefaultAsync();
         }

@@ -82,7 +82,9 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         TournamentId = tournament.Id,
                         Mode = status,
-                        GenreId = competition.GenreId
+                        Status=status,
+                        GenreId = competition.GenreId,
+                        IsActive= false,
                     };
                     _competitionRepo.Update(compettiondata);
                     break;
