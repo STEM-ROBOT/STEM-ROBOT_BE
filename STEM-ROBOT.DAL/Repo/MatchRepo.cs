@@ -134,13 +134,14 @@ namespace STEM_ROBOT.DAL.Repo
                 {
                     roundId = stage.Id,
                     roundName = stage.Name,
-                    teamsBye = await teamBye(competitionID),
+                   
                     matches = await getRoundGameMacth(competitionID),
 
                 };
                 rounds.rounds.Add(roundsGame);
 
             }
+            rounds.teamsBye = await teamBye(competitionID);
             return rounds; 
 
         }
@@ -149,22 +150,17 @@ namespace STEM_ROBOT.DAL.Repo
         {
             var listTeam = await _context.Competitions.Where(x => x.Id == CompetitionID).Include(x => x.Teams).FirstOrDefaultAsync();
             var lisTeams = listTeam.Teams.ToList();
-            int paw = lisTeams.Count;
+            var roundGamelist = new List<RoundGameTeamBye>();
+            foreach (var team in listTeam.Teams) {
+                var teams = new RoundGameTeamBye
+                {
+                    teamId = team.Id,
+                    name = team.Name,
+                };
+                roundGamelist.Add(teams);
 
-            // tính số team lẻ hay đủ 
-            bool isPowerOf2 = (paw & (paw - 1)) == 0;
-            if (isPowerOf2) return null;
-            int round = (int)Math.Ceiling(Math.Log2(paw));
-            int closestPowerOf2 = (int)Math.Pow(2, round);
-            int extraTeams = paw - (closestPowerOf2 / 2);
-            if (extraTeams == 0) return null;
-            var extrateamList = lisTeams.Take(extraTeams).ToList();
+            }
 
-            var roundGamelist = extrateamList.Select(team => new RoundGameTeamBye
-            {
-                id = team.Id,
-                name = team.Name,
-            }).ToList();
             return roundGamelist;
         }
         // hàm get roundmatch
