@@ -257,6 +257,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -491,6 +494,9 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
+            entity.Property(e => e.MatchWinCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
 
