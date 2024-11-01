@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.DAL.Repo
 {
@@ -120,5 +121,68 @@ namespace STEM_ROBOT.DAL.Repo
         }
 
 
+
+        public async Task<RoundGameKnockoutParent> getRoundGameKnockOut(int competitionID)
+        {
+            var listRoundGameKnockOut = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.Matches).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
+            if (listRoundGameKnockOut == null) return null;
+
+            var rounds = new RoundGameKnockoutParent();
+            foreach (var stage in listRoundGameKnockOut.Stages)
+            {
+                var roundsGame = new RoundGameKnockout
+                {
+                    roundId = stage.Id,
+                    roundName = stage.Name,
+                    teamsBye = await teamBye(competitionID),
+                    matches = await getRoundGameMacth(competitionID),
+
+                };
+                rounds.rounds.Add(roundsGame);
+
+            }
+            return rounds; 
+
+        }
+        //hàm tính team thừa
+        private async Task<List<RoundGameTeamBye>> teamBye(int CompetitionID)
+        {
+            var listTeam = await _context.Competitions.Where(x => x.Id == CompetitionID).Include(x => x.Teams).FirstOrDefaultAsync();
+            var lisTeams = listTeam.Teams.ToList();
+            int paw = lisTeams.Count;
+
+            // tính số team lẻ hay đủ 
+            bool isPowerOf2 = (paw & (paw - 1)) == 0;
+            if (isPowerOf2) return null;
+            int round = (int)Math.Ceiling(Math.Log2(paw));
+            int closestPowerOf2 = (int)Math.Pow(2, round);
+            int extraTeams = paw - (closestPowerOf2 / 2);
+            if (extraTeams == 0) return null;
+            var extrateamList = lisTeams.Take(extraTeams).ToList();
+
+            var roundGamelist = extrateamList.Select(team => new RoundGameTeamBye
+            {
+                id = team.Id,
+                name = team.Name,
+            }).ToList();
+            return roundGamelist;
+        }
+        // hàm get roundmatch
+        private async Task<List<RoundGameMatch>> getRoundGameMacth(int competitionID)
+        {
+            var listMatch = await _context.Competitions.Where(x => x.Id == competitionID)
+                .Select(stage => new RoundGameMatch
+                {
+                    matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
+                    teamsmatch = stage.Stages.SelectMany(x=> x.Matches).SelectMany(match => match.TeamMatches).Select(x=> new RoundGameTeamMatch
+                    {
+                        teamId =x.Id,
+                        teamMatchId = (int)x.MatchId,
+                        teamName = x.NameDefault
+                    }).ToList(),
+                }).ToListAsync();
+            if(listMatch == null) return null;
+            return listMatch;
+        }
     }
 }

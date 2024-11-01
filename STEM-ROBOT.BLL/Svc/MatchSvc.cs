@@ -159,5 +159,21 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<MutipleRsp> getListKnockOutLate(int CompetitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var list = await _matchRepo.getRoundGameKnockOut(CompetitionId);
+                if (list == null) throw new Exception("No data");
+                res.SetData("data", list);
+
+            }
+            catch
+            {
+                throw new Exception("Fail");
+            }
+            return res;
+        }
     }
 }

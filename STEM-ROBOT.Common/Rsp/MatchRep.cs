@@ -71,5 +71,39 @@ namespace STEM_ROBOT.Common.Rsp
 
     // round loại trực tiếp
 
-    
+
+    // roundknockout
+    public class RoundGameKnockoutParent
+    {
+        public List<RoundGameKnockout> rounds { get; set; } = new List<RoundGameKnockout>();
+       
+    }
+    public class RoundGameKnockout
+    {
+        public int roundId { get; set; }
+        public string roundName { get; set; }
+        public List<RoundGameTeamBye> teamsBye { get; set; } = new List<RoundGameTeamBye>();
+        public List<RoundGameMatch> matches { get; set; } = new List<RoundGameMatch>();
+
+    }
+    public class RoundGameTeamBye
+    {
+        public int id { get; set; }
+        public string? name { get; set; }
+
+
+    }
+    public class RoundGameMatch
+    {
+        public int matchId { get; set; }
+
+        public List<RoundGameTeamMatch> teamsmatch { get; set; } = new List<RoundGameTeamMatch>();
+    }
+    public class RoundGameTeamMatch
+    {
+        public int teamMatchId { get; set; }
+        public int teamId { get; set; }
+        public string? teamName { get; set; }
+    }
+
 }
