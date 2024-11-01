@@ -143,6 +143,27 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("config-register")]
+        public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
+        {
+            var res = await _competionSvc.getGenerCompetitionID(competitionID);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
+        [HttpPost("addRegulation/{competitionId}")]
+
+        public async Task<IActionResult> AddRegulation(string filerule,int competitionId)
+        {
+            var res = await _competionSvc.AddRule(filerule, competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
 
     }
 }

@@ -133,5 +133,25 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        public MutipleRsp GetTeams(int id)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var teams = _teamRepo.GetTeamsByCompetition(id);
+
+                if (teams != null)
+                {
+                    var lstRes = _mapper.Map<List<TeamRsp>>(teams);
+                    res.SetSuccess(lstRes, "200");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
     }
 }
