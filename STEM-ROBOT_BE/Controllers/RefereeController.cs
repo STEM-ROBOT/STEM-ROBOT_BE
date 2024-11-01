@@ -102,7 +102,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Message);
         }
         [HttpGet("free-referee")]
-        public IActionResult GetListRefereeInTournamentId(int tournamentId)
+        public IActionResult GetListFreeRefereeInTournamentId(int tournamentId)
         {
             var res = _refereeSvc.GetListRefereeAvailable(tournamentId);
             if (!res.Success)
@@ -110,7 +110,7 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetError("500", res.Message);
             }
             return Ok(res);
-        }*/
+        }
 
         [HttpGet("bytournamentId={tournamentId}")]
         public IActionResult GetListRefereeInTournamentId(int tournamentId)
