@@ -95,5 +95,13 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
+
+        [HttpGet("getTeamByCompetitonId/{id}")]
+         public IActionResult getTeamByCompetiton(int id)
+        {
+            var res = _teamSvc.GetTeams(id);
+            return Ok(res);
+        }
+
     }
 }
