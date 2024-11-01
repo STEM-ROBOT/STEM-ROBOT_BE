@@ -6,6 +6,7 @@ using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
+using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -73,6 +74,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("total-matches")]
+        public IActionResult GetTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
+        {
+            var res = _competionSvc.CalculateTotalMatches(numberOfTeams, numberOfGroups, numberTeamsNextRound);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
         //cấu hình hình thức thi đấu của nội dung thi đấu
         [HttpPut("format-config")]
         public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
@@ -87,10 +98,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         //cấu hình hình thức thi đấu của nội dung thi đấu
-        [HttpPost("format-table")]
-        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionFormatTableReq request)
+        [HttpPut("/format-table/{competitionId}")]
+        public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody] CompetitionFormatTableReq request)
         {
-            var res = _competionSvc.CreateCompetitionFormatTable(request);
+            var res = _competionSvc.CreateCompetitionFormatTable(competitionId, request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
