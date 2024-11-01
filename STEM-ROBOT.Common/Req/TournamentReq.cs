@@ -19,11 +19,15 @@ namespace STEM_ROBOT.Common.Req
         public string? Location { get; set; }
 
         public string? Image { get; set; }
+
         public string? Status { get; set; }
 
         public string? Phone { get; set; }
         public ICollection<TournamentComeptition> competition {  get; set; } = new List<TournamentComeptition>();
     }
+
+
+
     public class TournamentComeptition
     {
        
@@ -67,7 +71,6 @@ namespace STEM_ROBOT.Common.Req
         public int? NumberTeamReferee = null!;
 
         public TimeSpan? TimeOfMatch = null!;
-
 
 
         public string Name  = null!;
