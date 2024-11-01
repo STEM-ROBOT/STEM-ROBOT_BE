@@ -69,6 +69,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("total-matches")]
+        public IActionResult GetTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
+        {
+            var res =  _competionSvc.CalculateTotalMatches(numberOfTeams, numberOfGroups, numberTeamsNextRound);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
@@ -112,10 +122,10 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpPost("format-table")]
-        public async Task<IActionResult> AddCompetitionFormatTable(CompetitionFormatTableReq request)
+        [HttpPut("/format-table/{competitionId}")]
+        public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody]CompetitionFormatTableReq request)
         {
-            var res = _competionSvc.CreateCompetitionFormatTable(request);
+            var res = _competionSvc.CreateCompetitionFormatTable(competitionId, request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
