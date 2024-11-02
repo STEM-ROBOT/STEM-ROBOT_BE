@@ -35,15 +35,6 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("get-data-to-assing/{competitionId}")]
-        public IActionResult GetDataToAssign(int competitionId)
-        {
-            var res = _teamTableSvc.GetDataToAssign(competitionId);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
+        
     }
 }
