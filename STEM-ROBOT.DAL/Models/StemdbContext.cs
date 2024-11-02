@@ -71,7 +71,6 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
- 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -271,10 +270,6 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Stage).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK__Match__RoundId__0B91BA14");
-
-            entity.HasOne(d => d.Table).WithMany(p => p.Matches)
-                .HasForeignKey(d => d.TableId)
-                .HasConstraintName("FK__Match__TableId__0C85DE4D");
         });
 
         modelBuilder.Entity<MatchHalf>(entity =>
