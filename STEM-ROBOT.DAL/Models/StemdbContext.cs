@@ -59,6 +59,8 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Stage> Stages { get; set; }
 
+    public virtual DbSet<StageTable> StageTables { get; set; }
+
     public virtual DbSet<TableGroup> TableGroups { get; set; }
 
     public virtual DbSet<Team> Teams { get; set; }
@@ -69,6 +71,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -443,6 +448,19 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK_Stage_Competition");
         });
 
+        modelBuilder.Entity<StageTable>(entity =>
+        {
+            entity.ToTable("StageTable");
+
+            entity.HasOne(d => d.Stage).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.StageId)
+                .HasConstraintName("FK_StageTable_Stage");
+
+            entity.HasOne(d => d.Table).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.TableId)
+                .HasConstraintName("FK_StageTable_TableGroup");
+        });
+
         modelBuilder.Entity<TableGroup>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__TableGro__3213E83FAFB8010C");
@@ -451,10 +469,6 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.IsAsign).HasColumnName("isAsign");
             entity.Property(e => e.Name).HasMaxLength(250);
-
-            entity.HasOne(d => d.Stage).WithMany(p => p.TableGroups)
-                .HasForeignKey(d => d.StageId)
-                .HasConstraintName("FK__TableGrou__Round__08B54D69");
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -502,7 +516,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Team).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.TeamId)
-                .HasConstraintName("FK__TeamMatch__TeamI__10566F31");
+                .HasConstraintName("FK_TeamMatch_Team");
         });
 
         modelBuilder.Entity<TeamTable>(entity =>
