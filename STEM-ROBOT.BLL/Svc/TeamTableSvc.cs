@@ -20,7 +20,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TableGroupRepo _tableGroupRepo;
         private readonly StageRepo _stageRepo;
         private readonly CompetitionRepo _competitionRepo;
-        public TeamTableSvc(TeamTableRepo teamTableRepo, IMapper mapper, TeamRepo teamRepo, TableGroupRepo tableGroupRepo, StageRepo stageRepo, CompetitionRepo competitionRepo)
+        private readonly StageTableRepo _stageTableRepo;
+        public TeamTableSvc(TeamTableRepo teamTableRepo, IMapper mapper, TeamRepo teamRepo, TableGroupRepo tableGroupRepo, StageRepo stageRepo, CompetitionRepo competitionRepo, StageTableRepo stageTableRepo)
         {
             _teamTableRepo = teamTableRepo;
             _mapper = mapper;
@@ -28,6 +29,7 @@ namespace STEM_ROBOT.BLL.Svc
             _tableGroupRepo = tableGroupRepo;
             _stageRepo = stageRepo;
             _competitionRepo = competitionRepo;
+            _stageTableRepo = stageTableRepo;
         }
         public MutipleRsp GetListTeamTable()
         {
@@ -68,28 +70,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp GetDataToAssign(int competitionId)
-        {
-            var res = new MutipleRsp();
-            try
-            {
-                var teamTable = _teamTableRepo.All;
-                var team = _teamRepo.All;
-                var tableGroup = _tableGroupRepo.All;
-                var competition = _competitionRepo.All;
-                if (teamTable == null || team == null || tableGroup == null || competition == null)
-                {
-                    res.SetError("No data");
-                }
-
-                var mapper = _mapper.Map<IEnumerable<TeamTable>>(teamTable);
-                res.SetData("OK", mapper);
-            }
-            catch (Exception ex)
-            {
-                res.SetError(ex.Message);
-            }
-            return res;
-        }
+        
     }
 }
