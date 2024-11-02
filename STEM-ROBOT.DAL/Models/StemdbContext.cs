@@ -450,8 +450,8 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK_StageTable_Stage");
 
-            entity.HasOne(d => d.Table).WithMany(p => p.StageTables)
-                .HasForeignKey(d => d.TableId)
+            entity.HasOne(d => d.TableGroup).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.TableGroupId)
                 .HasConstraintName("FK_StageTable_TableGroup");
         });
 
@@ -463,6 +463,10 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.IsAsign).HasColumnName("isAsign");
             entity.Property(e => e.Name).HasMaxLength(250);
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.TableGroups)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_TableGroup_Competition");
         });
 
         modelBuilder.Entity<Team>(entity =>
