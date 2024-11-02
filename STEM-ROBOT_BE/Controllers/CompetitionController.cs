@@ -101,7 +101,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpPut("/format-table/{competitionId}")]
         public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody] CompetitionFormatTableReq request)
         {
-            var res = _competionSvc.CreateCompetitionFormatTable(competitionId, request);
+            var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);

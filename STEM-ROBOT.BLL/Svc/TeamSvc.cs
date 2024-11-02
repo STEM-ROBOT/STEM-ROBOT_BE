@@ -133,7 +133,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp GetTeams(int id)
+        public MutipleRsp GetTeamsByCompetition(int id)
         {
             var res = new MutipleRsp();
             try
