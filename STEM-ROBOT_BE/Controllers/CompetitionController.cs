@@ -84,6 +84,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+
         //cấu hình hình thức thi đấu của nội dung thi đấu
         [HttpPut("format-config")]
         public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
@@ -98,7 +99,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         //cấu hình hình thức thi đấu của nội dung thi đấu
-        [HttpPut("/format-table/{competitionId}")]
+        [HttpPut("format-table")]
         public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody] CompetitionFormatTableReq request)
         {
             var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
@@ -182,7 +183,6 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpPost("addRegulation/{competitionId}")]
-
         public async Task<IActionResult> AddRegulation(string filerule, int competitionId)
         {
             var res = await _competionSvc.AddRule(filerule, competitionId);
@@ -193,6 +193,16 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+        [HttpPost("config-teamtable-stagetable")]
+        public IActionResult ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
+        {
+            var res = _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
     }
 }
 
