@@ -77,7 +77,7 @@ namespace STEM_ROBOT.DAL.Repo
                 var tables = new Table
                 {
                     Id = table.Id,
-                    tableName = table.Table.Name,
+                    //tableName = table.Table.Name,
                     matches = list.Matches
                     .Select(x => new {
 

@@ -381,7 +381,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees)
+        public MutipleRsp AssignRefereeInCompetition(int competitionId,List<AssginRefereeReq> referees)
         {
             var res = new MutipleRsp();
             try
@@ -392,7 +392,8 @@ namespace STEM_ROBOT.BLL.Svc
                     var refereeCompetition = new RefereeCompetition
                     {
                         CompetitionId = competitionId,
-                        RefereeId = referee.Id
+                        RefereeId = referee.RefereeId,
+                        Role = referee.Role
                     };
                     refereeCompetitionList.Add(refereeCompetition);
                     _refereeCompetitionRepo.Add(refereeCompetition);

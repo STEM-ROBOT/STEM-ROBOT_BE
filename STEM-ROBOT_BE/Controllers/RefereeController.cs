@@ -114,9 +114,9 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpPost("{competitionId}/assign-referees")]
-        public IActionResult AssignReferees([FromBody] List<AssginRefereeReq> referees, int competitionId)
+        public IActionResult AssignReferees(int competitionId, [FromBody] List<AssginRefereeReq> referees)
         {
-            var res = _refereeSvc.AssignRefereeInCompetition(competitionId,referees);
+            var res = _refereeSvc.AssignRefereeInCompetition(competitionId, referees);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);
