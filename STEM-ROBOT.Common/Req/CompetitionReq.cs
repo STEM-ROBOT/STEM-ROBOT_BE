@@ -61,8 +61,6 @@ namespace STEM_ROBOT.Common.Req
 
     public class CompetitionFormatTableReq
     {
-        public int TournamentId { get; set; }
-
         public int FormatId { get; set; }
 
         /*public int GenreId { get; set; }

@@ -66,20 +66,25 @@ namespace STEM_ROBOT.Common.Rsp
 
         public DateTime? TimeEndPlay { get; set; }
     }
+
     public class ListCompetiton
     {
         public int Id { get; set; }
 
         public string? Image { get; set; }
+
         public string? Name { get; set; }
+
+        public DateTime? RegisterTime { get; set; }
+
         public DateTime? EndTime { get; set; }
-        public Boolean? IsActive { get; set; }
+
         public string? Mode { get; set; }
 
-        public bool? isActive { get; set; }
+        public bool? IsActive { get; set; }
 
     }
-   
+
     public class CompetionCore
     {
         public string? Regulation { get; set; }
@@ -130,6 +135,30 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public int? NumberTeam { get; set; }
         public string? TournamentName { get; set; }
-        public bool? isActive { get;set; }
+        public bool? isActive { get; set; }
     }
+
+    //model reponse view "lichthidau"
+    public class MatchScheduleCompetition
+    {
+        public string? round { get; set; }
+        public ICollection<MatchRoundViewRsp> matches { get; set; } = new List<MatchRoundViewRsp>();
+    }
+
+    public class MatchRoundViewRsp
+    {
+        public int? matchId { get; set; }
+        //team tham gia tran dau
+        public string? homeTeam { get; set; }
+        public string? homeTeamLogo { get; set; }
+        public string? awayTeamLogo { get; set; }
+        public string? awayTeam { get; set; }
+        //ti so tran dau
+        public string? homeScore { get; set; }
+        public string? awayScore { get; set; }
+        //thoi gian, dia diem   
+        public DateTime? startTime { get; set; }
+        public string? locationName { get; set; }
+    }
+
 }

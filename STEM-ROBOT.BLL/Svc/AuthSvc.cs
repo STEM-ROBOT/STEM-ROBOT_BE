@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.Common.BLL;
 using STEM_ROBOT.Common.DAL;
 using STEM_ROBOT.Common.Req;
@@ -32,10 +33,18 @@ namespace STEM_ROBOT.BLL.Svc
         }
         public async Task<TokenRsp> Login(LoginReq loginReq)
         {
-            var user = _accountRep.Find(x => x.Email == loginReq.Email && x.Password == loginReq.Password).FirstOrDefault();
+   
+            var user = _accountRep.Find(x => x.Email == loginReq.Email ).FirstOrDefault();
             if (user == null)
             {
                 throw new AggregateException("No user");
+            }
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginReq.Password, user.Password);
+
+            if (!isPasswordValid)
+            {
+                // Mật khẩu không khớp
+                throw new("Invalid email or password.");
             }
 
             var token = await GenarateToken(user);

@@ -8,6 +8,8 @@ namespace STEM_ROBOT.Common.Rsp
 {
     public class GenreRsp
     {
+        public int id { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -20,6 +22,7 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string HintScore { get; set; }
     }
+
     public class GenerCompetitonID
     {
         public int id { get; set; }

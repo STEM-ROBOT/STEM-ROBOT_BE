@@ -22,7 +22,7 @@ namespace STEM_ROBOT.Common.Req
 
         public string? Status { get; set; }
 
-        public int? MaxTournatment { get; set; }
+        //public int? MaxTournatment { get; set; }
 
         public int? SchoolId { get; set; }
 

@@ -59,6 +59,8 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Stage> Stages { get; set; }
 
+    public virtual DbSet<StageTable> StageTables { get; set; }
+
     public virtual DbSet<TableGroup> TableGroups { get; set; }
 
     public virtual DbSet<Team> Teams { get; set; }
@@ -68,7 +70,6 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<TeamTable> TeamTables { get; set; }
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -257,9 +258,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
-            entity.Property(e => e.MatchCode)
-                .HasMaxLength(20)
-                .IsFixedLength();
+            entity.Property(e => e.MatchCode).HasMaxLength(500);
             entity.Property(e => e.StartDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -445,6 +444,19 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK_Stage_Competition");
         });
 
+        modelBuilder.Entity<StageTable>(entity =>
+        {
+            entity.ToTable("StageTable");
+
+            entity.HasOne(d => d.Stage).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.StageId)
+                .HasConstraintName("FK_StageTable_Stage");
+
+            entity.HasOne(d => d.Table).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.TableId)
+                .HasConstraintName("FK_StageTable_TableGroup");
+        });
+
         modelBuilder.Entity<TableGroup>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__TableGro__3213E83FAFB8010C");
@@ -453,10 +465,6 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.IsAsign).HasColumnName("isAsign");
             entity.Property(e => e.Name).HasMaxLength(250);
-
-            entity.HasOne(d => d.Stage).WithMany(p => p.TableGroups)
-                .HasForeignKey(d => d.StageId)
-                .HasConstraintName("FK__TableGrou__Round__08B54D69");
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -494,9 +502,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
-            entity.Property(e => e.MatchWinCode)
-                .HasMaxLength(20)
-                .IsFixedLength();
+            entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
 
@@ -506,7 +512,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Team).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.TeamId)
-                .HasConstraintName("FK__TeamMatch__TeamI__10566F31");
+                .HasConstraintName("FK_TeamMatch_Team");
         });
 
         modelBuilder.Entity<TeamTable>(entity =>

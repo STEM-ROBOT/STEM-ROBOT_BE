@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using STEM_ROBOT.DAL.Repo;
@@ -16,12 +17,18 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly IMapper _mapper;
         private readonly TeamRepo _teamRepo;
         private readonly MatchRepo _matchRepo;
-        public TeamMatchSvc(TeamMatchRepo teamMatchRepo, IMapper mapper, TeamRepo teamRepo, MatchRepo matchRepo)
+        private readonly TableGroupRepo _tableGroupRepo;
+        private readonly TeamTableRepo _teamTableRepo;
+        private readonly StageRepo _stageRepo;
+        public TeamMatchSvc(TeamMatchRepo teamMatchRepo, IMapper mapper, TeamRepo teamRepo, MatchRepo matchRepo, TableGroupRepo tableGroupRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo)
         {
             _teamMatchRepo = teamMatchRepo;
             _mapper = mapper;
             _teamRepo = teamRepo;
             _matchRepo = matchRepo;
+            _tableGroupRepo = tableGroupRepo;
+            _teamTableRepo = teamTableRepo;
+            _stageRepo = stageRepo;
         }
         public MutipleRsp GetListTeamMatch()
         {
@@ -61,5 +68,6 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        
     }
 }
