@@ -616,7 +616,7 @@ namespace STEM_ROBOT.BLL.Svc
                             var stageTable = new StageTable
                             {
                                 StageId = stage.Id,
-                                TableId = assignment.TableGroupId,
+                                TableGroupId = assignment.TableGroupId,
                             };
                             _stageTableRepo.Add(stageTable);
                             for (int j = 0; j < numberMatchInStage; j++)
@@ -660,7 +660,7 @@ namespace STEM_ROBOT.BLL.Svc
                     CreateTeams(competitionId, request.NumberTeam);
 
                     // Create tables
-                    CreateTables(request.NumberTable);
+                    CreateTables(request.NumberTable, competitionId);
                 }
 
                 res.setData("200", "Success");
@@ -708,7 +708,7 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
 
-        public MutipleRsp CreateTables(int numberTable)
+        public MutipleRsp CreateTables(int numberTable, int competitionId)
         {
             var res = new MutipleRsp();
             try
@@ -719,7 +719,8 @@ namespace STEM_ROBOT.BLL.Svc
                     var table = new TableGroup
                     {
                         Name = ((char)('A' + i)).ToString(),
-                        IsAsign = false
+                        IsAsign = false,
+                        CompetitionId = competitionId
                     };
                     _tableGroupRepo.Add(table);
                     createdTables.Add(table);
