@@ -71,7 +71,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -137,6 +139,27 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.IsFormat)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isFormat");
+            entity.Property(e => e.IsLocation)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isLocation");
+            entity.Property(e => e.IsMacth)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isMacth");
+            entity.Property(e => e.IsReferee)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isReferee");
+            entity.Property(e => e.IsTable)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTable");
+            entity.Property(e => e.IsTeam)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTeam");
+            entity.Property(e => e.IsTeamMacth)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTeamMacth");
             entity.Property(e => e.IsTop).HasColumnName("isTop");
             entity.Property(e => e.Mode).HasMaxLength(500);
             entity.Property(e => e.RegisterTime).HasColumnType("date");

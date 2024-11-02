@@ -59,6 +59,20 @@ public partial class Competition
 
     public string? RegulationScore { get; set; }
 
+    public bool? IsFormat { get; set; }
+
+    public bool? IsTeam { get; set; }
+
+    public bool? IsTable { get; set; }
+
+    public bool? IsLocation { get; set; }
+
+    public bool? IsTeamMacth { get; set; }
+
+    public bool? IsMacth { get; set; }
+
+    public bool? IsReferee { get; set; }
+
     public virtual CompetitionFormat? Format { get; set; }
 
     public virtual Genre? Genre { get; set; }
