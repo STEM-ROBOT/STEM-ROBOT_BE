@@ -19,7 +19,7 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<IEnumerable<roundParent>> getRoundGame(int competitionID)
         {
-            var listRoundParent = await _context.Competitions
+            /*var listRoundParent = await _context.Competitions
                 .Where(x => x.Id == competitionID)
                 .Select(comp => new roundParent
                 {
@@ -71,13 +71,14 @@ namespace STEM_ROBOT.DAL.Repo
             {
                 round.knockout = knockoutData.FirstOrDefault()?.knockout;
             }
-            return listRoundParent;
+            return listRoundParent;*/
+            return null;
         }
 
 
         public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
         {
-            var listRoundParent = await _context.Competitions
+            /*var listRoundParent = await _context.Competitions
        .Where(x => x.Id == competitionID)
        .Select(comp => new roundParent
        {
@@ -116,7 +117,8 @@ namespace STEM_ROBOT.DAL.Repo
            }
        })
        .ToListAsync();
-            return listRoundParent;
+            return listRoundParent;*/
+            return null;
         }
 
 

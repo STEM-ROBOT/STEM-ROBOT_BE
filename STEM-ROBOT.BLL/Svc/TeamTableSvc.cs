@@ -68,58 +68,28 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp AssignTeamsToTables(int competitionId, List<TableAssignmentReq> tableAssignments)
+        public MutipleRsp GetDataToAssign(int competitionId)
         {
-            var res = new SingleRsp();
-
+            var res = new MutipleRsp();
             try
             {
-                // Validate that table assignments are provided
-                if (tableAssignments == null || !tableAssignments.Any())
+                var teamTable = _teamTableRepo.All;
+                var team = _teamRepo.All;
+                var tableGroup = _tableGroupRepo.All;
+                var competition = _competitionRepo.All;
+                if (teamTable == null || team == null || tableGroup == null || competition == null)
                 {
-                    throw new Exception("Không có thông tin bảng đấu hoặc đội.");
+                    res.SetError("No data");
                 }
 
-                // Iterate through each table assignment provided by the frontend
-                foreach (var assignment in tableAssignments)
-                {
-                    // Validate table ID and team list
-                    if (assignment.TableGroupId <= 0 || assignment.Teams == null || !assignment.Teams.Any())
-                    {
-                        throw new Exception("Thông tin bảng hoặc danh sách đội không hợp lệ.");
-                    }
-
-                    // Add each team in the team list to the specified table
-                    foreach (var teamId in assignment.Teams)
-                    {
-                        AddTeamToTable(teamId, assignment.TableGroupId);
-                    }
-                }
-
-                res.setData("200", "Success");
+                var mapper = _mapper.Map<IEnumerable<TeamTable>>(teamTable);
+                res.SetData("OK", mapper);
             }
             catch (Exception ex)
             {
-                res.SetError("500", ex.Message);
+                res.SetError(ex.Message);
             }
-
             return res;
         }
-
-        // Method to add a team to a specific table in the TeamTable database
-        public void AddTeamToTable(int teamId, int tableGroupId)
-        {
-            var teamTable = new TeamTable
-            {
-                TeamId = teamId,
-                TableGroupId = tableGroupId,
-                IsSetup = true // Assuming this should be true when teams are assigned
-            };
-            _teamTableRepo.Add(teamTable);
-        }
-
-
-
-
     }
 }

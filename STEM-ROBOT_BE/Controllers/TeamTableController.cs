@@ -35,11 +35,10 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-        [HttpPost("assign-teamtable/{competitionId}")]
-        public IActionResult CreateTeamTable(int competitionId, List<TableAssignmentReq> tableAssignments)
+        [HttpGet("get-data-to-assing/{competitionId}")]
+        public IActionResult GetDataToAssign(int competitionId)
         {
-            var res = _teamTableSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            var res = _teamTableSvc.GetDataToAssign(competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
