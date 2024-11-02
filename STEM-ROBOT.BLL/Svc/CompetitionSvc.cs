@@ -155,14 +155,15 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var list = await _competitionRepo.getListCompetitionGener(IdTournament);
-                if (list == null) throw new Exception("no data");
-
-                var mapper = _mapper.Map<List<ListCompetiton>>(list);
-                res.SetData("data", mapper);
+                if(list != null)
+                {
+                    var mapper = _mapper.Map<List<ListCompetiton>>(list);
+                    res.SetData("data", mapper);
+                }        
             }
             catch (Exception ex)
             {
-                throw new Exception("No data");
+                throw new Exception(ex.Message);
             }
             return res;
         }
@@ -373,7 +374,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        TableId = null,
+                       
                         StartDate = DateTime.Now,
                         Status = "Đấu phụ",
                         TimeIn = TimeSpan.Zero,
@@ -440,7 +441,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        TableId = null,
+                        
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
                         TimeIn = TimeSpan.Zero,

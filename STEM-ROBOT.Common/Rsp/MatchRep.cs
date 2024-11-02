@@ -81,8 +81,8 @@ namespace STEM_ROBOT.Common.Rsp
     }
     public class RoundGameKnockout
     {
-        public int roundId { get; set; }
-        public string roundName { get; set; }
+        public int? roundId { get; set; }
+        public string? roundName { get; set; }
 
         public List<RoundGameMatch> matches { get; set; } = new List<RoundGameMatch>();
 
@@ -107,30 +107,30 @@ namespace STEM_ROBOT.Common.Rsp
     //table 
     public class tableGroup
     {
-        public int team_tableId { get; set; }
+        public int? team_tableId { get; set; }
         public List<RoundTableTeam> team_table { get; set; } = new List<RoundTableTeam>();
     }
     // list table
 
     public class RoundGameTable
     {
-        public int roundId { get; set; }
-        public string roundName { get; set; }
+        public int? roundId { get; set; }
+        public string? roundName { get; set; }
         public List<RoundTable> tables { get; set; } = new List<RoundTable>();
 
     }
     //
     public class RoundTable
     {
-        public int tableId { get; set; }
-        public string tableName { get; set; }
+        public int? tableId { get; set; }
+        public string? tableName { get; set; }
        
         public List<RoundGameMatch> matches { get; set; } = new List<RoundGameMatch>();
     }
     public class RoundTableTeam
     {
         public int? teamId { get; set; }
-        public string teamName { get; set; }
+        public string? teamName { get; set; }
 
     }
     public class RoundGameMatch
