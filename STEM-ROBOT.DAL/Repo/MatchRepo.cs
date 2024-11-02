@@ -31,7 +31,7 @@ namespace STEM_ROBOT.DAL.Repo
             // Process each stage to build the RoundParent object
             var roundParent = stages.Select(async comp => new roundParent
             {
-                IsAsign = comp.StageTables.FirstOrDefault()?.Table.IsAsign ?? false, // Use null conditional operator
+                IsAsign = comp.StageTables.FirstOrDefault()?.TableGroup.IsAsign ?? false, // Use null conditional operator
                 groups = await GetListRoundAsync(comp.Id) // Await asynchronously outside of LINQ
             }).FirstOrDefault();
 
@@ -45,7 +45,7 @@ namespace STEM_ROBOT.DAL.Repo
             var stage = await _context.Stages
                 .Where(x => x.Id == stageID)
                 .Include(x => x.StageTables)
-                    .ThenInclude(x => x.Table)
+                    .ThenInclude(x => x.TableGroup)
                 .FirstOrDefaultAsync();
 
             var listRound = new List<RoundGame>();
@@ -58,7 +58,7 @@ namespace STEM_ROBOT.DAL.Repo
                         Id = stage.Id,
                         Name = stage.Name,
                         Status = stage.Status,
-                        matchrounds = await getTabel(stageTable.Table.Id) // Adjusted to use async
+                        matchrounds = await getTabel(stageTable.TableGroup.Id) // Adjusted to use async
                     };
                     listRound.Add(roundGame);
                 }
@@ -209,95 +209,74 @@ namespace STEM_ROBOT.DAL.Repo
         //  sap xep team trong tran dau bang 
         public async Task<RoundParentTable> GetRoundParentTable(int competitionID)
         {
-            // Fetch the competition with related entities
-            var competition = await _context.Competitions
-                .Where(x => x.Id == competitionID)
-                .Include(x => x.Stages)
-                    .ThenInclude(stage => stage.StageTables)
-                        .ThenInclude(stageTable => stageTable.Table)
-                            .ThenInclude(table => table.TeamTables)
-                                .ThenInclude(teamTable => teamTable.Team)
-                .FirstOrDefaultAsync();
 
-            if (competition == null) return null;
 
             var roundParentTable = new RoundParentTable
             {
-                tableGroup = await GetListTeamTable(competition.Stages)
+                tableGroup = await GetListTeamTable(competitionID),
+                rounds = await GetRoundGameTable(competitionID),
             };
 
             return roundParentTable;
         }
 
         // List teams within stages for the competition
-        private async Task<List<tableGroup>> GetListTeamTable(IEnumerable<Stage> stages)
+        private async Task<List<tableGroup>> GetListTeamTable(int competitionID)
+
         {
-            var listRound = new List<tableGroup>();
-
-            // Iterate over each stage
-            foreach (var stage in stages)
+            var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.StageTables).ThenInclude(x => x.TableGroup)
+                .ThenInclude(x => x.TeamTables).ThenInclude(x=> x.Team).FirstOrDefaultAsync();
+            var list = new List<tableGroup>();
+           foreach(var lists in competition.Stages)
             {
-                foreach (var stageTable in stage.StageTables)
+                var rounds = new tableGroup
                 {
-                    var tableGroup = new tableGroup
+                    team_tableId = lists.StageTables.FirstOrDefault().TableGroup.Id,
+                    team_table = lists.StageTables.Select(x=> x.TableGroup).SelectMany(x => x.TeamTables).Select(x => new RoundTableTeam
                     {
-                        team_tableId = stageTable.TableId,
+                        teamId = x.Team.Id,
+                        teamName = x.Team.Name
+                    }).ToList()
+                    
+                };
+                list.Add(rounds);
 
-                        // Retrieve the team information with null checks
-                        team_table = stageTable.Table?.TeamTables
-                            .Where(tt => tt.Team != null) // Filter out any null Team entries
-                            .Select(tt => new RoundTableTeam
-                            {
-                                teamId = tt.Team.Id,
-                                teamName = tt.Team.Name
-                            })
-                            .ToList() ?? new List<RoundTableTeam>() // If null, return an empty list
-                    };
 
-                    listRound.Add(tableGroup);
-                }
             }
-
-            return listRound;
+            return list;
+          
         }
 
 
         private async Task<List<RoundGameTable>> GetRoundGameTable(int competitionID)
         {
-            // Fetch stages for the competition and include related entities
-            var stages = await _context.Stages
-                .Where(x => x.CompetitionId == competitionID)
-                .Include(x => x.StageTables)
-                    .ThenInclude(stageTable => stageTable.Table)
-                        .ThenInclude(table => table.TeamTables)
-                            .ThenInclude(teamTable => teamTable.Team)
-                .Include(x => x.Matches)
-                    .ThenInclude(match => match.TeamMatches)
-                .ToListAsync();
 
+            var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.StageTables).ThenInclude(x => x.TableGroup)
+                 .ThenInclude(x => x.TeamTables).FirstOrDefaultAsync();
+          
             // Initialize the result list
             var listRound = new List<RoundGameTable>();
 
-            // Iterate over each stage
-            foreach (var stage in stages)
+           
+            foreach (var stage in competition.Stages)
             {
                 var roundGameTable = new RoundGameTable
                 {
                     roundId = stage.Id,
                     roundName = stage.Name,
 
-                    // Populate tables with the list of RoundTable objects for each stage
+                    
                     tables = stage.StageTables.Select(stageTable => new RoundTable
                     {
-                        tableId = stageTable.Table.Id,
-                        tableName = stageTable.Table.Name,
+                        tableId = stageTable.TableGroup.Id,
+                        tableName = stageTable.TableGroup.Name,
 
-                        // Populate matches within each table
+                      
                         matches = stage.Matches.Select(match => new RoundGameMatch
                         {
                             matchId = match.Id,
 
-                            // Populate teams within each match
+                           
                             teamsmatch = match.TeamMatches.Select(teamMatch => new RoundGameTeamMatch
                             {
                                 teamMatchId = teamMatch.MatchId,

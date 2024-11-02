@@ -452,8 +452,8 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK_StageTable_Stage");
 
-            entity.HasOne(d => d.Table).WithMany(p => p.StageTables)
-                .HasForeignKey(d => d.TableId)
+            entity.HasOne(d => d.TableGroup).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.TableGroupId)
                 .HasConstraintName("FK_StageTable_TableGroup");
         });
 

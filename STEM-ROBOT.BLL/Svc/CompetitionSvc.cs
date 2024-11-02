@@ -617,7 +617,7 @@ namespace STEM_ROBOT.BLL.Svc
                             var stageTable = new StageTable
                             {
                                 StageId = stage.Id,
-                                TableId = assignment.TableGroupId,
+                                TableGroupId = assignment.TableGroupId,
                             };
                             _stageTableRepo.Add(stageTable);
                             for (int j = 0; j < numberMatchInStage; j++)
