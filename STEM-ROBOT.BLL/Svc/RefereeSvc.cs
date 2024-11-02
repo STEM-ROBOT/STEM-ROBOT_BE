@@ -380,8 +380,31 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var refereeCompetitionList = new List<RefereeCompetition>();
+                foreach (var referee in referees)
+                {
+                    var refereeCompetition = new RefereeCompetition
+                    {
+                        CompetitionId = competitionId,
+                        RefereeId = referee.Id
+                    };
+                    refereeCompetitionList.Add(refereeCompetition);
+                    _refereeCompetitionRepo.Add(refereeCompetition);
+                }
+                res.SetData("200", refereeCompetitionList);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
-
-
 
 }

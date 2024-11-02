@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using Org.BouncyCastle.Asn1.Ocsp;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -23,8 +24,10 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TableGroupRepo _tableGroupRepo;
         private readonly MatchRepo _matchRepo;
         private readonly TeamMatchRepo _teamMatchRepo;
-        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, TeamRepo teamRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo, TableGroupRepo tableGroupRepo, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo)
+        private readonly StageTableRepo _stageTableRepo;
+        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, TeamRepo teamRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo, TableGroupRepo tableGroupRepo, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo, StageTableRepo stageTableRepo)
         {
+            _stageTableRepo = stageTableRepo;
             _competitionRepo = competitionRepo;
             _mapper = mapper;
             _teamRepo = teamRepo;
@@ -256,153 +259,60 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
 
-                var id = _competitionRepo.GetById(request.Id);
+                var competition_data = _competitionRepo.GetById(request.Id);
 
-                if (id == null)
+                if (competition_data == null)
                 {
                     res.SetError("No ID");
                 }
-                var map = _mapper.Map(request, id);
-                _competitionRepo.Update(map);
-                if (request.FormatId == 2)
+                competition_data.FormatId = request.FormatId;
+                _competitionRepo.Update(competition_data);
+
+                if (request.FormatId == 1)
                 {
                     int teamCount = (int)request.NumberTeam;
-                    var checkBool = await StateSetup(teamCount, request.Id);
 
-                    if (checkBool == false)
+                    var create_team = await TeamsSetup(teamCount, request.Id);
+
+                    if (create_team == true)
                     {
-                        throw new Exception("Tạo vòng đấu thất bại !!");
+                        List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                        for (int i = 0; i < teamCount; i++)
+                        {
+                            TeamMatch team = new TeamMatch();
+                            winningTeamsFromExtraRound.Add(team);
+                        }
+                        var checkBool = await StateSetup(teamCount, request.Id, winningTeamsFromExtraRound);
+
+                        if (checkBool == false)
+                        {
+                            throw new Exception("Tạo vòng đấu thất bại !!");
+                        }
+                        res.Setmessage("Ok");
+                    }
+                    else
+                    {
+                        throw new Exception("Tạo vòng đội thất bại !!");
                     }
 
                 }
-
-                res.Setmessage("Ok");
-
-
+                return res;
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail Loại trực tiếp");
+                throw new Exception("Tạo vòng đội thất bại !!");
             }
-            return res;
 
         }
-
-        public SingleRsp CreateCompetitionFormatTable(CompetitionFormatTableReq request)
-
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var competition = _mapper.Map<Competition>(request);
-                if (competition == null)
-                {
-                    res.SetError("Please check again!");
-                    return res;
-                }
-                _competitionRepo.Add(competition);
-
-                if (request.FormatId == 2)
-                {
-                    // Create teams
-                    CreateTeams(competition.Id, request.NumberTeam);
-
-                    // Create stages
-                    List<string> stages = CalculateStages(request.NumberTeam, request.NumberTeamNextRound);
-                    CreateStages(competition.Id, stages);
-
-                    // Get stage table(Vòng bảng)
-                    var stageTable = GetStageTableInCompetition(competition.Id);
-                    if (stageTable == null)
-                    {
-                        res.SetError("Stage table not found for the given competition ID.");
-                        return res;
-                    }
-
-                    // Create tables
-                    CreateTables(stageTable.Id, request.NumberTable);
-
-                    // Assign teams to tables
-                    AssignTeamsToTables(competition.Id, stageTable.Id, request.NumberTeam, request.NumberTable);
-
-                    // Create matches
-                    CreateMatches(competition.Id, request.NumberTeam, request.NumberTable, request.NumberTeamNextRound);
-
-                    // AssignTeamsToMatchesInStageTable
-                    AssignTeamsToMatchesInStageTable(competition.Id, stageTable.Id);
-
-                    // Assign qualified teams to next round
-                    AssignTeamsToNextRoundMatches(competition.Id, request.NumberTeamNextRound);
-                }
-
-                res.setData("200", "Success");
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        private List<string> CalculateStages(int numberTeam, int numberTeamNextRound)
-        {
-            var stages = new List<string> { "Vòng bảng" };
-            if (numberTeamNextRound >= 64) stages.Add("Vòng 1/32");
-            if (numberTeamNextRound >= 32) stages.Add("Vòng 1/16");
-            if (numberTeamNextRound >= 16) stages.Add("Vòng 1/8");
-            if (numberTeamNextRound >= 8) stages.Add("Tứ kết");
-            if (numberTeamNextRound >= 4) stages.Add("Bán kết");
-            if (numberTeamNextRound >= 2) stages.Add("Chung kết");
-            return stages;
-        }
-        // Hàm tính toán số lượng trận đấu cần có trong giải đấu
-        public int CalculateTotalMatches(int numberOfTeams, int numberOfTables, int numberOfQualifiedTeams)
-        {
-            // Số trận đấu vòng bảng
-            int groupStageMatches = (numberOfTeams / numberOfTables) * (numberOfTeams / numberOfTables - 1) / 2 * numberOfTables;
-
-            // Số trận đấu vòng loại trực tiếp
-            int knockoutStageMatches = numberOfQualifiedTeams - 1;
-
-            return groupStageMatches + knockoutStageMatches;
-        }
-        public MutipleRsp CreateStages(int competitionId, List<string> stageNames)
-        {
-            var res = new MutipleRsp();
-            try
-            {
-                var stages = stageNames.Select(stageName => new Stage
-                {
-                    CompetitionId = competitionId,
-                    Name = stageName,
-                    Status = "Pending",
-                    StartDate = null,
-                    EndDate = null
-                }).ToList();
-
-                foreach (var stage in stages)
-                {
-                    _stageRepo.Add(stage);
-                }
-                res.SetData("200", stages);
-            }
-            catch (Exception ex)
-            {
-                res.SetError(ex.Message);
-            }
-            return res;
-        }
-
-
-        private async Task<bool> StateSetup(int number, int competitionId)
+        private async Task<bool> TeamsSetup(int number, int competitionId)
         {
             if (number <= 0)
             {
+                return false;
                 throw new Exception("Number must be greater than 0");
+
             }
             Dictionary<int, string> originalTeamNames = new Dictionary<int, string>();
-
-            // Add teams and save original names
             for (int i = 1; i <= number; i++)
             {
                 var team = new Team()
@@ -414,33 +324,32 @@ namespace STEM_ROBOT.BLL.Svc
                 _teamRepo.Add(team);
                 originalTeamNames[team.Id] = team.Name;
             }
+            return true;
+        }
 
+        private async Task<bool> StateSetup(int number, int competitionId, List<TeamMatch> winningTeamsFromExtraRound)
+        {
+            // tính số vòng đấu đủ hay dư
             bool isPowerOf2 = (number & (number - 1)) == 0;
             int round = (int)Math.Ceiling(Math.Log2(number));
             int closestPowerOf2 = (int)Math.Pow(2, round);
             int extraTeams = number - (closestPowerOf2 / 2);
 
-            List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
-              // Instantiate once for unique codes
+            // chuẩn bị danh sách team 
 
-            for(int i = 0;i < number; i++)
-            {
-                TeamMatch team = new TeamMatch();
-                winningTeamsFromExtraRound.Add(team);
-            }
             var index = 0;
 
-            // Create extra round if teams are not a power of 2
+            // tạo vòng đấu cho số đội dư 
             if (!isPowerOf2 && extraTeams > 0)
             {
                 string roundName = round switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, round - 1)}"
                 };
-               
+
                 var stage = new Stage
                 {
                     CompetitionId = competitionId,
@@ -451,13 +360,12 @@ namespace STEM_ROBOT.BLL.Svc
                 };
                 _stageRepo.Add(stage);
 
-
-                // so doi o vong du
+                // so doi o vong dư
                 var teamsForExtraRound = extraTeams * 2;
-               // number = number - teamsForExtraRound;
-     
 
+                // đánh số thứ tự trận win
                 var winMatchNumber = 1;
+
                 for (int i = 0; i < teamsForExtraRound; i += 2)
                 {
                     Random randomCode = new Random();
@@ -488,26 +396,24 @@ namespace STEM_ROBOT.BLL.Svc
                         MatchCode = match.MatchCode
                     };
 
-                   
+
                     winningTeamsFromExtraRound.Add(teamNew);
                     winMatchNumber++;
                     index += 2;
-                   
+
                 }
                 round -= 1;
             }
-
-
 
             // Main rounds
             for (int currentRound = round; currentRound > 0; currentRound--)
             {
                 string roundName = currentRound switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, currentRound - 1)}"
                 };
 
                 var stage = new Stage
@@ -522,7 +428,7 @@ namespace STEM_ROBOT.BLL.Svc
                 _stageRepo.Add(stage);
 
                 // Prepare teams for the round
-                List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
+                // List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
 
                 var numbeMatchRounds = Math.Pow(2, currentRound);
                 // Create matches in pairs
@@ -544,49 +450,292 @@ namespace STEM_ROBOT.BLL.Svc
                     };
                     _matchRepo.Add(match);
 
-                    if(currentRound == round && extraTeams == 0)
+                    if (currentRound == round && extraTeams == 0)
                     {
                         _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
                         _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-                    }else
+                    }
+                    else
                     {
-                        // Add two teams to the match
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchCode = match.MatchCode });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchCode = match.MatchCode });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index].MatchWinCode });
+                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index + 1].MatchWinCode });
+
                     }
 
-                  
                     index += 2;
-                    
-                    // Assume first team wins (placeholder for actual logic)
-                    winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchCode = match.MatchCode });
+                    winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode });
                 }
             }
 
             return true;
         }
 
-
-
-
-
-
-        public int CalculateNumberStage(int numberTeam, int numberTable)
+        //danh sach tran dau cua competition
+        public async Task<SingleRsp> matchScheduleCompetition(int competitionId)
         {
-            return (int)Math.Log2(numberTeam / numberTable) + 2;
-        }
-        public StageRep GetStageTableInCompetition(int competitionId)
-        {
-            var stage = _stageRepo.All().FirstOrDefault(s => s.CompetitionId == competitionId && s.Name == "Vòng bảng");
-            if (stage == null)
+            var res = new SingleRsp();
+            var stage = await _stageRepo.GetAllStagesCompetition(competitionId);
+            try
             {
-                return null;
+                var matchSchedule = stage.Select(s => new MatchScheduleCompetition
+                {
+                    round = s.Name,
+                    matches = s.Matches.Select(m => new MatchRoundViewRsp
+                    {
+                        matchId = m.Id,
+                        //team tham gia
+
+                        homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
+                        awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
+                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
+                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                        //ti so tran dau
+                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
+                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                        //thoi gian, dia diem   
+                        //thoi gian, dia diem   
+                        startTime = m.StartDate,
+                        locationName = m.LocationId == null ? "" : m.Location.Address,
+                    }).ToList()
+
+                }).ToList();
+
+                res.setData("data", matchSchedule);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public SingleRsp AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        {
+            var res = new SingleRsp();
+
+            try
+            {
+                // Validate that table assignments are provided
+                if (tableAssignments == null || !tableAssignments.tableAssign.Any())
+                {
+                    throw new Exception("Không có thông tin bảng đấu hoặc đội.");
+                }
+                // tong so vong dau vong dau bang
+                int totalStage = 0;
+                // Iterate through each table assignment provided by the frontend
+                foreach (var assignment in tableAssignments.tableAssign)
+                {
+
+                    var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
+
+                    var numberMatchInStage = numMatchInTable / (assignment.Teams.Count);
+                    var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
+                    if (numberStageInTable > totalStage)
+                    {
+                        totalStage = (int)numberStageInTable;
+                    }
+                    // Validate table ID and team list
+                    if (assignment.TableGroupId <= 0 || assignment.Teams == null || !assignment.Teams.Any())
+                    {
+                        throw new Exception("Thông tin bảng hoặc danh sách đội không hợp lệ.");
+                    }
+
+                    // Add each team in the team list to the specified table
+                    foreach (var teamId in assignment.Teams)
+                    {
+                        var teamTable = new TeamTable
+                        {
+                            TeamId = teamId,
+                            TableGroupId = assignment.TableGroupId,
+                            IsSetup = true // Assuming this should be true when teams are assigned
+                        };
+                        _teamTableRepo.Add(teamTable);
+                    }
+                }
+                SetupStageTable(totalStage, tableAssignments);
+                List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                var totalTop = tableAssignments.TeamNextRound / tableAssignments.tableAssign.Count;
+                var topFulled = 0;
+
+                for (int i = 0; i < totalTop; i++)
+                {
+                    foreach (var table in tableAssignments.tableAssign)
+                    {
+                        if (topFulled == totalTop)
+                        {
+                            break;
+                        }
+                        TeamMatch team = new TeamMatch
+                        {
+                            NameDefault = $"Top#{i + 1} B{table.TableGroupName}",
+
+                        };
+                        winningTeamsFromExtraRound.Add(team);
+                        topFulled++;            
+                    }
+                }
+                var checkBool = StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
+
+                res.setData("200", "Success");
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public bool SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
+        {
+            var stages = new List<Stage>();
+            // tao so vong dau bang
+            for (int i = 0; i < totalStage; i++)
+            {
+                var stage = new Stage
+                {
+                    Name = $"{i + 1}",
+                    Status = "Pending",
+                    StartDate = null,
+                    EndDate = null
+                };
+                _stageRepo.Add(stage);
+                stages.Add(stage);
             }
 
-            return _mapper.Map<StageRep>(stage);
+            //tao so vong dau cua moi bang 
+            foreach (var assignment in tableAssignments.tableAssign)
+            {
+                var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
+                var numberMatchInStage = numMatchInTable / assignment.Teams.Count;
+                var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
+
+                for (int i = 0; i < numberStageInTable; i++)
+                {
+                    var round = (i + 1).ToString();
+                    foreach (var stage in stages)
+                    {
+                        if (round == stage.Name)
+                        {
+                            var stageTable = new StageTable
+                            {
+                                StageId = stage.Id,
+                                TableId = assignment.TableGroupId,
+                            };
+                            _stageTableRepo.Add(stageTable);
+                            for (int j = 0; j < numberMatchInStage; j++)
+                            {
+                                var match = new Match
+                                {
+                                    StageId = stage.Id,
+                                    IsSetup = false,
+                                    Status = "Pending",
+                                };
+                                _matchRepo.Add(match);
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                            }
+                        }
+                        else { break; }
+                    }
+                }
+            }
+            return true;
+        }
+        public SingleRsp UpdateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
+
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
+                if (competition == null)
+                {
+                    res.SetError("Competition not found with the provided ID.");
+                    return res;
+                }
+                var competitionFormat = _mapper.Map(request, competition);
+                _competitionRepo.Update(competitionFormat);
+
+                if (competitionFormat.FormatId == 2)
+                {
+
+                    // Create teams
+                    CreateTeams(competitionId, request.NumberTeam);
+
+                    // Create tables
+                    CreateTables(request.NumberTable);
+                }
+
+                res.setData("200", "Success");
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
         }
 
-        public MutipleRsp CreateTables(int stageId, int numberTable)
+        // Hàm tính toán số lượng trận đấu cần có trong giải đấu
+        public SingleRsp CalculateTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                int totalMatches = 0;
+
+                // Step 1: Calculate matches for each group (group stage)
+                int teamsPerGroup = numberOfTeams / numberOfGroups;
+                int extraTeams = numberOfTeams % numberOfGroups; // To handle cases where teams don't divide evenly
+
+                for (int i = 0; i < numberOfGroups; i++)
+                {
+                    // If there are extra teams, add one more team to this group
+                    int teamsInThisGroup = (i < extraTeams) ? teamsPerGroup + 1 : teamsPerGroup;
+
+                    // Calculate round-robin matches for this group
+                    int groupMatches = (teamsInThisGroup * (teamsInThisGroup - 1)) / 2;
+                    totalMatches += groupMatches;
+                }
+
+                // Step 2: Calculate matches for the knockout stage
+                // In knockout rounds, we need (numberTeamsNextRound - 1) matches to determine a winner
+                int knockoutMatches = numberTeamsNextRound - 1;
+                totalMatches += knockoutMatches;
+                res.setData("200", totalMatches);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("400", ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp CreateNextStages(int competitionId, List<string> stageNames)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var stages = stageNames.Select(stageName => new Stage
+                {
+                    CompetitionId = competitionId,
+                    Name = stageName,
+                    Status = "Pending",
+                    StartDate = null,
+                    EndDate = null
+                }).ToList();
+
+                foreach (var stage in stages)
+                {
+                    _stageRepo.Add(stage);
+                }
+                res.SetData("200", stages);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp CreateTables(int numberTable)
         {
             var res = new MutipleRsp();
             try
@@ -596,7 +745,6 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var table = new TableGroup
                     {
-                        StageId = stageId,
                         Name = ((char)('A' + i)).ToString(),
                         IsAsign = false
                     };
@@ -613,54 +761,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp AssignTeamsToTables(int competitionId, int stageId, int numberTeams, int numberTables)
-        {
-            var res = new SingleRsp();
-            // Lấy danh sách các đội thuộc competition
-            var teams = _teamRepo.All().Where(t => t.CompetitionId == competitionId).ToList();
-            if (teams == null || !teams.Any())
-            {
-                throw new Exception("Không tìm thấy đội nào trong cuộc thi.");
-            }
-
-            // Lấy danh sách các bảng đấu thuộc stage "Vòng bảng"
-            var tableGroups = _tableGroupRepo.All().Where(b => b.StageId == stageId).ToList();
-            if (tableGroups == null || !tableGroups.Any())
-            {
-                throw new Exception("Số lượng bảng đấu không phù hợp.");
-            }
-
-            int teamsPerTable = numberTeams / numberTables;
-            int remainder = numberTeams % numberTables;
-
-            int currentTeamIndex = 0;
-
-            foreach (var table in tableGroups)
-            {
-                int currentTableTeamCount = teamsPerTable + (remainder > 0 ? 1 : 0);
-                remainder--;
-
-                for (int i = 0; i < currentTableTeamCount; i++)
-                {
-                    if (currentTeamIndex >= teams.Count) break;
-
-                    var team = teams[currentTeamIndex++];
-                    AddTeamToTable(team.Id, table.Id);
-                }
-            }
-            res.setData("200", "Success");
-            return res;
-        }
-
-        public void AddTeamToTable(int teamId, int tableGroupId)
-        {
-            var teamTable = new TeamTable
-            {
-                TeamId = teamId,
-                TableGroupId = tableGroupId
-            };
-            _teamTableRepo.Add(teamTable);
-        }
 
         private void CreateTeams(int competitionId, int numberOfTeams)
         {
@@ -676,39 +776,48 @@ namespace STEM_ROBOT.BLL.Svc
             }
         }
 
+
         public void CreateMatches(int competitionId, int numberTeams, int numberTables, int numberTeamsNextRound)
         {
             try
             {
-                // Lấy danh sách bảng đấu thuộc vòng bảng
-                var groupStage = GetStageTableInCompetition(competitionId);
+                int totalMatches = 0; // To keep track of the total number of matches
+
+                // Step 1: Group Stage Matches
+                var groupStage = _stageRepo.All().Where(s => s.CompetitionId == competitionId && s.StageMode == "Vòng bảng");
                 if (groupStage == null)
                 {
                     throw new Exception("Không tìm thấy vòng bảng.");
                 }
 
-                var tables = _tableGroupRepo.All().Where(t => t.StageId == groupStage.Id).ToList();
+                /*var tables = _tableGroupRepo.All().Where(t => t.StageId == groupStage.Id).ToList();
                 if (tables == null || !tables.Any())
                 {
                     throw new Exception("Không tìm thấy bảng đấu.");
                 }
 
-                // Tính số trận vòng bảng
+                int teamsPerTable = numberTeams / numberTables;
+                int extraTeams = numberTeams % numberTables; // For uneven distribution
+
                 foreach (var table in tables)
                 {
-                    var teamsInTable = _teamTableRepo.All().Where(tt => tt.TableGroupId == table.Id).ToList();
-                    int numberTeamsInTable = teamsInTable.Count;
+                    // Calculate the number of teams in the current table
+                    int teamsInThisTable = teamsPerTable + (extraTeams-- > 0 ? 1 : 0);
 
-                    int numberMatchesInTable = numberTeamsInTable * (numberTeamsInTable - 1) / 2;
+                    // Round-robin matches for this table
+                    int numberMatchesInTable = teamsInThisTable * (teamsInThisTable - 1) / 2;
+                    totalMatches += numberMatchesInTable;
+
+                    // Create the round-robin matches for this table
                     for (int i = 0; i < numberMatchesInTable; i++)
                     {
-                        TimeSpan timeIn = new TimeSpan(9, 0, 0).Add(TimeSpan.FromMinutes(i * 30)); // 09:00 + 30 phút mỗi trận
+                        TimeSpan timeIn = new TimeSpan(9, 0, 0).Add(TimeSpan.FromMinutes(i * 30));
 
                         var match = new Match
                         {
                             StageId = groupStage.Id,
                             TableId = table.Id,
-                            StartDate = DateTime.Now, // Ngày giờ bắt đầu có thể thêm sau
+                            StartDate = DateTime.Now,
                             Status = "Pending",
                             TimeIn = timeIn, // Gán giá trị TimeSpan
 
@@ -719,252 +828,43 @@ namespace STEM_ROBOT.BLL.Svc
                     }
                 }
 
+                // Step 2: Knockout Stage Matches
+                var knockoutStages = _stageRepo.All()
+                    .Where(s => s.CompetitionId == competitionId && s.Name != "Vòng bảng")
+                    .OrderBy(s => s.Id)
+                    .ToList();
 
-                // Tạo các trận đấu vòng loại trực tiếp
-                var knockoutStages = _stageRepo.All().Where(s => s.CompetitionId == competitionId && s.Name != "Vòng bảng").OrderBy(s => s.Id).ToList();
-                int knockoutStageIndex = 0;
-                int remainingMatches = numberTeamsNextRound - 1;
+                int remainingTeams = numberTeamsNextRound;
 
                 foreach (var stage in knockoutStages)
                 {
-                    int matchesInThisStage = Math.Min(remainingMatches, (int)Math.Pow(2, knockoutStages.Count - knockoutStageIndex - 1));
-                    remainingMatches -= matchesInThisStage;
+                    int matchesInThisStage = remainingTeams / 2;
+                    if (matchesInThisStage <= 0)
+                        break;
 
+                    totalMatches += matchesInThisStage;
+
+                    // Create matches for the knockout stage
                     for (int i = 0; i < matchesInThisStage; i++)
                     {
                         var match = new Match
                         {
                             StageId = stage.Id,
-                            TableId = null, // Vòng loại trực tiếp không có bảng
+                            TableId = null,
                             StartDate = DateTime.Now.AddDays(1),
                             Status = "Pending"
                         };
                         _matchRepo.Add(match);
                     }
 
-                    knockoutStageIndex++;
-                    if (remainingMatches <= 0) break;
-                }
+                    remainingTeams /= 2; // Halve the number of teams as they advance to the next stage
+                }*/
+
             }
             catch (Exception ex)
             {
-                throw new Exception();
+                throw new Exception("Lỗi khi tạo các trận đấu: " + ex.Message);
             }
-        }
-
-        public void AssignTeamsToMatchesInStageTable(int competitionId, int stageId)
-        {
-            try
-            {
-                // Lấy danh sách các bảng đấu thuộc stage "Vòng bảng"
-                var tables = _tableGroupRepo.All().Where(t => t.StageId == stageId).ToList();
-                if (tables == null || !tables.Any())
-                {
-                    throw new Exception("Không tìm thấy bảng đấu.");
-                }
-
-                // Lấy tất cả các trận đấu đã tạo cho vòng bảng
-                var matches = _matchRepo.All().Where(m => m.StageId == stageId).OrderBy(m => m.Id).ToList();
-                if (matches == null || matches.Count == 0)
-                {
-                    throw new Exception("Không tìm thấy trận đấu nào trong vòng đấu.");
-                }
-
-                int currentMatchIndex = 0;
-
-                // Duyệt qua từng bảng đấu
-                foreach (var table in tables)
-                {
-                    // Lấy danh sách các đội thuộc bảng đấu hiện tại
-                    var teamsInTable = _teamTableRepo.All().Where(tt => tt.TableGroupId == table.Id).Select(tt => tt.TeamId).ToList();
-
-                    if (teamsInTable.Count < 2)
-                    {
-                        throw new Exception("Không đủ đội để tạo trận đấu cho bảng " + table.Name);
-                    }
-
-                    // Đấu vòng tròn cho tất cả các đội trong bảng
-                    for (int i = 0; i < teamsInTable.Count - 1; i++)
-                    {
-                        for (int j = i + 1; j < teamsInTable.Count; j++)
-                        {
-                            if (currentMatchIndex >= matches.Count)
-                            {
-                                throw new Exception("Không đủ số trận đấu đã tạo để xếp các đội.");
-                            }
-
-                            // Lấy trận đấu từ danh sách đã tạo
-                            var match = matches[currentMatchIndex++];
-
-                            // Thêm đội vào trận đấu
-                            AddTeamToMatch((int)teamsInTable[i], match.Id);
-                            AddTeamToMatch((int)teamsInTable[j], match.Id);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi xếp các đội vào trận đấu: {ex.Message}");
-            }
-        }
-        // Hàm thêm đội vào trận đấu
-        public void AddTeamToMatch(int teamId, int matchId)
-        {
-            var teamMatch = new TeamMatch
-            {
-                TeamId = teamId,
-                MatchId = matchId,
-                ResultPlay = "Pending", // Đội ban đầu chưa có kết quả
-                IsHome = true,
-                IsPlay = false,
-                IsSetup = false,
-                
-            };
-            _teamMatchRepo.Add(teamMatch);
-        }
-        private List<Team> GetQualifiedTeamsForNextRound(List<TableGroup> tables, int numberTeamsNextRound)
-        {
-            var qualifiedTeams = new List<Team>();
-            var secondPlaceTeams = new List<Team>();
-            var thirdPlaceTeams = new List<Team>();
-
-            // Lấy các đội đạt hạng nhất, nhì và ba từ mỗi bảng đấu
-            foreach (var table in tables)
-            {
-                var teamsInTable = _teamTableRepo.All()
-                    .Where(tt => tt.TableGroupId == table.Id)
-                    .Join(_teamRepo.All(), tt => tt.TeamId, t => t.Id, (tt, t) => t)
-                    .ToList();
-
-                if (teamsInTable.Any())
-                {
-                    // Thêm đội hạng nhất vào danh sách các đội vượt qua vòng bảng
-                    qualifiedTeams.Add(teamsInTable[0]);
-
-                    // Nếu có nhiều hơn một đội, thêm đội hạng nhì vào danh sách dự bị
-                    if (teamsInTable.Count > 1)
-                    {
-                        secondPlaceTeams.Add(teamsInTable[1]);
-                    }
-
-                    // Nếu có nhiều hơn hai đội, thêm đội hạng ba vào danh sách dự bị
-                    if (teamsInTable.Count > 2)
-                    {
-                        thirdPlaceTeams.Add(teamsInTable[2]);
-                    }
-                }
-            }
-
-            // Nếu số đội vượt qua vòng bảng chưa đủ, thêm các đội hạng nhì từ danh sách dự bị
-            var random = new Random();
-            while (qualifiedTeams.Count < numberTeamsNextRound && secondPlaceTeams.Any())
-            {
-                var randomIndex = random.Next(secondPlaceTeams.Count);
-                qualifiedTeams.Add(secondPlaceTeams[randomIndex]);
-                secondPlaceTeams.RemoveAt(randomIndex);
-            }
-
-            // Nếu số đội vượt qua vòng bảng vẫn chưa đủ, thêm các đội hạng ba từ danh sách dự bị
-            while (qualifiedTeams.Count < numberTeamsNextRound && thirdPlaceTeams.Any())
-            {
-                var randomIndex = random.Next(thirdPlaceTeams.Count);
-                qualifiedTeams.Add(thirdPlaceTeams[randomIndex]);
-                thirdPlaceTeams.RemoveAt(randomIndex);
-            }
-
-            return qualifiedTeams;
-        }
-
-
-        public void AssignTeamsToNextRoundMatches(int competitionId, int numberTeamsNextRound)
-        {
-            try
-            {
-                // Lấy danh sách các bảng đấu thuộc stage "Vòng bảng"
-                var tables = _tableGroupRepo.All().Where(t => t.StageId == GetStageTableInCompetition(competitionId).Id).ToList();
-                if (tables == null || !tables.Any())
-                {
-                    throw new Exception("Không tìm thấy bảng đấu.");
-                }
-
-                // Lấy các đội vượt qua vòng bảng
-                var qualifiedTeams = GetQualifiedTeamsForNextRound(tables, numberTeamsNextRound);
-
-                // Điều chỉnh số đội cho phù hợp với số lượng cần thiết (phải là số chẵn để tạo trận đấu)
-                if (qualifiedTeams.Count % 2 != 0)
-                {
-                    qualifiedTeams.RemoveAt(qualifiedTeams.Count - 1); // Loại bỏ 1 đội nếu số lượng lẻ
-                }
-
-                // Tính toán số lượng vòng tiếp theo cần thiết
-                int numberOfStages = (int)Math.Ceiling(Math.Log2(qualifiedTeams.Count));
-
-                // Lấy danh sách các stage knockout được sắp xếp theo thứ tự
-                var knockoutStages = _stageRepo.All()
-                    .Where(s => s.CompetitionId == competitionId && s.Name != "Vòng bảng")
-                    .OrderBy(s => s.Id)
-                    .Take(numberOfStages)
-                    .ToList();
-
-                if (knockoutStages == null || knockoutStages.Count < numberOfStages)
-                {
-                    throw new Exception("Không đủ các vòng đấu tiếp theo để sắp xếp trận đấu.");
-                }
-
-                // Sắp xếp các trận đấu cho các vòng loại trực tiếp
-                int remainingTeams = qualifiedTeams.Count;
-                for (int stageIndex = 0; stageIndex < knockoutStages.Count && remainingTeams > 1; stageIndex++)
-                {
-                    var stage = knockoutStages[stageIndex];
-                    int matchesInThisStage = remainingTeams / 2;
-
-                    // Lấy danh sách các trận đấu của stage hiện tại
-                    var matches = _matchRepo.All().Where(m => m.StageId == stage.Id).OrderBy(m => m.Id).Take(matchesInThisStage).ToList();
-                    if (matches.Count < matchesInThisStage)
-                    {
-                        throw new Exception($"Không đủ trận đấu trong {stage.Name}.");
-                    }
-
-                    for (int i = 0; i < matchesInThisStage; i++)
-                    {
-                        if (stageIndex == 0)
-                        {
-                            // Vòng đầu tiên sau vòng bảng
-                            if (i < qualifiedTeams.Count - 1)
-                            {
-                                AddTeamMatchWithPlaceholder(matches[i].Id, $"W#1 {tables[i % tables.Count].Name}");
-                                AddTeamMatchWithPlaceholder(matches[i].Id, $"W#2 {tables[(i + 1) % tables.Count].Name}");
-                            }
-                        }
-                        else
-                        {
-                            // Các vòng tiếp theo (bán kết, chung kết)
-                            AddTeamMatchWithPlaceholder(matches[i].Id, $"W# {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 1}");
-                            AddTeamMatchWithPlaceholder(matches[i].Id, $"W# {matchesInThisStage * stageIndex - matchesInThisStage + (i * 2) + 2}");
-                        }
-                    }
-
-                    remainingTeams /= 2;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi xếp các đội vào vòng tiếp theo: {ex.Message}");
-            }
-        }
-
-        // Hàm thêm thông tin đội vào TeamMatch với teamId null và nameDefault được chỉ định
-        private void AddTeamMatchWithPlaceholder(int matchId, string nameDefault)
-        {
-            var teamMatch = new TeamMatch
-            {
-                MatchId = matchId,
-                TeamId = null,
-                ResultPlay = "Pending", // Trận đấu ban đầu chưa có kết quả
-                NameDefault = nameDefault
-            };
-            _teamMatchRepo.Add(teamMatch);
         }
 
         public async Task<SingleRsp> AddRule(string file, int competitionId)
@@ -978,7 +878,7 @@ namespace STEM_ROBOT.BLL.Svc
                     throw new Exception("Không tìm thấy competitionId");
                 }
 
-                competition.Regulation = file; 
+                competition.Regulation = file;
                 _competitionRepo.Update(competition);
 
                 res.setData("success", competition);
@@ -993,4 +893,3 @@ namespace STEM_ROBOT.BLL.Svc
 
     }
 }
-
