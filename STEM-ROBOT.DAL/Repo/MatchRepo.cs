@@ -31,7 +31,7 @@ namespace STEM_ROBOT.DAL.Repo
             // Process each stage to build the RoundParent object
             var roundParent = stages.Select(async comp => new roundParent
             {
-                IsAsign = comp.StageTables.FirstOrDefault()?.Table.IsAsign ?? false, // Use null conditional operator
+                IsAsign = comp.StageTables.FirstOrDefault()?.TableGroup.IsAsign ?? false, // Use null conditional operator
                 groups = await GetListRoundAsync(comp.Id) // Await asynchronously outside of LINQ
             }).FirstOrDefault();
 
@@ -45,7 +45,7 @@ namespace STEM_ROBOT.DAL.Repo
             var stage = await _context.Stages
                 .Where(x => x.Id == stageID)
                 .Include(x => x.StageTables)
-                    .ThenInclude(x => x.Table)
+                    .ThenInclude(x => x.TableGroup)
                 .FirstOrDefaultAsync();
 
             var listRound = new List<RoundGame>();
@@ -58,7 +58,7 @@ namespace STEM_ROBOT.DAL.Repo
                         Id = stage.Id,
                         Name = stage.Name,
                         Status = stage.Status,
-                        matchrounds = await getTabel(stageTable.Table.Id) // Adjusted to use async
+                        matchrounds = await getTabel(stageTable.TableGroup.Id) // Adjusted to use async
                     };
                     listRound.Add(roundGame);
                 }
@@ -77,7 +77,7 @@ namespace STEM_ROBOT.DAL.Repo
                 var tables = new Table
                 {
                     Id = table.Id,
-                    tableName = table.Table.Name,
+                    tableName = list.Name,
                     matches = list.Matches
                     .Select(x => new {
 
@@ -100,93 +100,93 @@ namespace STEM_ROBOT.DAL.Repo
             return listTabel;
         }
 
-       // public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
-       // {
-       //     var listRoundParent = await _context.Competitions
-       //.Where(x => x.Id == competitionID)
-       //.Select(comp => new roundParent
-       //{
-       //    IsAsign = comp.Stages.FirstOrDefault().TableGroups.FirstOrDefault().IsAsign,
+        // public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
+        // {
+        //     var listRoundParent = await _context.Competitions
+        //.Where(x => x.Id == competitionID)
+        //.Select(comp => new roundParent
+        //{
+        //    IsAsign = comp.Stages.FirstOrDefault().TableGroups.FirstOrDefault().IsAsign,
 
-       //    knockout = new RoundGame
-       //    {
-       //        Name = "Knockout",
-       //        matchrounds = comp.Stages
-       //            .SelectMany(stage => stage.TableGroups)
-       //            .Select(tableGroup => new Table
-       //            {
-       //                Id = 0,
-       //                tableName = "",
-       //                matches = tableGroup.Matches
-       //                    .Select(match => new
-       //                    {
-       //                        match.Id,
-       //                        match.StartDate,
-       //                        match.TimeIn,
-       //                        Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList()
-       //                    })
-       //                    .Where(m => m.Teams.Count == 2) // Only include matches with exactly 2 teams
-       //                    .Select(m => new TeamMatchRound
-       //                    {
-       //                        IdMatch = m.Id,
-       //                        TeamNameA = m.Teams[0],
-       //                        TeamNameB = m.Teams[1],
-       //                        date = m.StartDate ?? default(DateTime),
-       //                        time = m.TimeIn ?? default(TimeSpan),
-       //                        filed = null
-       //                    })
-       //                    .ToList()
-       //            })
-       //            .ToList()
-       //    }
-       //})
-       //.ToListAsync();
-       //     return listRoundParent;
-       // }
+        //    knockout = new RoundGame
+        //    {
+        //        Name = "Knockout",
+        //        matchrounds = comp.Stages
+        //            .SelectMany(stage => stage.TableGroups)
+        //            .Select(tableGroup => new Table
+        //            {
+        //                Id = 0,
+        //                tableName = "",
+        //                matches = tableGroup.Matches
+        //                    .Select(match => new
+        //                    {
+        //                        match.Id,
+        //                        match.StartDate,
+        //                        match.TimeIn,
+        //                        Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList()
+        //                    })
+        //                    .Where(m => m.Teams.Count == 2) // Only include matches with exactly 2 teams
+        //                    .Select(m => new TeamMatchRound
+        //                    {
+        //                        IdMatch = m.Id,
+        //                        TeamNameA = m.Teams[0],
+        //                        TeamNameB = m.Teams[1],
+        //                        date = m.StartDate ?? default(DateTime),
+        //                        time = m.TimeIn ?? default(TimeSpan),
+        //                        filed = null
+        //                    })
+        //                    .ToList()
+        //            })
+        //            .ToList()
+        //    }
+        //})
+        //.ToListAsync();
+        //     return listRoundParent;
+        // }
 
 
 
         public async Task<RoundGameKnockoutParent> getRoundGameKnockOut(int competitionID)
         {
-            var listRoundGameKnockOut = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.Matches).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
-            if (listRoundGameKnockOut == null) return null;
-
             var rounds = new RoundGameKnockoutParent();
+            var listRoundGameKnockOut = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.Matches).ThenInclude(x => x.TeamMatches).ThenInclude(tm =>tm.Team).Include(c=>c.Teams).FirstOrDefaultAsync();
+            if (listRoundGameKnockOut == null) return null;
+           rounds.isTeamMatch = (bool)listRoundGameKnockOut.IsTeamMacth;
+           
             foreach (var stage in listRoundGameKnockOut.Stages)
             {
                 var roundsGame = new RoundGameKnockout
                 {
                     roundId = stage.Id,
                     roundName = stage.Name,
-                   
-                    matches = await getRoundGameMacth(competitionID),
+
+                    matches = stage.Matches.Select(m => new RoundGameMatch
+                    {
+                        matchId=m.Id,
+                        teamsmatch= m.TeamMatches.Select(tm => new RoundGameTeamMatch
+                        {
+                            teamMatchId= tm.Id,
+                            teamId= tm.TeamId != null ? tm.TeamId :null,
+                            teamName= tm.NameDefault ,
+
+                        }).ToList()
+
+                    }).ToList()
 
                 };
                 rounds.rounds.Add(roundsGame);
 
             }
-            rounds.teams = await teamBye(competitionID);
-            return rounds; 
+            rounds.teams = listRoundGameKnockOut.Teams.Select(t=> new RoundGameTeamBye
+            {
+                teamId = t.Id,
+                name = t.Name,
+            }).ToList();
+            return rounds;
 
         }
         //hàm tính team thừa
-        private async Task<List<RoundGameTeamBye>> teamBye(int CompetitionID)
-        {
-            var listTeam = await _context.Competitions.Where(x => x.Id == CompetitionID).Include(x => x.Teams).FirstOrDefaultAsync();
-            var lisTeams = listTeam.Teams.ToList();
-            var roundGamelist = new List<RoundGameTeamBye>();
-            foreach (var team in listTeam.Teams) {
-                var teams = new RoundGameTeamBye
-                {
-                    teamId = team.Id,
-                    name = team.Name,
-                };
-                roundGamelist.Add(teams);
-
-            }
-
-            return roundGamelist;
-        }
+       
         // hàm get roundmatch
         private async Task<List<RoundGameMatch>> getRoundGameMacth(int competitionID)
         {
@@ -194,14 +194,14 @@ namespace STEM_ROBOT.DAL.Repo
                 .Select(stage => new RoundGameMatch
                 {
                     matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
-                    teamsmatch = stage.Stages.SelectMany(x=> x.Matches).SelectMany(match => match.TeamMatches).Select(x=> new RoundGameTeamMatch
+                    teamsmatch = stage.Stages.SelectMany(x => x.Matches).SelectMany(match => match.TeamMatches).Select(x => new RoundGameTeamMatch
                     {
                         teamId = (int)x.TeamId,
                         teamMatchId = (int)x.MatchId,
                         teamName = x.NameDefault
                     }).ToList(),
                 }).ToListAsync();
-            if(listMatch == null) return null;
+            if (listMatch == null) return null;
             return listMatch;
         }
 
@@ -209,98 +209,92 @@ namespace STEM_ROBOT.DAL.Repo
         //  sap xep team trong tran dau bang 
         public async Task<RoundParentTable> GetRoundParentTable(int competitionID)
         {
-            var listRound = await _context.Competitions.Where(x => x.Id == competitionID).Select(x => x.Stages).FirstOrDefaultAsync();
-            var listrounds = new RoundParentTable()
-            {
-              // tableGroup = listRound
-               // rounds = await GetRoundGameTable(competitionID)
+            var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.TableGroups).ThenInclude(x => x.TeamTables).ThenInclude(x => x.Team).FirstOrDefaultAsync();
 
+
+
+            var roundParentTable = new RoundParentTable
+            {
+                tableGroup = await GetListTeamTable(competition),
+                rounds = await GetRoundGameTable(competitionID),
+                isTeamMatch = competition.IsTeamMacth
             };
 
-            return listrounds; 
+            return roundParentTable;
         }
-        //list team
-        private async Task<List<tableGroup>> GetListTeamTable(int competitionID)
+     
+        
+
+        // List teams within stages for the competition
+        private async Task<List<tableGroup>> GetListTeamTable(Competition competition)
+
         {
-            var competition = await _context.Competitions
-                .Where(x => x.Id == competitionID)                           
-                .FirstOrDefaultAsync();
-
-            if (competition == null) return null;
-
-            var listRound = new List<tableGroup>();
-
-            foreach (var stage in competition.Stages)
+            
+            var list = new List<tableGroup>();
+           foreach(var lists in competition.TableGroups)
             {
-                foreach (var stageTable in stage.StageTables)
+                var rounds = new tableGroup
                 {
-                    var tableGroup = new tableGroup
-                    {
-                        team_tableId = stageTable.Table.Id,
-                        team_table = stageTable.Table.TeamTables.Select(teamTable => new RoundTableTeam
-                        {
-                            teamId = teamTable.Team.Id,
-                            teamName = teamTable.Team.Name
-                        }).ToList()
-                    };
-                    listRound.Add(tableGroup);
-                }
-            }
+                   team_tableId = lists.Id,
+                   team_table = lists.TeamTables.Select(x=> x.Team).Select( xs => new RoundTableTeam
+                   {
+                       teamId = xs.Id,
+                       teamName = xs.Name
+                   }).ToList()
+                    
+                };
+                list.Add(rounds);
 
-            return listRound;
+
+
+            }
+            return list;
+          
         }
+
 
         private async Task<List<RoundGameTable>> GetRoundGameTable(int competitionID)
         {
-            // Fetch stages for the competition and include related entities
-            var stages = await _context.Stages
-                .Where(x => x.CompetitionId == competitionID)
-                .Include(x => x.StageTables)
-                    .ThenInclude(stageTable => stageTable.Table)
-                        .ThenInclude(table => table.TeamTables)
-                            .ThenInclude(teamTable => teamTable.Team)
-                .Include(x => x.Matches)
-                    .ThenInclude(match => match.TeamMatches)
-                .ToListAsync();
 
+            var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.StageTables).ThenInclude(x => x.TableGroup)
+                 .ThenInclude(x => x.TeamTables).FirstOrDefaultAsync();
+          
             // Initialize the result list
             var listRound = new List<RoundGameTable>();
 
-            // Iterate over each stage
-            foreach (var stage in stages)
+           
+            foreach (var stage in competition.Stages)
             {
                 var roundGameTable = new RoundGameTable
                 {
                     roundId = stage.Id,
                     roundName = stage.Name,
 
-                    // Populate tables with the list of RoundTable objects for each stage
-                    tables = stage.StageTables.Select(stageTable => new RoundTable
+                    tables = stage.StageTables.Select(x=> x.TableGroup).Select(a => new RoundTable
                     {
-                        tableId = stageTable.Table.Id,
-                        tableName = stageTable.Table.Name,
 
-                        // Populate matches within each table
-                        matches = stage.Matches.Select(match => new RoundGameMatch
+                        tableId = a.Id,
+                        tableName = a.Name,
+                        matches = stage.Matches.Select(mat => new RoundGameMatch
                         {
-                            matchId = match.Id,
+                            matchId = mat.Id,
+                            teamsmatch = mat.TeamMatches.Select(x=> new RoundGameTeamMatch
+                            {          teamMatchId = x.MatchId,
+                                       teamId = x.TeamId,
+                                    teamName = x.NameDefault,
+                                    isSetup = x.IsSetup
 
-                            // Populate teams within each match
-                            teamsmatch = match.TeamMatches.Select(teamMatch => new RoundGameTeamMatch
-                            {
-                                teamMatchId = teamMatch.MatchId,
-                                teamId = teamMatch.TeamId,
-                                teamName = teamMatch.NameDefault
                             }).ToList()
-
-                        }).ToList()
+                        }).ToList(),
+                        
                     }).ToList()
+                    
+               
                 };
 
                 // Add the populated RoundGameTable object to the result list
                 listRound.Add(roundGameTable);
             }
-
             return listRound;
         }
 

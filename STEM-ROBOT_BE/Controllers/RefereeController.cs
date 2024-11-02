@@ -39,7 +39,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpGet("tournamentId")]
+        [HttpGet("{tournamentId}")]
         public IActionResult GetRefereeByTournamentId(int tournamentId)
         {
             var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
@@ -113,20 +113,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpGet("bytournamentId={tournamentId}")]
-        public IActionResult GetListRefereeInTournamentId(int tournamentId)
-        {
-            var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
-            if (!res.Success)
-            {
-                res.SetError("500", res.Message);
-            }
-            return Ok(res);
-        }
         [HttpPost("{competitionId}/assign-referees")]
-        public IActionResult AssignReferees([FromBody] List<AssginRefereeReq> referees, int competitionId)
+        public IActionResult AssignReferees(int competitionId, [FromBody] List<AssginRefereeReq> referees)
         {
-            var res = _refereeSvc.AssignRefereeInCompetition(competitionId,referees);
+            var res = _refereeSvc.AssignRefereeInCompetition(competitionId, referees);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);

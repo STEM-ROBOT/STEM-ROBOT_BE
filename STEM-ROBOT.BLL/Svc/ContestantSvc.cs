@@ -97,7 +97,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var contestant = new Contestant
                     {
-                        TournamentId = int.Parse(item.TournamentId),
+                        TournamentId = tournamentId,
                         AccountId = accountId,
                         Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
                         Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
