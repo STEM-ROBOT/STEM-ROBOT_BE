@@ -139,6 +139,27 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.IsFormat)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isFormat");
+            entity.Property(e => e.IsLocation)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isLocation");
+            entity.Property(e => e.IsMacth)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isMacth");
+            entity.Property(e => e.IsReferee)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isReferee");
+            entity.Property(e => e.IsTable)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTable");
+            entity.Property(e => e.IsTeam)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTeam");
+            entity.Property(e => e.IsTeamMacth)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isTeamMacth");
             entity.Property(e => e.IsTop).HasColumnName("isTop");
             entity.Property(e => e.Mode).HasMaxLength(500);
             entity.Property(e => e.RegisterTime).HasColumnType("date");
@@ -452,8 +473,8 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK_StageTable_Stage");
 
-            entity.HasOne(d => d.Table).WithMany(p => p.StageTables)
-                .HasForeignKey(d => d.TableId)
+            entity.HasOne(d => d.TableGroup).WithMany(p => p.StageTables)
+                .HasForeignKey(d => d.TableGroupId)
                 .HasConstraintName("FK_StageTable_TableGroup");
         });
 
@@ -465,6 +486,10 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.IsAsign).HasColumnName("isAsign");
             entity.Property(e => e.Name).HasMaxLength(250);
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.TableGroups)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_TableGroup_Competition");
         });
 
         modelBuilder.Entity<Team>(entity =>

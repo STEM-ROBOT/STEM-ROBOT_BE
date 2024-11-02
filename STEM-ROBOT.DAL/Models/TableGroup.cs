@@ -11,6 +11,10 @@ public partial class TableGroup
 
     public bool? IsAsign { get; set; }
 
+    public int? CompetitionId { get; set; }
+
+    public virtual Competition? Competition { get; set; }
+
     public virtual ICollection<StageTable> StageTables { get; set; } = new List<StageTable>();
 
     public virtual ICollection<TeamTable> TeamTables { get; set; } = new List<TeamTable>();

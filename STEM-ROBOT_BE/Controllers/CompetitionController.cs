@@ -194,9 +194,9 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpPost("config-teamtable-stagetable")]
-        public IActionResult ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
+        public async Task<IActionResult> ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
         {
-            var res = _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            var res = await _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);

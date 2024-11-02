@@ -9,9 +9,9 @@ public partial class StageTable
 
     public int? StageId { get; set; }
 
-    public int? TableId { get; set; }
+    public int? TableGroupId { get; set; }
 
     public virtual Stage? Stage { get; set; }
 
-    public virtual TableGroup? Table { get; set; }
+    public virtual TableGroup? TableGroup { get; set; }
 }
