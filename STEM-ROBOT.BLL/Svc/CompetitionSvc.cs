@@ -506,7 +506,7 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception(ex.Message);
             }
         }
-        public SingleRsp AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
 
@@ -549,7 +549,12 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamTableRepo.Add(teamTable);
                     }
                 }
-                SetupStageTable(totalStage, tableAssignments);
+                
+                var checksetup = await SetupStageTable(totalStage, tableAssignments);
+                if(checksetup == false)
+                {
+                    throw new Exception("Tạo vòng đấu thất bại !!");
+                }
                 List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
                 var totalTop = tableAssignments.TeamNextRound / tableAssignments.tableAssign.Count;
                 var topFulled = 0;
@@ -571,7 +576,11 @@ namespace STEM_ROBOT.BLL.Svc
                         topFulled++;            
                     }
                 }
-                var checkBool = StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
+                var checkBool = await StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
+                if(checkBool == false)
+                {
+                    throw new Exception("Tạo tran đấu thất bại !!");
+                }
                 
                 res.setData("200", "Success");
             }
@@ -581,7 +590,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public bool SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
+        public async Task<bool>  SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
         {
             var stages = new List<Stage>();
             // tao so vong dau bang

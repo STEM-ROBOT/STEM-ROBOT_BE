@@ -210,6 +210,17 @@ namespace STEM_ROBOT.DAL.Repo
         public async Task<RoundParentTable> GetRoundParentTable(int competitionID)
         {
 
+            // Fetch the competition with related entities
+            var competition = await _context.Competitions
+                .Where(x => x.Id == competitionID)
+                .Include(x => x.Stages)
+                    .ThenInclude(stage => stage.StageTables)
+                        .ThenInclude(stageTable => stageTable.TableGroup)
+                            .ThenInclude(table => table.TeamTables)
+                                .ThenInclude(teamTable => teamTable.Team)
+                .FirstOrDefaultAsync();
+
+
 
             var roundParentTable = new RoundParentTable
             {
@@ -234,12 +245,27 @@ namespace STEM_ROBOT.DAL.Repo
                     team_tableId = lists.StageTables.FirstOrDefault().TableGroup.Id,
                     team_table = lists.StageTables.Select(x=> x.TableGroup).SelectMany(x => x.TeamTables).Select(x => new RoundTableTeam
                     {
+
+                        team_tableId = stageTable.TableGroup.Id,
+
+                        // Retrieve the team information with null checks
+                        team_table = stageTable.TableGroup?.TeamTables
+                            .Where(tt => tt.Team != null) // Filter out any null Team entries
+                            .Select(tt => new RoundTableTeam
+                            {
+                                teamId = tt.Team.Id,
+                                teamName = tt.Team.Name
+                            })
+                            .ToList() ?? new List<RoundTableTeam>() // If null, return an empty list
+                    };
+
                         teamId = x.Team.Id,
                         teamName = x.Team.Name
                     }).ToList()
                     
                 };
                 list.Add(rounds);
+
 
 
             }
@@ -250,6 +276,17 @@ namespace STEM_ROBOT.DAL.Repo
 
         private async Task<List<RoundGameTable>> GetRoundGameTable(int competitionID)
         {
+
+            var stages = await _context.Stages
+                .Where(x => x.CompetitionId == competitionID)
+                .Include(x => x.StageTables)
+                    .ThenInclude(stageTable => stageTable.TableGroup)
+                        .ThenInclude(table => table.TeamTables)
+                            .ThenInclude(teamTable => teamTable.Team)
+                .Include(x => x.Matches)
+                    .ThenInclude(match => match.TeamMatches)
+                .ToListAsync();
+
 
             var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.StageTables).ThenInclude(x => x.TableGroup)
                  .ThenInclude(x => x.TeamTables).FirstOrDefaultAsync();
@@ -291,7 +328,6 @@ namespace STEM_ROBOT.DAL.Repo
                 // Add the populated RoundGameTable object to the result list
                 listRound.Add(roundGameTable);
             }
-
             return listRound;
         }
 
