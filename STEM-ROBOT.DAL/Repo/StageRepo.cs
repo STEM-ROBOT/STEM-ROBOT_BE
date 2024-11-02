@@ -30,7 +30,7 @@ namespace STEM_ROBOT.DAL.Repo
         {
 
             var stages = await _context.Stages
-                .Where(s => s.CompetitionId == competitionId)
+                .Where(s => s.CompetitionId == competitionId && s.StageMode != "Vòng bảng")
                 .Include(s => s.Matches)
                 .ThenInclude(m => m.TeamMatches)              
                 .ThenInclude(m => m.Team)
