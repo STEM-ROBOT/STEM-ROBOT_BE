@@ -39,7 +39,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpGet("{tournamentId}")]
+        [HttpGet("byTournamnet/{tournamentId}")]
         public IActionResult GetRefereeByTournamentId(int tournamentId)
         {
             var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
