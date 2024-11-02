@@ -73,6 +73,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<ProvinceSvc>();
             services.AddScoped<DistrictRepo>();
             services.AddScoped<DistrictSvc>();
+            services.AddScoped<RealTimeSvc>();
+            services.AddSingleton<Random>();
             services.AddScoped<StageTableRepo>();
             return services;
         }
