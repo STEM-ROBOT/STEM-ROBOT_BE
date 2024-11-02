@@ -84,6 +84,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+
         //cấu hình hình thức thi đấu của nội dung thi đấu
         [HttpPut("format-config")]
         public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
@@ -98,10 +99,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         //cấu hình hình thức thi đấu của nội dung thi đấu
-        [HttpPut("/format-table/{competitionId}")]
+        [HttpPut("format-table")]
         public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody] CompetitionFormatTableReq request)
         {
-            var res = _competionSvc.CreateCompetitionFormatTable(competitionId, request);
+            var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
@@ -121,8 +122,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-
-
+        //xem lịch trình thi đấu của nội dung
+        [HttpGet("match-schedule-view")]
+        public async Task<IActionResult> MatchScheduleCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
@@ -173,7 +183,6 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpPost("addRegulation/{competitionId}")]
-
         public async Task<IActionResult> AddRegulation(string filerule, int competitionId)
         {
             var res = await _competionSvc.AddRule(filerule, competitionId);
@@ -184,6 +193,16 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+        [HttpPost("config-teamtable-stagetable")]
+        public IActionResult ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
+        {
+            var res = _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
     }
 }
 

@@ -57,18 +57,6 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        /*[HttpPost("add-teams")]
-        public IActionResult CreateTeams(int competitionId, int numberOfTeams)
-        {
-            var result = _teamSvc.CreateTeams(competitionId, numberOfTeams);
-            if (!result.Success)
-            {
-                return StatusCode(500, result.Message);
-            }
-            return Ok(result.Data);
-        }*/
-
-
         [HttpPut("{id}")]
         public IActionResult UpdateTeam([FromBody] TeamReq req, int id)
         {
@@ -96,10 +84,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Message);
         }
 
-        [HttpGet("getTeamByCompetitonId/{id}")]
-         public IActionResult getTeamByCompetiton(int id)
+        [HttpGet("{competitionId}")]
+         public IActionResult getTeamByCompetiton(int competitionId)
         {
-            var res = _teamSvc.GetTeams(id);
+            var res = _teamSvc.GetTeamsByCompetition(competitionId);
             return Ok(res);
         }
 
