@@ -31,7 +31,7 @@ namespace STEM_ROBOT.DAL.Repo
             // Process each stage to build the RoundParent object
             var roundParent = stages.Select(async comp => new roundParent
             {
-                IsAsign = comp.StageTables.FirstOrDefault()?.Table.IsAsign ?? false, // Use null conditional operator
+                IsAsign = comp.StageTables.FirstOrDefault()?.TableGroup.IsAsign ?? false, // Use null conditional operator
                 groups = await GetListRoundAsync(comp.Id) // Await asynchronously outside of LINQ
             }).FirstOrDefault();
 
@@ -45,7 +45,7 @@ namespace STEM_ROBOT.DAL.Repo
             var stage = await _context.Stages
                 .Where(x => x.Id == stageID)
                 .Include(x => x.StageTables)
-                    .ThenInclude(x => x.Table)
+                    .ThenInclude(x => x.TableGroup)
                 .FirstOrDefaultAsync();
 
             var listRound = new List<RoundGame>();
@@ -58,7 +58,7 @@ namespace STEM_ROBOT.DAL.Repo
                         Id = stage.Id,
                         Name = stage.Name,
                         Status = stage.Status,
-                        matchrounds = await getTabel(stageTable.Table.Id) // Adjusted to use async
+                        matchrounds = await getTabel(stageTable.TableGroup.Id) // Adjusted to use async
                     };
                     listRound.Add(roundGame);
                 }
@@ -214,7 +214,7 @@ namespace STEM_ROBOT.DAL.Repo
                 .Where(x => x.Id == competitionID)
                 .Include(x => x.Stages)
                     .ThenInclude(stage => stage.StageTables)
-                        .ThenInclude(stageTable => stageTable.Table)
+                        .ThenInclude(stageTable => stageTable.TableGroup)
                             .ThenInclude(table => table.TeamTables)
                                 .ThenInclude(teamTable => teamTable.Team)
                 .FirstOrDefaultAsync();
@@ -241,10 +241,10 @@ namespace STEM_ROBOT.DAL.Repo
                 {
                     var tableGroup = new tableGroup
                     {
-                        team_tableId = stageTable.TableId,
+                        team_tableId = stageTable.TableGroup.Id,
 
                         // Retrieve the team information with null checks
-                        team_table = stageTable.Table?.TeamTables
+                        team_table = stageTable.TableGroup?.TeamTables
                             .Where(tt => tt.Team != null) // Filter out any null Team entries
                             .Select(tt => new RoundTableTeam
                             {
@@ -268,7 +268,7 @@ namespace STEM_ROBOT.DAL.Repo
             var stages = await _context.Stages
                 .Where(x => x.CompetitionId == competitionID)
                 .Include(x => x.StageTables)
-                    .ThenInclude(stageTable => stageTable.Table)
+                    .ThenInclude(stageTable => stageTable.TableGroup)
                         .ThenInclude(table => table.TeamTables)
                             .ThenInclude(teamTable => teamTable.Team)
                 .Include(x => x.Matches)
@@ -289,8 +289,8 @@ namespace STEM_ROBOT.DAL.Repo
                     // Populate tables with the list of RoundTable objects for each stage
                     tables = stage.StageTables.Select(stageTable => new RoundTable
                     {
-                        tableId = stageTable.Table.Id,
-                        tableName = stageTable.Table.Name,
+                        tableId = stageTable.TableGroup.Id,
+                        tableName = stageTable.TableGroup.Name,
 
                         // Populate matches within each table
                         matches = stage.Matches.Select(match => new RoundGameMatch
