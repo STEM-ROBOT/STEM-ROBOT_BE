@@ -8,19 +8,19 @@ namespace STEM_ROBOT.BLL.Svc
 {
     public class AssignTeamTableRsp
     {
-        public List<Teams> Teams { get; set; }
-        public List<Tables> Tables { get; set; }
+        public List<TableTeamRsp> Teams { get; set; }
+        public List<TableRsp> Tables { get; set; }
     }
 
-    public class Teams
+    public class TableTeamRsp
     {
         public int TeamId { get; set; }
         public string TeamName { get; set; }
     }
-    public class Tables
+    public class TableRsp
     {
         public int TableId { get; set; }
         public string TableName { get; set; }
-        public List<Teams> Teams { get; set; }
+        public List<TableTeamRsp> Teams { get; set; }
     }
 }
