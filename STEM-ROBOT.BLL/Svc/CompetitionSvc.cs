@@ -374,7 +374,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        TableId = null,
+                       
                         StartDate = DateTime.Now,
                         Status = "Đấu phụ",
                         TimeIn = TimeSpan.Zero,
@@ -393,7 +393,7 @@ namespace STEM_ROBOT.BLL.Svc
                     TeamMatch teamNew = new TeamMatch
                     {
                         NameDefault = $"W#{winMatchNumber} {roundName}",
-                        MatchCode = match.MatchCode
+                        MatchWinCode = match.MatchCode
                     };
 
 
@@ -441,7 +441,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        TableId = null,
+                        
                         StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
                         TimeIn = TimeSpan.Zero,
