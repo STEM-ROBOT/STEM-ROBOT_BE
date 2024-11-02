@@ -249,7 +249,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //update competitionformatconfig
-        //update competitionformatconfig
         public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
         {
             var res = new SingleRsp();
@@ -297,7 +296,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail Loại trực tiếp");
+                throw new Exception("Tạo vòng đội thất bại !!");
             }
 
         }
@@ -341,10 +340,10 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 string roundName = round switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, round - 1)}"
                 };
 
                 var stage = new Stage
@@ -407,10 +406,10 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 string roundName = currentRound switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, currentRound - 1)}"
                 };
 
                 var stage = new Stage
@@ -467,7 +466,46 @@ namespace STEM_ROBOT.BLL.Svc
             return true;
         }
 
+        //danh sach tran dau cua competition
+        public async Task<SingleRsp> matchScheduleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            var stage = await _stageRepo.GetAllStagesCompetition(competitionId);
+            try
+            {
+                var matchSchedule = stage.Select(s => new MatchScheduleCompetition
+                {
+                    round = s.Name,
+                    matches = s.Matches.Select(m => new MatchRoundViewRsp
+                    {
+                        matchId = m.Id,
+                        //team tham gia
 
+                        homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
+                        awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
+                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
+                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                        //ti so tran dau
+                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
+                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                        //thoi gian, dia diem   
+                        //thoi gian, dia diem   
+                        startTime = m.StartDate,
+                        locationName = m.LocationId == null ? "" : m.Location.Address,
+                    }).ToList()
+
+                }).ToList();
+
+                res.setData("data", matchSchedule);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+
+        }
         public SingleRsp CreateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
 
         {

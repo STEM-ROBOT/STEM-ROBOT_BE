@@ -25,5 +25,5 @@ public partial class Stage
 
     public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
 
-    public virtual ICollection<TableGroup> TableGroups { get; set; } = new List<TableGroup>();
+    public virtual ICollection<StageTable> StageTables { get; set; } = new List<StageTable>();
 }
