@@ -312,7 +312,6 @@ namespace STEM_ROBOT.DAL.Repo
                 // Add the populated RoundGameTable object to the result list
                 listRound.Add(roundGameTable);
             }
-
             return listRound;
         }
 
