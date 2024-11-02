@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Teams = STEM_ROBOT.Common.Rsp.Teams;
 
 namespace STEM_ROBOT.DAL.Repo
 {
@@ -21,11 +23,11 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<Competition> getCompetition(int id)
         {
-            return await _context.Competitions.Where(x=>x.Id == id).Include(t=>t.Tournament).Include(g=>g.Genre).FirstOrDefaultAsync();
+            return await _context.Competitions.Where(x => x.Id == id).Include(t => t.Tournament).Include(g => g.Genre).FirstOrDefaultAsync();
         }
         public async Task<List<Competition>> getListCompetitionGener(int idTournament)
         {
-            return await _context.Competitions.Where(x=> x.TournamentId == idTournament).Include(x => x.Genre).ToListAsync();
+            return await _context.Competitions.Where(x => x.TournamentId == idTournament).Include(x => x.Genre).ToListAsync();
         }
         public async Task<List<Competition>> getListCompetitionbyID(int id)
         {
@@ -103,9 +105,30 @@ namespace STEM_ROBOT.DAL.Repo
                               name = genre.Name,
                               status = competition.Status,
                               image = genre.Image,
-                              registerTime = (DateTime)competition.RegisterTime ,
+                              registerTime = (DateTime)competition.RegisterTime,
                               numberContestantTeam = competition.NumberContestantTeam ?? 0
                           }).FirstOrDefaultAsync();
         }
+        public async Task<AssignTeamTableRsp> AssignTeamTableRsp(int competitionId)
+        {
+            var teams = await _context.Teams.Where(x => x.CompetitionId == competitionId).Select(t => new TableTeamRsp
+            {
+                TeamId = t.Id,
+                TeamName = t.Name
+
+            }).ToListAsync();
+            var tables = await _context.TableGroups.Where(x => x.CompetitionId == competitionId).Select(tg => new TableRsp
+            {
+                TableId = tg.Id,
+                TableName = tg.Name,
+                Teams = new List<TableTeamRsp>()
+            }).ToListAsync();
+            var teamTableRsp = new AssignTeamTableRsp();
+            teamTableRsp.Teams = teams;
+            teamTableRsp.Tables = tables;
+            return teamTableRsp;
+        }
+
+
     }
 }
