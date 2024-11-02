@@ -100,49 +100,49 @@ namespace STEM_ROBOT.DAL.Repo
             return listTabel;
         }
 
-       // public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
-       // {
-       //     var listRoundParent = await _context.Competitions
-       //.Where(x => x.Id == competitionID)
-       //.Select(comp => new roundParent
-       //{
-       //    IsAsign = comp.Stages.FirstOrDefault().TableGroups.FirstOrDefault().IsAsign,
+        // public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
+        // {
+        //     var listRoundParent = await _context.Competitions
+        //.Where(x => x.Id == competitionID)
+        //.Select(comp => new roundParent
+        //{
+        //    IsAsign = comp.Stages.FirstOrDefault().TableGroups.FirstOrDefault().IsAsign,
 
-       //    knockout = new RoundGame
-       //    {
-       //        Name = "Knockout",
-       //        matchrounds = comp.Stages
-       //            .SelectMany(stage => stage.TableGroups)
-       //            .Select(tableGroup => new Table
-       //            {
-       //                Id = 0,
-       //                tableName = "",
-       //                matches = tableGroup.Matches
-       //                    .Select(match => new
-       //                    {
-       //                        match.Id,
-       //                        match.StartDate,
-       //                        match.TimeIn,
-       //                        Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList()
-       //                    })
-       //                    .Where(m => m.Teams.Count == 2) // Only include matches with exactly 2 teams
-       //                    .Select(m => new TeamMatchRound
-       //                    {
-       //                        IdMatch = m.Id,
-       //                        TeamNameA = m.Teams[0],
-       //                        TeamNameB = m.Teams[1],
-       //                        date = m.StartDate ?? default(DateTime),
-       //                        time = m.TimeIn ?? default(TimeSpan),
-       //                        filed = null
-       //                    })
-       //                    .ToList()
-       //            })
-       //            .ToList()
-       //    }
-       //})
-       //.ToListAsync();
-       //     return listRoundParent;
-       // }
+        //    knockout = new RoundGame
+        //    {
+        //        Name = "Knockout",
+        //        matchrounds = comp.Stages
+        //            .SelectMany(stage => stage.TableGroups)
+        //            .Select(tableGroup => new Table
+        //            {
+        //                Id = 0,
+        //                tableName = "",
+        //                matches = tableGroup.Matches
+        //                    .Select(match => new
+        //                    {
+        //                        match.Id,
+        //                        match.StartDate,
+        //                        match.TimeIn,
+        //                        Teams = match.TeamMatches.Select(tm => tm.Team.Name).ToList()
+        //                    })
+        //                    .Where(m => m.Teams.Count == 2) // Only include matches with exactly 2 teams
+        //                    .Select(m => new TeamMatchRound
+        //                    {
+        //                        IdMatch = m.Id,
+        //                        TeamNameA = m.Teams[0],
+        //                        TeamNameB = m.Teams[1],
+        //                        date = m.StartDate ?? default(DateTime),
+        //                        time = m.TimeIn ?? default(TimeSpan),
+        //                        filed = null
+        //                    })
+        //                    .ToList()
+        //            })
+        //            .ToList()
+        //    }
+        //})
+        //.ToListAsync();
+        //     return listRoundParent;
+        // }
 
 
 
@@ -158,7 +158,7 @@ namespace STEM_ROBOT.DAL.Repo
                 {
                     roundId = stage.Id,
                     roundName = stage.Name,
-                   
+
                     matches = await getRoundGameMacth(competitionID),
 
                 };
@@ -166,7 +166,7 @@ namespace STEM_ROBOT.DAL.Repo
 
             }
             rounds.teams = await teamBye(competitionID);
-            return rounds; 
+            return rounds;
 
         }
         //hàm tính team thừa
@@ -194,14 +194,14 @@ namespace STEM_ROBOT.DAL.Repo
                 .Select(stage => new RoundGameMatch
                 {
                     matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
-                    teamsmatch = stage.Stages.SelectMany(x=> x.Matches).SelectMany(match => match.TeamMatches).Select(x=> new RoundGameTeamMatch
+                    teamsmatch = stage.Stages.SelectMany(x => x.Matches).SelectMany(match => match.TeamMatches).Select(x => new RoundGameTeamMatch
                     {
                         teamId = (int)x.TeamId,
                         teamMatchId = (int)x.MatchId,
                         teamName = x.NameDefault
                     }).ToList(),
                 }).ToListAsync();
-            if(listMatch == null) return null;
+            if (listMatch == null) return null;
             return listMatch;
         }
 
@@ -209,38 +209,48 @@ namespace STEM_ROBOT.DAL.Repo
         //  sap xep team trong tran dau bang 
         public async Task<RoundParentTable> GetRoundParentTable(int competitionID)
         {
-            var listRound = await _context.Competitions.Where(x => x.Id == competitionID).Select(x => x.Stages).FirstOrDefaultAsync();
-            var listrounds = new RoundParentTable()
+            var competition = await _context.Competitions
+              .Where(x => x.Id == competitionID)
+              .Include(x => x.Stages).ThenInclude(xt => xt.StageTables).FirstOrDefaultAsync();
+            if (competition == null) return null;
+            var roundParentTable = new RoundParentTable
             {
-              // tableGroup = listRound
-               // rounds = await GetRoundGameTable(competitionID)
-
+                tableGroup = await GetListTeamTable(competitionID),
+                
             };
 
-            return listrounds; 
+            return roundParentTable;
         }
+
+
+        
         //list team
         private async Task<List<tableGroup>> GetListTeamTable(int competitionID)
         {
-            var competition = await _context.Competitions
-                .Where(x => x.Id == competitionID)                           
-                .FirstOrDefaultAsync();
+            var competition = await _context.Stages
+                .Where(x => x.CompetitionId == competitionID)
+                .Include(xt => xt.StageTables)
+                .ThenInclude(sb => sb.Table)
+                //.ThenInclude(tt=> tt.TeamTables)
+                //.ThenInclude(tb => tb.Team)
+                .ToListAsync();
+               
 
             if (competition == null) return null;
 
             var listRound = new List<tableGroup>();
 
-            foreach (var stage in competition.Stages)
+            foreach (var stage in competition)
             {
                 foreach (var stageTable in stage.StageTables)
                 {
                     var tableGroup = new tableGroup
                     {
-                        team_tableId = stageTable.Table.Id,
-                        team_table = stageTable.Table.TeamTables.Select(teamTable => new RoundTableTeam
+                        team_tableId = stageTable.TableId,
+                        team_table = stage.StageTables.Select(x=> x.Table).SelectMany(x=> x.TeamTables).Select(x => x.Team).Select(a => new RoundTableTeam
                         {
-                            teamId = teamTable.Team.Id,
-                            teamName = teamTable.Team.Name
+                            teamId = a.Id,
+                            teamName = a.Name
                         }).ToList()
                     };
                     listRound.Add(tableGroup);
