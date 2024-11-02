@@ -71,6 +71,8 @@ public partial class Competition
 
     public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
 
+    public virtual ICollection<TableGroup> TableGroups { get; set; } = new List<TableGroup>();
+
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 
     public virtual Tournament? Tournament { get; set; }

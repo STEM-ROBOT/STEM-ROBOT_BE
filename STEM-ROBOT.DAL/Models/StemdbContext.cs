@@ -71,9 +71,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -465,6 +463,10 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.IsAsign).HasColumnName("isAsign");
             entity.Property(e => e.Name).HasMaxLength(250);
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.TableGroups)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_TableGroup_Competition");
         });
 
         modelBuilder.Entity<Team>(entity =>
