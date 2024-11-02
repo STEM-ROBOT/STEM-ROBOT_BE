@@ -121,8 +121,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-
-
+        //xem lịch trình thi đấu của nội dung
+        [HttpGet("match-schedule-view")]
+        public async Task<IActionResult> MatchScheduleCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
