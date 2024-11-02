@@ -783,6 +783,26 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        public async Task<SingleRsp> GetDataToAssign(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
 
+                var data = await _competitionRepo.AssignTeamTableRsp(competitionId);
+                if (data == null)
+                {
+                    res.SetError("No data");
+                    return res;
+                }
+                res.setData("OK", data);
+
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
     }
 }
