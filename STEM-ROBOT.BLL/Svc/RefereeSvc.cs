@@ -333,7 +333,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "success");
                 }
             }
             catch (Exception ex)
@@ -343,9 +343,9 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp GetListRefereeAvailable(int tournamentId)
+        public SingleRsp GetListRefereeAvailable(int tournamentId)
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
                 var lstReferee = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
@@ -370,8 +370,8 @@ namespace STEM_ROBOT.BLL.Svc
                         availableReferee.Add(refereeRsp);
                     }
                 }
-                
-                res.SetData("200", availableReferee);
+
+                res.setData("data", availableReferee);
 
             }
             catch (Exception ex)

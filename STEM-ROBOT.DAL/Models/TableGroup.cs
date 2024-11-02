@@ -7,8 +7,6 @@ public partial class TableGroup
 {
     public int Id { get; set; }
 
-    public int? StageId { get; set; }
-
     public string? Name { get; set; }
 
     public bool? IsAsign { get; set; }

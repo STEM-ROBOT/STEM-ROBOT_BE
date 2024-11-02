@@ -1,4 +1,5 @@
-﻿using STEM_ROBOT.DAL.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,18 @@ namespace STEM_ROBOT.DAL.Repo
 
             return stage.Id;
         }
+        public async Task<List<Stage>> GetAllStagesCompetition(int competitionId)
+        {
 
+            var stages = await _context.Stages
+                .Where(s => s.CompetitionId == competitionId)
+                .Include(s => s.Matches)
+                .ThenInclude(m => m.TeamMatches)              
+                .ThenInclude(m => m.Team)
+                .Include(s => s.Matches)
+                .ThenInclude(m => m.Location)
+                .ToListAsync();
+            return stages;
+        }
     }
 }

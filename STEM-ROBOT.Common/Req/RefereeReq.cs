@@ -9,8 +9,7 @@ namespace STEM_ROBOT.Common.Req
 {
     public class RefereeReq
     {
-        public int? TournamentId { get; set; }
-
+        public int TournamentId { get; set; }
         public string Name { get; set; }
 
 
@@ -24,6 +23,8 @@ namespace STEM_ROBOT.Common.Req
 
 
         public string Status { get; set; }
+
+        public string Role { get; set; }
     }
     public class AssginRefereeReq
     {

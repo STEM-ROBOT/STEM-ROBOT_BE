@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using Org.BouncyCastle.Asn1.Ocsp;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -23,8 +24,10 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TableGroupRepo _tableGroupRepo;
         private readonly MatchRepo _matchRepo;
         private readonly TeamMatchRepo _teamMatchRepo;
-        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, TeamRepo teamRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo, TableGroupRepo tableGroupRepo, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo)
+        private readonly StageTableRepo _stageTableRepo;
+        public CompetitionSvc(CompetitionRepo competitionRepo, IMapper mapper, TeamRepo teamRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo, TableGroupRepo tableGroupRepo, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo, StageTableRepo stageTableRepo)
         {
+            _stageTableRepo = stageTableRepo;
             _competitionRepo = competitionRepo;
             _mapper = mapper;
             _teamRepo = teamRepo;
@@ -152,14 +155,15 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var list = await _competitionRepo.getListCompetitionGener(IdTournament);
-                if (list == null) throw new Exception("no data");
-
-                var mapper = _mapper.Map<List<ListCompetiton>>(list);
-                res.SetData("data", mapper);
+                if(list != null)
+                {
+                    var mapper = _mapper.Map<List<ListCompetiton>>(list);
+                    res.SetData("data", mapper);
+                }        
             }
             catch (Exception ex)
             {
-                throw new Exception("No data");
+                throw new Exception(ex.Message);
             }
             return res;
         }
@@ -249,7 +253,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //update competitionformatconfig
-        //update competitionformatconfig
         public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
         {
             var res = new SingleRsp();
@@ -297,7 +300,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail Loại trực tiếp");
+                throw new Exception("Tạo vòng đội thất bại !!");
             }
 
         }
@@ -341,10 +344,10 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 string roundName = round switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, round - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, round - 1)}"
                 };
 
                 var stage = new Stage
@@ -390,7 +393,7 @@ namespace STEM_ROBOT.BLL.Svc
                     TeamMatch teamNew = new TeamMatch
                     {
                         NameDefault = $"W#{winMatchNumber} {roundName}",
-                        MatchWinCode = match.MatchCode
+                        MatchCode = match.MatchCode
                     };
 
 
@@ -407,10 +410,10 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 string roundName = currentRound switch
                 {
-                    1 => "Chung Kết",
-                    2 => "Bán Kết",
-                    3 => "Tứ Kết",
-                    _ => $"Vòng 1/{Math.Pow(2, currentRound - 1)}"
+                    1 => "CK",
+                    2 => "BK",
+                    3 => "TK",
+                    _ => $"1/{Math.Pow(2, currentRound - 1)}"
                 };
 
                 var stage = new Stage
@@ -467,8 +470,176 @@ namespace STEM_ROBOT.BLL.Svc
             return true;
         }
 
+        //danh sach tran dau cua competition
+        public async Task<SingleRsp> matchScheduleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            var stage = await _stageRepo.GetAllStagesCompetition(competitionId);
+            try
+            {
+                var matchSchedule = stage.Select(s => new MatchScheduleCompetition
+                {
+                    round = s.Name,
+                    matches = s.Matches.Select(m => new MatchRoundViewRsp
+                    {
+                        matchId = m.Id,
+                        //team tham gia
 
-        public SingleRsp CreateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
+                        homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
+                        awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
+                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
+                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                        //ti so tran dau
+                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
+                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                        //thoi gian, dia diem   
+                        //thoi gian, dia diem   
+                        startTime = m.StartDate,
+                        locationName = m.LocationId == null ? "" : m.Location.Address,
+                    }).ToList()
+
+                }).ToList();
+
+                res.setData("data", matchSchedule);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public SingleRsp AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        {
+            var res = new SingleRsp();
+
+            try
+            {
+                // Validate that table assignments are provided
+                if (tableAssignments == null || !tableAssignments.tableAssign.Any())
+                {
+                    throw new Exception("Không có thông tin bảng đấu hoặc đội.");
+                }
+                // tong so vong dau vong dau bang
+                int totalStage = 0;
+                // Iterate through each table assignment provided by the frontend
+                foreach (var assignment in tableAssignments.tableAssign)
+                {
+
+                    var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
+
+                    var numberMatchInStage = numMatchInTable / (assignment.Teams.Count);
+                    var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
+                    if (numberStageInTable > totalStage)
+                    {
+                        totalStage = (int)numberStageInTable;
+                    }
+                    // Validate table ID and team list
+                    if (assignment.TableGroupId <= 0 || assignment.Teams == null || !assignment.Teams.Any())
+                    {
+                        throw new Exception("Thông tin bảng hoặc danh sách đội không hợp lệ.");
+                    }
+
+                    // Add each team in the team list to the specified table
+                    foreach (var teamId in assignment.Teams)
+                    {
+                        var teamTable = new TeamTable
+                        {
+                            TeamId = teamId,
+                            TableGroupId = assignment.TableGroupId,
+                            IsSetup = true // Assuming this should be true when teams are assigned
+                        };
+                        _teamTableRepo.Add(teamTable);
+                    }
+                }
+                SetupStageTable(totalStage, tableAssignments);
+                List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                var totalTop = tableAssignments.TeamNextRound / tableAssignments.tableAssign.Count;
+                var topFulled = 0;
+
+                for (int i = 0; i < totalTop; i++)
+                {
+                    foreach (var table in tableAssignments.tableAssign)
+                    {
+                        if (topFulled == totalTop)
+                        {
+                            break;
+                        }
+                        TeamMatch team = new TeamMatch
+                        {
+                            NameDefault = $"Top#{i + 1} B{table.TableGroupName}",
+
+                        };
+                        winningTeamsFromExtraRound.Add(team);
+                        topFulled++;            
+                    }
+                }
+                var checkBool = StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
+
+                res.setData("200", "Success");
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public bool SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
+        {
+            var stages = new List<Stage>();
+            // tao so vong dau bang
+            for (int i = 0; i < totalStage; i++)
+            {
+                var stage = new Stage
+                {
+                    Name = $"{i + 1}",
+                    Status = "Pending",
+                    StartDate = null,
+                    EndDate = null
+                };
+                _stageRepo.Add(stage);
+                stages.Add(stage);
+            }
+
+            //tao so vong dau cua moi bang 
+            foreach (var assignment in tableAssignments.tableAssign)
+            {
+                var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
+                var numberMatchInStage = numMatchInTable / assignment.Teams.Count;
+                var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
+
+                for (int i = 0; i < numberStageInTable; i++)
+                {
+                    var round = (i + 1).ToString();
+                    foreach (var stage in stages)
+                    {
+                        if (round == stage.Name)
+                        {
+                            var stageTable = new StageTable
+                            {
+                                StageId = stage.Id,
+                                TableId = assignment.TableGroupId,
+                            };
+                            _stageTableRepo.Add(stageTable);
+                            for (int j = 0; j < numberMatchInStage; j++)
+                            {
+                                var match = new Match
+                                {
+                                    StageId = stage.Id,
+                                    IsSetup = false,
+                                    Status = "Pending",
+                                };
+                                _matchRepo.Add(match);
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                            }
+                        }
+                        else { break; }
+                    }
+                }
+            }
+            return true;
+        }
+        public SingleRsp UpdateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
 
         {
             var res = new SingleRsp();
@@ -482,29 +653,15 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var competitionFormat = _mapper.Map(request, competition);
                 _competitionRepo.Update(competitionFormat);
+
                 if (competitionFormat.FormatId == 2)
                 {
+
                     // Create teams
-                    CreateTeams(competition.Id, request.NumberTeam);
-
-                    // Create stages
-                    List<string> stages = CalculateStages(request.NumberTeam, request.NumberTeamNextRound);
-                    CreateStages(competition.Id, stages);
-
-                    // Get stage table(Vòng bảng)
-                    var stageTable = GetStageTableInCompetition(competition.Id);
-                    if (stageTable == null)
-                    {
-                        res.SetError("Stage table not found for the given competition ID.");
-                        return res;
-                    }
+                    CreateTeams(competitionId, request.NumberTeam);
 
                     // Create tables
-                    CreateTables(stageTable.Id, request.NumberTable);
-
-                    // Create matches
-                    CreateMatches(competition.Id, request.NumberTeam, request.NumberTable, request.NumberTeamNextRound);
-
+                    CreateTables(request.NumberTable);
                 }
 
                 res.setData("200", "Success");
@@ -516,17 +673,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        private List<string> CalculateStages(int numberTeam, int numberTeamNextRound)
-        {
-            var stages = new List<string> { "Vòng bảng" };
-            if (numberTeamNextRound >= 64) stages.Add("Vòng 1/32");
-            if (numberTeamNextRound >= 32) stages.Add("Vòng 1/16");
-            if (numberTeamNextRound >= 16) stages.Add("Vòng 1/8");
-            if (numberTeamNextRound >= 8) stages.Add("Tứ kết");
-            if (numberTeamNextRound >= 4) stages.Add("Bán kết");
-            if (numberTeamNextRound >= 2) stages.Add("Chung kết");
-            return stages;
-        }
         // Hàm tính toán số lượng trận đấu cần có trong giải đấu
         public SingleRsp CalculateTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
         {
@@ -562,7 +708,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp CreateStages(int competitionId, List<string> stageNames)
+        public MutipleRsp CreateNextStages(int competitionId, List<string> stageNames)
         {
             var res = new MutipleRsp();
             try
@@ -589,29 +735,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-
-
-
-
-
-
-
-        public int CalculateNumberStage(int numberTeam, int numberTable)
-        {
-            return (int)Math.Log2(numberTeam / numberTable) + 2;
-        }
-        public StageRep GetStageTableInCompetition(int competitionId)
-        {
-            var stage = _stageRepo.All().FirstOrDefault(s => s.CompetitionId == competitionId && s.Name == "Vòng bảng");
-            if (stage == null)
-            {
-                return null;
-            }
-
-            return _mapper.Map<StageRep>(stage);
-        }
-
-        public MutipleRsp CreateTables(int stageId, int numberTable)
+        public MutipleRsp CreateTables(int numberTable)
         {
             var res = new MutipleRsp();
             try
@@ -621,7 +745,6 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var table = new TableGroup
                     {
-                        StageId = stageId,
                         Name = ((char)('A' + i)).ToString(),
                         IsAsign = false
                     };
@@ -652,28 +775,7 @@ namespace STEM_ROBOT.BLL.Svc
                 _teamRepo.Add(team);
             }
         }
-        public int CalculateTotalMatches(int competitionId, int numberTeams, int numberTables, int numberTeamsNextRound)
-        {
-            int totalMatches = 0;
 
-            // Group Stage Matches
-            int totalGroupStageMatches = 0;
-            var tables = _tableGroupRepo.All().Where(t => t.StageId == GetStageTableInCompetition(competitionId).Id).ToList();
-            foreach (var table in tables)
-            {
-                var teamsInTable = _teamTableRepo.All().Where(tt => tt.TableGroupId == table.Id).ToList();
-                int numberTeamsInTable = teamsInTable.Count;
-                int numberMatchesInTable = numberTeamsInTable * (numberTeamsInTable - 1) / 2;
-                totalGroupStageMatches += numberMatchesInTable;
-            }
-            totalMatches += totalGroupStageMatches;
-
-            // Knockout Stage Matches
-            int totalKnockoutMatches = numberTeamsNextRound - 1;
-            totalMatches += totalKnockoutMatches;
-
-            return totalMatches;
-        }
 
         public void CreateMatches(int competitionId, int numberTeams, int numberTables, int numberTeamsNextRound)
         {
@@ -682,13 +784,13 @@ namespace STEM_ROBOT.BLL.Svc
                 int totalMatches = 0; // To keep track of the total number of matches
 
                 // Step 1: Group Stage Matches
-                var groupStage = GetStageTableInCompetition(competitionId);
+                var groupStage = _stageRepo.All().Where(s => s.CompetitionId == competitionId && s.StageMode == "Vòng bảng");
                 if (groupStage == null)
                 {
                     throw new Exception("Không tìm thấy vòng bảng.");
                 }
 
-                var tables = _tableGroupRepo.All().Where(t => t.StageId == groupStage.Id).ToList();
+                /*var tables = _tableGroupRepo.All().Where(t => t.StageId == groupStage.Id).ToList();
                 if (tables == null || !tables.Any())
                 {
                     throw new Exception("Không tìm thấy bảng đấu.");
@@ -756,30 +858,13 @@ namespace STEM_ROBOT.BLL.Svc
                     }
 
                     remainingTeams /= 2; // Halve the number of teams as they advance to the next stage
-                }
+                }*/
 
-                // Output the total matches for verification
-                Console.WriteLine($"Total Matches Created: {totalMatches}");
             }
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi tạo các trận đấu: " + ex.Message);
             }
-        }
-
-
-
-        // Hàm thêm thông tin đội vào TeamMatch với teamId null và nameDefault được chỉ định
-        private void AddTeamMatchWithPlaceholder(int matchId, string nameDefault)
-        {
-            var teamMatch = new TeamMatch
-            {
-                MatchId = matchId,
-                TeamId = null,
-                ResultPlay = "Pending", // Trận đấu ban đầu chưa có kết quả
-                NameDefault = nameDefault
-            };
-            _teamMatchRepo.Add(teamMatch);
         }
 
         public async Task<SingleRsp> AddRule(string file, int competitionId)
