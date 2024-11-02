@@ -393,7 +393,7 @@ namespace STEM_ROBOT.BLL.Svc
                     TeamMatch teamNew = new TeamMatch
                     {
                         NameDefault = $"W#{winMatchNumber} {roundName}",
-                        MatchCode = match.MatchCode
+                        MatchWinCode = match.MatchCode
                     };
 
 
