@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using STEM_ROBOT.DAL.Models;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -53,6 +54,13 @@ namespace STEM_ROBOT.Web.Controllers
         public async Task<IActionResult> getRoundKnockoutgameLate(int CompetitionID)
         {
             var res = await _matchSvc.getListKnockOutLate(CompetitionID);
+            if (!res.Success) throw new Exception("Check again");
+            return Ok(res);
+        }
+        [HttpGet("get-round-table")]
+        public async Task<IActionResult> GetRoundParentTables(int competitionID)
+        {
+            var res = await _matchSvc.GetRoundParentTable(competitionID);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }

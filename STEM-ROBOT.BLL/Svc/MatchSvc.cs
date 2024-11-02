@@ -132,7 +132,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var list = await _matchRepo.getRoundGame(competitionID);
+                var list = await _matchRepo.GetRoundGameAsync(competitionID);
                 if (list == null) throw new Exception("No data");
                 res.SetData("data", list);
 
@@ -148,7 +148,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var list = await _matchRepo.getKnockOut(CompetitionId);
+                var list = await _matchRepo.getRoundGameKnockOut(CompetitionId);
                 if (list == null) throw new Exception("No data");
                 res.SetData("data", list);
 
@@ -165,6 +165,23 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var list = await _matchRepo.getRoundGameKnockOut(CompetitionId);
+                if (list == null) throw new Exception("No data");
+                res.SetData("data", list);
+
+            }
+            catch
+            {
+                throw new Exception("Fail");
+            }
+            return res;
+        }
+        public async Task<MutipleRsp> GetRoundParentTable(int CompetitionId)
+        {
+
+            var res = new MutipleRsp();
+            try
+            {
+                var list = await _matchRepo.GetRoundParentTable(CompetitionId);
                 if (list == null) throw new Exception("No data");
                 res.SetData("data", list);
 
