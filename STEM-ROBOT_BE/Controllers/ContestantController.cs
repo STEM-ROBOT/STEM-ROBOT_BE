@@ -30,7 +30,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpPost("{tournamentId}/list-contestant")]
+        [HttpPost("list-contestant")]
         public IActionResult AddListContestant([FromBody] List<ContestantReq> contestants,int tournamentId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");

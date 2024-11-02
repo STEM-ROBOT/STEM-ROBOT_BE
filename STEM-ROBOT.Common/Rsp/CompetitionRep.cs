@@ -76,8 +76,6 @@ namespace STEM_ROBOT.Common.Rsp
         public Boolean? IsActive { get; set; }
         public string? Mode { get; set; }
 
-        public bool? isActive { get; set; }
-
     }
    
     public class CompetionCore

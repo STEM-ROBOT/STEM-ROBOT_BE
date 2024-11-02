@@ -109,18 +109,18 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetError("500", res.Message);
             }
             return Ok(res);
-        }*/
-
-        [HttpGet("bytournamentId={tournamentId}")]
-        public IActionResult GetListRefereeInTournamentId(int tournamentId)
-        {
-            var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
-            if (!res.Success)
-            {
-                res.SetError("500", res.Message);
-            }
-            return Ok(res);
         }
+
+        //[HttpGet("bytournamentId={tournamentId}")]
+        //public IActionResult GetListRefereeInTournamentId(int tournamentId)
+        //{
+        //    var res = _refereeSvc.GetListRefereeByTournament(tournamentId);
+        //    if (!res.Success)
+        //    {
+        //        res.SetError("500", res.Message);
+        //    }
+        //    return Ok(res);
+        //}
        
     }
 }
