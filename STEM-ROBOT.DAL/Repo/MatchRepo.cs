@@ -211,6 +211,8 @@ namespace STEM_ROBOT.DAL.Repo
         {
             var competition = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.TableGroups).ThenInclude(x => x.TeamTables).ThenInclude(x => x.Team).FirstOrDefaultAsync();
 
+
+
             var roundParentTable = new RoundParentTable
             {
                 tableGroup = await GetListTeamTable(competition),
@@ -242,6 +244,7 @@ namespace STEM_ROBOT.DAL.Repo
                     
                 };
                 list.Add(rounds);
+
 
 
             }
@@ -292,7 +295,6 @@ namespace STEM_ROBOT.DAL.Repo
                 // Add the populated RoundGameTable object to the result list
                 listRound.Add(roundGameTable);
             }
-
             return listRound;
         }
 
