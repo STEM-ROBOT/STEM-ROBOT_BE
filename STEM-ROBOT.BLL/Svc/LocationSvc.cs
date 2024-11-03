@@ -22,15 +22,17 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
         }
 
-        public async Task<MutipleRsp> GetLocations()
+        public MutipleRsp GetLocations()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = await _locationRepo.GetLocations();
+                var lst =_locationRepo.All();
                 if (lst != null)
                 {
-                    res.SetSuccess(lst, "200");
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lst);
+
+                    res.SetSuccess(locationMapp, "200");
                 }
                 else
                 {
@@ -44,18 +46,19 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<SingleRsp> GetById(int id)
+        public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var getLocation = await _locationRepo.GetLocationById(id);
+                var getLocation = _locationRepo.GetById(id);
 
                 if (getLocation == null)
                 {
                     res.SetError("404", "No data found");
                 }
-
+                var locationMapp = _mapper.Map<LocationRsp>(getLocation);
+                res.setData("200", locationMapp);
             }
             catch (Exception ex)
             {
