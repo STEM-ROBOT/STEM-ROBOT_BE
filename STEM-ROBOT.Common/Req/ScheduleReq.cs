@@ -18,7 +18,6 @@ namespace STEM_ROBOT.Common.Req
         [Required(ErrorMessage = "MatchId is required")]
         public int MatchId { get; set; }
 
-        [Required(ErrorMessage = "LocationId is required")]
-        public int LocationId { get; set; }
+
     }
 }

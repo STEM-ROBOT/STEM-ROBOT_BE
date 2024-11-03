@@ -19,9 +19,9 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpGet()]
-        public async Task<IActionResult> GetLocations()
+        public IActionResult GetLocations()
         {
-            var res = await _locationSvc.GetLocations();
+            var res = _locationSvc.GetLocations();
             if (res.Success)
             {
                 return Ok(res.Data);
@@ -29,9 +29,9 @@ namespace STEM_ROBOT_BE.Controllers
             return StatusCode(500, res.Message);
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLocationById(int id)
+        public IActionResult GetLocationById(int id)
         {
-            var res = await _locationSvc.GetById(id);
+            var res = _locationSvc.GetById(id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -41,7 +41,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPost()]
         public IActionResult CreateLocation([FromBody] LocationReq req)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -75,6 +75,28 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Message);
+        }
+
+        [HttpGet("competitionId")]
+        public IActionResult GetLocationByCompetition(int competitionId)
+        {
+            var res = _locationSvc.GetLocationsByCompetition(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+
+        [HttpGet("available/{competitionId}")]
+        public IActionResult GetAvailableLocation(int competitionId)
+        {
+            var res = _locationSvc.GetAvailableLocations(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }
