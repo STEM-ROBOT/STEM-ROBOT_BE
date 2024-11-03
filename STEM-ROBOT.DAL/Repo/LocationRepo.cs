@@ -20,7 +20,7 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<Location> GetLocationById(int id)
         {
-            return await _context.Locations.Where(x => x.Id == id).Include(x => x.Competition).FirstOrDefaultAsync();
+            return await _context.Locations.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
     }
 }
