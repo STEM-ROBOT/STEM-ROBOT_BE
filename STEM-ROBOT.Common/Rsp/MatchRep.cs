@@ -141,7 +141,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int? matchId { get; set; }
 
-        public List<RoundGameTeamMatch> teamsmatch { get; set; } = new List<RoundGameTeamMatch>();
+        public List<RoundGameTeamMatch> teamMatches { get; set; } = new List<RoundGameTeamMatch>();
     }
 
 

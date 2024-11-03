@@ -164,7 +164,7 @@ namespace STEM_ROBOT.DAL.Repo
                     matches = stage.Matches.Select(m => new RoundGameMatch
                     {
                         matchId = m.Id,
-                        teamsmatch = m.TeamMatches.Select(tm => new RoundGameTeamMatch
+                        teamMatches = m.TeamMatches.Select(tm => new RoundGameTeamMatch
                         {
                             teamMatchId = tm.Id,
                             teamId = tm.TeamId != null ? tm.TeamId : null,
@@ -189,39 +189,40 @@ namespace STEM_ROBOT.DAL.Repo
         //hàm tính team thừa
 
         // hàm get roundmatch
-        private async Task<List<RoundGameMatch>> getRoundGameMacth(int competitionID)
-        {
-            var listMatch = await _context.Competitions.Where(x => x.Id == competitionID)
-                .Select(stage => new RoundGameMatch
-                {
-                    matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
-                    teamsmatch = stage.Stages.SelectMany(x => x.Matches).SelectMany(match => match.TeamMatches).Select(x => new RoundGameTeamMatch
-                    {
-                        teamId = (int)x.TeamId,
-                        teamMatchId = (int)x.MatchId,
-                        teamName = x.NameDefault
-                    }).ToList(),
-                }).ToListAsync();
-            if (listMatch == null) return null;
-            return listMatch;
-        }
+        //private async Task<List<RoundGameMatch>> getRoundGameMacth(int competitionID)
+        //{
+        //    var listMatch = await _context.Competitions.Where(x => x.Id == competitionID)
+        //        .Select(stage => new RoundGameMatch
+        //        {
+        //            matchId = stage.Stages.SelectMany(x => x.Matches).Select(x => x.Id).FirstOrDefault(),
+        //            teamMatches = stage.Stages.SelectMany(x => x.Matches).SelectMany(match => match.TeamMatches).Select(x => new RoundGameTeamMatch
+        //            {
+        //                teamId = (int)x.TeamId,
+        //                teamMatchId = (int)x.MatchId,
+        //                teamName = x.NameDefault
+        //            }).ToList(),
+        //        }).ToListAsync();
+        //    if (listMatch == null) return null;
+        //    return listMatch;
+        //}
 
 
         //  sap xep team trong tran dau bang 
-        public async Task<List<Competition>> GetRoundParentTable(int competitionId)
+        public async Task<Competition> GetRoundParentTable(int competitionId)
         {
-            var stages = await _context.Competitions
+            var competition = await _context.Competitions
                 .Where(s => s.Id == competitionId)
                 .Include(tb => tb.TableGroups)
-                .ThenInclude(tt=> tt.TeamTables)
-                .ThenInclude(t => t.Team) 
-                .Include(st => st.Stages)
+                .ThenInclude(tt => tt.TeamTables)
+                .ThenInclude(t => t.Team)
+                .Include(st => st.Stages.Where(st => st.StageMode == "Vòng bảng"))
                 .ThenInclude(s => s.StageTables)
-                .ThenInclude(tb=> tb.TableGroup)
+                .ThenInclude(tb => tb.TableGroup)
                 .ThenInclude(m => m.Matches)
-                .ToListAsync();
+                .ThenInclude(tm=>tm.TeamMatches)
+                .FirstOrDefaultAsync();
 
-            return stages;
+            return competition;
         }
 
 
@@ -274,7 +275,7 @@ namespace STEM_ROBOT.DAL.Repo
                     matches = x.Matches.Select(xs => new RoundGameMatch
                     {
                         matchId = xs.Id,
-                        teamsmatch = xs.TeamMatches.Select(xc => new RoundGameTeamMatch
+                        teamMatches = xs.TeamMatches.Select(xc => new RoundGameTeamMatch
                         {
                             teamMatchId = xc.MatchId,
                             teamId = xc.TeamId,
