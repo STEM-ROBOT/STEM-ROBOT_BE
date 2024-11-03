@@ -203,7 +203,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("get-data-to-assing/{competitionId}")]
+        [HttpGet("data-to-assing/{competitionId}")]
         public async Task<IActionResult> GetDataToAssign(int competitionId)
         {
             var res = await _competionSvc.GetDataToAssign(competitionId);
