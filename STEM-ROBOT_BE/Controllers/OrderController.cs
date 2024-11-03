@@ -55,7 +55,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Redirect("https://www.youtube.com/");
         }
 
-        [HttpGet("get-total-revenue")]
+        [HttpGet("total-revenue")]
         public IActionResult GetRevenue()
         {
             var res = _orderSvc.GetRevenue();
@@ -66,7 +66,7 @@ namespace STEM_ROBOT.Web.Controllers
             return StatusCode(500, res.Message);
         }
 
-        [HttpGet("get-revenue-by-time")]
+        [HttpGet("revenue-by-time")]
         public IActionResult GetrevenueByTime(DateTime? fromDate, DateTime? toDate)
         {
             var res = _orderSvc.GetRevenueByTime(fromDate, toDate);
