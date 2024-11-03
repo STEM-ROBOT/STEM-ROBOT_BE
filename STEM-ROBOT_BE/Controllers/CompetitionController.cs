@@ -92,7 +92,7 @@ namespace STEM_ROBOT.Web.Controllers
             var res = await _competionSvc.UpdateCompetitionConfig(request);
             if (!res.Success)
             {
-                res.SetError("400", res.Message);
+                res.SetError("400", res.Message); 
 
 
             }
