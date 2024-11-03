@@ -155,11 +155,11 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var list = await _competitionRepo.getListCompetitionGener(IdTournament);
-                if(list != null)
+                if (list != null)
                 {
                     var mapper = _mapper.Map<List<ListCompetiton>>(list);
                     res.SetData("data", mapper);
-                }        
+                }
             }
             catch (Exception ex)
             {
@@ -520,12 +520,14 @@ namespace STEM_ROBOT.BLL.Svc
                 // tong so vong dau vong dau bang
                 int totalStage = 0;
                 // Iterate through each table assignment provided by the frontend
+                //2
                 foreach (var assignment in tableAssignments.tableAssign)
                 {
-
+                    //tổng trận trong bảng
                     var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
-
-                    var numberMatchInStage = numMatchInTable / (assignment.Teams.Count);
+                    // số trận trong vòng
+                    var numberMatchInStage = Math.Ceiling((decimal)numMatchInTable / assignment.Teams.Count);
+                    //số vòng mỗi bảng
                     var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
                     if (numberStageInTable > totalStage)
                     {
@@ -549,39 +551,43 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamTableRepo.Add(teamTable);
                     }
                 }
-                
-                var checksetup = await SetupStageTable(totalStage, tableAssignments);
-                if(checksetup == false)
+
+                var checksetup = await SetupStageTable(totalStage, competitionId, tableAssignments);
+                if (checksetup == false)
                 {
                     throw new Exception("Tạo vòng đấu thất bại !!");
                 }
                 List<TeamMatch> winningTeamsFromExtraRound = new List<TeamMatch>();
+                // tối thiểu top 1 bảng
                 var totalTop = tableAssignments.TeamNextRound / tableAssignments.tableAssign.Count;
+                //
                 var topFulled = 0;
 
                 for (int i = 0; i < totalTop; i++)
                 {
+
                     foreach (var table in tableAssignments.tableAssign)
                     {
-                        if (topFulled == totalTop)
+                        if (topFulled > tableAssignments.TeamNextRound)
                         {
                             break;
                         }
                         TeamMatch team = new TeamMatch
                         {
-                            NameDefault = $"Top#{i + 1} B{table.TableGroupName}",
+                            NameDefault = $"Top#{i + 1} B#{table.TableGroupName}",
 
                         };
                         winningTeamsFromExtraRound.Add(team);
-                        topFulled++;            
+                        topFulled++;
                     }
+
                 }
-                var checkBool = await StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
-                if(checkBool == false)
+                var checkBool = await StateSetup((int)tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
+                if (checkBool == false)
                 {
                     throw new Exception("Tạo tran đấu thất bại !!");
                 }
-                
+
                 res.setData("200", "Success");
             }
             catch (Exception ex)
@@ -590,7 +596,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<bool>  SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
+        public async Task<bool> SetupStageTable(int totalStage, int competitionId, TableAssignmentReq tableAssignments)
         {
             var stages = new List<Stage>();
             // tao so vong dau bang
@@ -598,51 +604,68 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var stage = new Stage
                 {
+
                     Name = $"{i + 1}",
                     Status = "Pending",
                     StartDate = null,
                     EndDate = null,
                     StageMode = "Vòng bảng",
+                    CompetitionId = competitionId,
                 };
                 _stageRepo.Add(stage);
                 stages.Add(stage);
             }
 
             //tao so vong dau cua moi bang 
+
+            //2
             foreach (var assignment in tableAssignments.tableAssign)
             {
+
+                //tổng trận trong bảng
                 var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
-                var numberMatchInStage = numMatchInTable / assignment.Teams.Count;
+                // số trận trong vòng
+                var numberMatchInStage = Math.Ceiling((decimal)numMatchInTable / assignment.Teams.Count);
+                //số vòng mỗi bảng
                 var numberStageInTable = Math.Ceiling((decimal)numMatchInTable / numberMatchInStage);
 
-                for (int i = 0; i < numberStageInTable; i++)
+                //lien ket vong voi bang
+                //5
+                bool checkRound = false;
+                foreach (var stage in stages)
                 {
-                    var round = (i + 1).ToString();
-                    foreach (var stage in stages)
+
+
+                    for (int i = 0; i < numberStageInTable; i++)
                     {
-                        if (round == stage.Name)
-                        {
-                            var stageTable = new StageTable
+                        
+                            if (stage.Name == (i + 1).ToString())
                             {
-                                StageId = stage.Id,
-                                TableGroupId = assignment.TableGroupId,
-                            };
-                            _stageTableRepo.Add(stageTable);
-                            for (int j = 0; j < numberMatchInStage; j++)
-                            {
-                                var match = new Match
+                                var stageTable = new StageTable
                                 {
                                     StageId = stage.Id,
-                                    IsSetup = false,
-                                    Status = "Pending",
+                                    TableGroupId = assignment.TableGroupId,
                                 };
-                                _matchRepo.Add(match);
-                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
-                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                                _stageTableRepo.Add(stageTable);
+                                for (int j = 0; j < numberMatchInStage; j++)
+                                {
+                                    var match = new Match
+                                    {
+                                        StageId = stage.Id,
+                                        IsSetup = false,
+                                        Status = "Pending",
+                                    };
+                                    _matchRepo.Add(match);
+                                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id });
+                                }
                             }
-                        }
-                        else { break; }
+                            else { break; }
+
+                        
                     }
+
+
                 }
             }
             return true;
