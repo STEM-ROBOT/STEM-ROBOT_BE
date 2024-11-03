@@ -76,6 +76,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<RealTimeSvc>();
             services.AddSingleton<Random>();
             services.AddScoped<StageTableRepo>();
+            services.AddScoped<ContestantTeamRepo>();
             return services;
         }
 

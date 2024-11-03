@@ -98,5 +98,16 @@ namespace STEM_ROBOT_BE.Controllers
             }
             return Ok(res.Data);
         }
+
+        [HttpPost("list-location")]
+        public IActionResult AddListLoaction(int competitionId, [FromBody] List<LocationReq> request)
+        {
+            var res = _locationSvc.AddListLocation(request ,competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
     }
 }
