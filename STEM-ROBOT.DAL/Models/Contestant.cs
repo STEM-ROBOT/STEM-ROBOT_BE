@@ -25,6 +25,10 @@ public partial class Contestant
 
     public string? SchoolName { get; set; }
 
+    public DateTime? StartTime { get; set; }
+
+    public DateTime? EndTime { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
