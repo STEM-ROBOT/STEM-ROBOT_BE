@@ -14,13 +14,13 @@ namespace STEM_ROBOT.Web.Controllers
         {
             _teamMatchSvc = teamMatchSvc;
         }
-        [HttpGet("get-list-team-match")]
+        [HttpGet()]
         public IActionResult GetListTeamMatch()
         {
             var res = _teamMatchSvc.GetListTeamMatch();
             return Ok(res);
         }
-        [HttpGet("get-id-team-match")]
+        [HttpGet("{id}")]
         public IActionResult GetIdTeamMatch(int id)
         {
             var res = _teamMatchSvc.GetIdTeamMatch(id);

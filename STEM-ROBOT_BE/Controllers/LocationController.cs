@@ -41,7 +41,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpPost()]
         public IActionResult CreateLocation([FromBody] LocationReq req)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -75,6 +75,28 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Message);
+        }
+
+        [HttpGet("{competitionId}")]
+        public IActionResult GetLocationByCompetition(int competitionId)
+        {
+            var res = _locationSvc.GetLocationsByCompetition(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+
+        [HttpGet("available/{competitionId}")]
+        public IActionResult GetAvailableLocation(int competitionId)
+        {
+            var res = _locationSvc.GetAvailableLocations(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }

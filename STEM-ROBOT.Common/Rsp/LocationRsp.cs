@@ -13,6 +13,5 @@ namespace STEM_ROBOT.Common.Rsp
         public string ContactPerson { get; set; }
         public string Status { get; set; }
         public int CompetitionId { get; set; }
-        public string CompetitionName { get; set; }
     }
 }

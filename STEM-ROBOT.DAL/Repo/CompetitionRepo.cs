@@ -109,26 +109,6 @@ namespace STEM_ROBOT.DAL.Repo
                               numberContestantTeam = competition.NumberContestantTeam ?? 0
                           }).FirstOrDefaultAsync();
         }
-        public async Task<AssignTeamTableRsp> AssignTeamTableRsp(int competitionId)
-        {
-            var teams = await _context.Teams.Where(x => x.CompetitionId == competitionId).Select(t => new TableTeamRsp
-            {
-                TeamId = t.Id,
-                TeamName = t.Name
-
-            }).ToListAsync();
-            var tables = await _context.TableGroups.Where(x => x.CompetitionId == competitionId).Select(tg => new TableRsp
-            {
-                TableId = tg.Id,
-                TableName = tg.Name,
-                Teams = new List<TableTeamRsp>()
-            }).ToListAsync();
-            var teamTableRsp = new AssignTeamTableRsp();
-            teamTableRsp.Teams = teams;
-            teamTableRsp.Tables = tables;
-            return teamTableRsp;
-        }
-
-
+        
     }
 }

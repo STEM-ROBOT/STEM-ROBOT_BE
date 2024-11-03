@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Utilities.IO;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -155,11 +156,11 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var list = await _competitionRepo.getListCompetitionGener(IdTournament);
-                if(list != null)
+                if (list != null)
                 {
                     var mapper = _mapper.Map<List<ListCompetiton>>(list);
                     res.SetData("data", mapper);
-                }        
+                }
             }
             catch (Exception ex)
             {
@@ -549,9 +550,9 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamTableRepo.Add(teamTable);
                     }
                 }
-                
+
                 var checksetup = await SetupStageTable(totalStage, tableAssignments);
-                if(checksetup == false)
+                if (checksetup == false)
                 {
                     throw new Exception("Tạo vòng đấu thất bại !!");
                 }
@@ -573,15 +574,17 @@ namespace STEM_ROBOT.BLL.Svc
 
                         };
                         winningTeamsFromExtraRound.Add(team);
-                        topFulled++;            
+                        topFulled++;
                     }
                 }
                 var checkBool = await StateSetup(tableAssignments.TeamNextRound, competitionId, winningTeamsFromExtraRound);
-                if(checkBool == false)
+                if (checkBool == false)
                 {
                     throw new Exception("Tạo tran đấu thất bại !!");
                 }
-                
+                var competition = _competitionRepo.GetById(competitionId);
+                competition.IsTable = true;
+                _competitionRepo.Update(competition);
                 res.setData("200", "Success");
             }
             catch (Exception ex)
@@ -590,7 +593,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<bool>  SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
+        public async Task<bool> SetupStageTable(int totalStage, TableAssignmentReq tableAssignments)
         {
             var stages = new List<Stage>();
             // tao so vong dau bang
@@ -788,20 +791,46 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-
-                var data = await _competitionRepo.AssignTeamTableRsp(competitionId);
-                if (data == null)
+                var lstTeamRsp = _teamRepo.All().Where(t => t.CompetitionId == competitionId).Select(t => new DataTeamRsp
                 {
-                    res.SetError("No data");
-                    return res;
-                }
-                res.setData("OK", data);
+                    TeamId = t.Id,
+                    TeamName = t.Name
+                }).ToList();
 
+                var competitition = _competitionRepo.GetById(competitionId);
+                List<DataTableRsp> lstTableGroup;
+                if (competitition.IsTable == false)
+                {
+                    lstTableGroup = _tableGroupRepo.All().Where(x => x.CompetitionId == competitionId).Select(x => new DataTableRsp
+                    {
+                        TableId = x.Id,
+                        TableName = x.Name,
+                        Teams = new List<DataTeamRsp>()
+                    }).ToList();
+                }
+                else
+                {
+                    lstTableGroup = _tableGroupRepo.All().Where(x => x.CompetitionId == competitionId).Select(x => new DataTableRsp
+                    {
+                        TableId = x.Id,
+                        TableName = x.Name,
+                        Teams = _teamTableRepo.All().Where(t => t.TableGroupId == x.Id).Select(t => new DataTeamRsp
+                        {
+                            TeamId = t.Id,
+                            TeamName = t.Team.Name
+                        }).ToList()
+                    }).ToList();
+                }
+                var teamTableRsp = new DataAssignTeamTableRsp();
+                teamTableRsp.Teams = lstTeamRsp;
+                teamTableRsp.Tables = lstTableGroup;
+                res.setData("200", teamTableRsp);
             }
             catch (Exception ex)
             {
-                res.SetError(ex.Message);
+                // Handle exception
             }
+
             return res;
         }
     }

@@ -87,7 +87,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var location = _locationRepo.GetById(id);
-                if(location == null)
+                if (location == null)
                 {
                     res.SetError("404", "No data found");
                 }
@@ -105,7 +105,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp  DeleteLocation(int id)
+        public SingleRsp DeleteLocation(int id)
         {
             var res = new SingleRsp();
             try
@@ -127,6 +127,49 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
+        public MutipleRsp GetLocationsByCompetition(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var lstLocation = _locationRepo.All().Where(l => l.CompetitionId == competitionId).ToList();
+                if (lstLocation != null)
+                {
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
+                    res.SetData("200",locationMapp);
+                }
+                else
+                {
+                    res.SetError("404", "No data found");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public MutipleRsp GetAvailableLocations(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var lstLocation = _locationRepo.All().Where(l => l.CompetitionId == competitionId && l.Status == "Trống").ToList();
+                if (lstLocation != null)
+                {
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
+                    res.SetData("200", locationMapp);
+                }
+                else
+                {
+                    res.SetError("404", "No data found");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }
