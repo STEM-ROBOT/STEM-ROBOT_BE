@@ -13,6 +13,8 @@ public partial class Location
 
     public int? CompetitionId { get; set; }
 
+    public string? ContactPerson { get; set; }
+
     public virtual Competition? Competition { get; set; }
 
     public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
