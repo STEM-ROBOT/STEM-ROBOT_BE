@@ -101,4 +101,9 @@ public class GenericRep<T> : IGenericRep<T> where T : class
         _dbSet.Update(entity);
         _context.SaveChanges();  // Thêm SaveChanges để cập nhật vào DB
     }
+    public void UpdateRange(IEnumerable<T> entity)
+    {
+        _dbSet.UpdateRange(entity);
+        _context.SaveChanges();  // Thêm SaveChanges để cập nhật vào DB
+    }
 }
