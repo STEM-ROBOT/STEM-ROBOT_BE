@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Utilities.IO;
 using STEM_ROBOT.BLL.Mapper;
@@ -240,12 +241,24 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var genre = await _competitionRepo.getGenerCompetitionID(CompetitionID);
-                if (genre == null)
+                var competition = await _competitionRepo.getGenerCompetitionID(CompetitionID);
+                if (competition == null)
                 {
                     throw new Exception("No data");
                 }
-                res.setData("data", genre);
+                var competitionRps = new GenerCompetitonID
+                {
+                    id = CompetitionID,
+                    image = competition.Genre.Image,
+                    name = competition.Genre.Name,
+                    numberContestantTeam = (int)competition.NumberContestantTeam,
+                    registerTime = (DateTime)competition.RegisterTime,
+                    status = competition.Status
+
+                };
+
+               
+                res.setData("data", competitionRps);
             }
             catch (Exception ex)
             {
