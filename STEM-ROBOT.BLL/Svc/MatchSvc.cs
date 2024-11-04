@@ -141,12 +141,12 @@ namespace STEM_ROBOT.BLL.Svc
                 var competition = await _matchRepo.GetRoundGameAsync(competitionId);
                 if (competition == null) throw new Exception("No data");
 
-                if (isFormatTable)
+                if (competition.FormatId == 2)
                 {
                     var roundParent = new roundTableParentConfig
                     {
                         isMatch = (bool)competition.IsMacth,
-
+                        startTime=competition.StartTime,
                         group = new GroupRound
                         {
                             rounds = competition.Stages.Where(st => st.StageMode == "Vòng bảng").Select(s => new RoundGroupGame
@@ -178,10 +178,11 @@ namespace STEM_ROBOT.BLL.Svc
                     };
                     res.setData("data", roundParent);
                 }
-                else
+                else if(competition.FormatId == 1)
                 {
                     var roundKnocOutParentConfig = new roundKnocOutParentConfig
                     {
+                        startTime = competition.StartTime,
                         isMatch = (bool)competition.IsMacth,
                         knockout = await getListRoundKnocOut(competition) ,
                         locations= competition.Locations.Select(l=> new locationCompetitionConfig

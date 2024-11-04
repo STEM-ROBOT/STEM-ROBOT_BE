@@ -27,6 +27,7 @@ namespace STEM_ROBOT.Common.Rsp
     //round game
     public class roundTableParentConfig
     {
+        public DateTime? startTime { get; set; }
         public bool isMatch { get; set; }
         public GroupRound group { get; set; } = new GroupRound();
         public GroupRound knockout { get; set; } = new GroupRound();
@@ -36,6 +37,7 @@ namespace STEM_ROBOT.Common.Rsp
     }
     public class roundKnocOutParentConfig
     {
+        public DateTime? startTime { get; set; }
         public bool isMatch { get; set; }
         public GroupRound knockout { get; set; } = new GroupRound();
         public ICollection<locationCompetitionConfig> locations { get; set; } = new List<locationCompetitionConfig>();
