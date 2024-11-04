@@ -36,13 +36,25 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpGet("get-round")]
-        public async Task<IActionResult> getRoundgame(int CompetitionID)
+        [HttpGet("match-table-config-time")]
+        public async Task<IActionResult> getRoundTableGame(int CompetitionID)
         {
-            var res = await _matchSvc.getListRound(CompetitionID);
+            bool isFormatTable =true;
+            var res = await _matchSvc.getListRound(CompetitionID, isFormatTable);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
+        [HttpGet("match-knockout-config-time")]
+        public async Task<IActionResult> getRoundKnocOutGame(int CompetitionID)
+        {
+            bool isFormatTable = true;
+            var res = await _matchSvc.getListRound(CompetitionID, isFormatTable);
+            if (!res.Success) throw new Exception("Check again");
+            return Ok(res);
+        }
+
+
         [HttpGet("get-round-knockout")]
         public async Task<IActionResult> getRoundKnockoutgame(int CompetitionID)
         {
