@@ -23,11 +23,10 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<Competition> GetRoundGameAsync(int competitionId)
         {
-            // First fetch the relevant stages for the given competitionID
 
             var competition = await _context.Competitions
                .Where(s => s.Id == competitionId)
-               .Include(l=> l.Locations)
+               .Include(l => l.Locations)
                .Include(tb => tb.TableGroups)
                .ThenInclude(tt => tt.TeamTables)
                .ThenInclude(t => t.Team)
