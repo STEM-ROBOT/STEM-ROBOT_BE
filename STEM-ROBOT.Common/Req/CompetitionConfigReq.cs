@@ -6,24 +6,17 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
-    public class CompetitionConfigReq
+    public class CompetitionConfigFormatReq
     {
-        public int Id { get; set; }
+        public int? FormatId { get; set; }
 
         public DateTime? RegisterTime { get; set; }
 
-
-        public string? Regulation { get; set; }
+        public DateTime? StartTime { get; set; }
 
         public int? NumberContestantTeam { get; set; }
 
         public bool? IsTop { get; set; }
-
-        public DateTime? StartTime { get; set; }
-
-        public string? Status { get; set; }
-
-        public string? Mode { get; set; }
 
         public int? NumberTeam { get; set; }
 
@@ -37,9 +30,6 @@ namespace STEM_ROBOT.Common.Req
 
         public int? TieScore { get; set; }
 
-        public int? FormatId { get; set; }
-
-        
 
     }
 

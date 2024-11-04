@@ -25,46 +25,54 @@ namespace STEM_ROBOT.Common.Rsp
 
 
     //round game
-    public class roundParent
+    public class roundTableParentConfig
     {
-        public List<RoundGame> groups { get; set; } = new List<RoundGame>();
-       // public RoundGame knockout { get; set; }
+        public bool isMatch { get; set; }
+        public GroupRound group { get; set; } = new GroupRound();
+        public GroupRound knockout { get; set; } = new GroupRound();
+        public ICollection<locationCompetitionConfig> locations { get; set; } = new List<locationCompetitionConfig>();
 
-        public bool? IsAsign { get; set; }
-    }
-    public class RoundGame
-    {
-        public int Id { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? Status { get; set; }
-
-        public ICollection<Table> matchrounds { get; set; } = new List<Table>();
 
     }
-
-
-    public class Table
+    public class roundKnocOutParentConfig
     {
-        public int Id { get; set; }
+        public bool isMatch { get; set; }
+        public GroupRound knockout { get; set; } = new GroupRound();
+        public ICollection<locationCompetitionConfig> locations { get; set; } = new List<locationCompetitionConfig>();
+    }
+    public class locationCompetitionConfig
+    {
+        public int? locationId { get; set; }
+        public string? locationName { get; set; }
+    }
+    public class GroupRound
+    {
+        public ICollection<RoundGroupGame> rounds { get; set; } = new List<RoundGroupGame>();
+    }
+    public class RoundGroupGame
+    {
+        public int roundId { get; set; }
 
+        public string? round { get; set; }
+
+        public ICollection<RoundGroupGameMatch> matchrounds { get; set; } = new List<RoundGroupGameMatch>();
+
+    }
+
+    public class RoundGroupGameMatch
+    {
         public string? tableName { get; set; }
-
-
-
         public ICollection<TeamMatchRound> matches { get; set; } = new List<TeamMatchRound>();
 
     }
 
     public class TeamMatchRound
     {
-        public int? Id { get; set; }
-        public int? IdMatch { get; set; }
-        public string? TeamNameA { get; set; }
-        public string? TeamNameB { get; set; }
+        public int? matchId { get; set; }
+        public string? teamA { get; set; }
+        public string? teamB { get; set; }
         public DateTime? date { get; set; }
-        public string? filed { get; set; }
+        public int? locationId { get; set; }
         public TimeSpan? time { get; set; }
     }
 
@@ -75,7 +83,7 @@ namespace STEM_ROBOT.Common.Rsp
     // roundknockout
     public class RoundGameKnockoutParent
     {
-        public bool? isTeamMatch { get; set; }  
+        public bool? isTeamMatch { get; set; }
         public List<RoundGameTeamBye> teams { get; set; } = new List<RoundGameTeamBye>();
         public List<RoundGameKnockout> rounds { get; set; } = new List<RoundGameKnockout>();
 
@@ -95,9 +103,9 @@ namespace STEM_ROBOT.Common.Rsp
 
 
     }
- 
 
-    
+
+
 
     // get listround table
     public class RoundParentTable
@@ -133,10 +141,10 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int? tableId { get; set; }
         public string? tableName { get; set; }
-       
+
         public List<RoundGameMatch> matches { get; set; } = new List<RoundGameMatch>();
     }
-  
+
     public class RoundGameMatch
     {
         public int? matchId { get; set; }
@@ -150,7 +158,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int? teamMatchId { get; set; }
         public int? teamId { get; set; }
         public string? teamName { get; set; }
-        
+
     }
 
 }

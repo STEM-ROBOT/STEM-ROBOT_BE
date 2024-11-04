@@ -32,6 +32,7 @@ namespace STEM_ROBOT.BLL.Svc
             _stageRepo = stageRepo;
             _stageSvc = stageSvc;
         }
+       
         public MutipleRsp GetListMatch()
         {
             var res = new MutipleRsp();
@@ -71,7 +72,6 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
         public SingleRsp AddMatch(MatchReq req)
         {
             var res = new SingleRsp();
@@ -129,14 +129,73 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> getListRound(int competitionID)
+
+
+        //done
+        public async Task<SingleRsp> getListRound(int competitionId, bool isFormatTable)
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
+
             try
             {
-                var list = await _matchRepo.GetRoundGameAsync(competitionID);
-                if (list == null) throw new Exception("No data");
-                res.SetData("data", list);
+                var competition = await _matchRepo.GetRoundGameAsync(competitionId);
+                if (competition == null) throw new Exception("No data");
+
+                if (isFormatTable)
+                {
+                    var roundParent = new roundTableParentConfig
+                    {
+                        isMatch = (bool)competition.IsMacth,
+
+                        group = new GroupRound
+                        {
+                            rounds = competition.Stages.Where(st => st.StageMode == "Vòng bảng").Select(s => new RoundGroupGame
+                            {
+                                roundId = s.Id,
+                                round = s.Name,
+                                matchrounds = s.StageTables.Select(ts => new RoundGroupGameMatch
+                                {
+                                    tableName = ts.TableGroup.Name,
+                                    matches = ts.TableGroup.Matches.Where(m => m.StageId == s.Id).Select(md => new TeamMatchRound
+                                    {
+                                        matchId = md.Id,
+                                        teamA = md.TeamMatches.FirstOrDefault().TeamId == null ? md.TeamMatches.FirstOrDefault().NameDefault : md.TeamMatches.FirstOrDefault().Team.Name,
+                                        teamB = md.TeamMatches.LastOrDefault().TeamId == null ? md.TeamMatches.LastOrDefault().NameDefault : md.TeamMatches.LastOrDefault().Team.Name,
+                                        date = md.StartDate,
+                                        locationId = md.LocationId
+                                    }).ToList(),
+                                }).ToList(),
+                            }).ToList()
+
+                        },
+                        knockout = await getListRoundKnocOut(competition),
+                        locations = competition.Locations.Select(l => new locationCompetitionConfig
+                         {
+                             locationId = l.Id,
+                             locationName = l.Address
+
+                         }).ToList(),
+                    };
+                    res.setData("data", roundParent);
+                }
+                else
+                {
+                    var roundKnocOutParentConfig = new roundKnocOutParentConfig
+                    {
+                        isMatch = (bool)competition.IsMacth,
+                        knockout = await getListRoundKnocOut(competition) ,
+                        locations= competition.Locations.Select(l=> new locationCompetitionConfig
+                        {
+                            locationId=l.Id,
+                            locationName=l.Address
+
+                        }).ToList(),
+                    };
+                    res.setData("data", roundKnocOutParentConfig);
+                }
+
+
+
 
             }
             catch
@@ -145,6 +204,37 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        //done
+        public async Task<GroupRound> getListRoundKnocOut(Competition competition)
+        {
+            var knocout = new GroupRound
+            {
+                rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
+                {
+                    roundId = s.Id,
+                    round = s.Name,
+                    matchrounds = s.Matches.Select(ts => new RoundGroupGameMatch
+                    {
+                        tableName = "",
+                        matches = s.Matches.Select(md => new TeamMatchRound
+                        {
+                            matchId = md.Id,
+                            teamA = md.TeamMatches.FirstOrDefault().TeamId == null ? md.TeamMatches.FirstOrDefault().NameDefault : md.TeamMatches.FirstOrDefault().Team.Name,
+                            teamB = md.TeamMatches.LastOrDefault().TeamId == null ? md.TeamMatches.LastOrDefault().NameDefault : md.TeamMatches.LastOrDefault().Team.Name,
+                            date = md.StartDate,
+                            locationId = md.LocationId
+                        }).ToList(),
+                    }).ToList(),
+                }).ToList()
+
+            };
+            return knocout;
+
+        }
+
+
+
         public async Task<MutipleRsp> getListKnockOut(int CompetitionId)
         {
             var res = new MutipleRsp();
@@ -161,6 +251,8 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        //done
         public async Task<MutipleRsp> getListKnockOutLate(int CompetitionId)
         {
             var res = new MutipleRsp();
@@ -177,6 +269,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+         //done
         public async Task<SingleRsp> GetRoundParentTable(int CompetitionId)
         {
 
@@ -187,23 +280,23 @@ namespace STEM_ROBOT.BLL.Svc
                 if (list == null) throw new Exception("No data");
                 RoundParentTable round_table = new RoundParentTable
                 {
-                    tableGroup = list.TableGroups.Select(tg=> new tableGroup
+                    tableGroup = list.TableGroups.Select(tg => new tableGroup
                     {
-                        team_tableId=tg.Id,
-                        team_table= tg.TeamTables.Select(tb=> new RoundTableTeam
+                        team_tableId = tg.Id,
+                        team_table = tg.TeamTables.Select(tb => new RoundTableTeam
                         {
-                            teamId=tb.TeamId,
-                            teamName= tb.Team.Name
+                            teamId = tb.TeamId,
+                            teamName = tb.Team.Name
                         }).ToList()
                     }).ToList(),
-                    rounds = list.Stages.Select(s=> new RoundGameTable
+                    rounds = list.Stages.Select(s => new RoundGameTable
                     {
-                        roundId=s.Id,
-                        roundName=s.Name,
-                        tables= s.StageTables.Select( ts=> new RoundTable
+                        roundId = s.Id,
+                        roundName = s.Name,
+                        tables = s.StageTables.Select(ts => new RoundTable
                         {
-                           tableId=  ts.TableGroupId,
-                           tableName=ts.TableGroup.Name,
+                            tableId = ts.TableGroupId,
+                            tableName = ts.TableGroup.Name,
                             matches = ts.TableGroup.Matches.Where(m => m.StageId == s.Id).Select(m => new RoundGameMatch
                             {
                                 matchId = m.Id,
@@ -219,12 +312,12 @@ namespace STEM_ROBOT.BLL.Svc
 
 
                         }
-                        ).ToList() 
-                    } ).ToList()
+                        ).ToList()
+                    }).ToList()
 
 
                 };
-              
+
                 res.setData("data", round_table);
 
             }
