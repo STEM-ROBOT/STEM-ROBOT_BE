@@ -67,9 +67,9 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpGet("revenue-by-time")]
-        public IActionResult GetrevenueByTime(DateTime? fromDate, DateTime? toDate)
+        public IActionResult GetrevenueByTime()
         {
-            var res = _orderSvc.GetRevenueByTime(fromDate, toDate);
+            var res = _orderSvc.GetRevenueByTime();
             if (res.Success)
             {
                 return Ok(res.Data);
