@@ -23,8 +23,10 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly TeamRepo _teamRepo;
         private readonly CompetitionRepo _competitionRepo;
-        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor, ContestantTeamRepo contestantTeamRepo, TeamRepo teamRepo, CompetitionRepo competitionRepo)
+        private readonly AccountRepo _accountRepo;
+        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor, ContestantTeamRepo contestantTeamRepo, TeamRepo teamRepo, CompetitionRepo competitionRepo, AccountRepo accountRepo)
         {
+            _accountRepo = accountRepo;
             _competitionRepo = competitionRepo;
             _tournamentRepo = tournamentRepo;
             _contestantRepo = contestantRepo;
@@ -196,12 +198,66 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public MutipleRsp GetListAvailableContestantByAccount(int accountId, DateTime startTime, DateTime endTime)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var contestants = _contestantRepo.All(
+                    filter: x => x.AccountId == accountId,
+                    includeProperties: "Account,ContestantTeams.Team.Competition"
+                ).ToList();
 
+                if (contestants == null || !contestants.Any())
+                {
+                    res.SetError("No Data");
+                    return res;
+                }
+                var lstContestant = new List<ContestantInTournament>();
+
+                foreach (var contestant in contestants)
+                {
+                    var competition = contestant.ContestantTeams?
+                                                .ToList()
+                                                .Where(c => c.Team?.Competition != null && c.Team.Competition.StartTime > startTime && c.Team.Competition.EndTime < endTime)
+                                                .FirstOrDefault()?.Team?.Competition;
+
+                    if (competition != null)
+                    {
+                        continue;
+                    }
+                    lstContestant.Add(new ContestantInTournament
+                    {
+                        Id = contestant.Id,
+                        Name = contestant.Name,
+                        Email = contestant.Email,
+                        AccountId = contestant.AccountId,
+                        TournamentId = contestant.TournamentId,
+                        Gender = contestant.Gender,
+                        Phone = contestant.Phone,
+                        Image = contestant.Image,
+                        GenreName = "Đang không tham gia"
+                    });
+                }
+                res.SetData("data", lstContestant);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
         public MutipleRsp GetListContestantByTournament(int tournamentId)
         {
             var res = new MutipleRsp();
             try
             {
+                var tournament = _tournamentRepo.GetById(tournamentId);
+                if (tournament == null)
+                {
+                    res.SetError("404", "Tournament not found");
+                    return res;
+                }
                 var contestants = _contestantRepo.All(
                     filter: x => x.TournamentId == tournamentId,
                     includeProperties: "Tournament"
@@ -227,6 +283,57 @@ namespace STEM_ROBOT.BLL.Svc
                         Phone = contestant.Phone,
                         Image = contestant.Image,
 
+                    });
+
+                }
+
+                res.SetData("data", lstContestant);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public MutipleRsp GetListContestantByAccount(int accountId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var account = _accountRepo.GetById(accountId);
+                if (account == null)
+                {
+                    res.SetError("404", "Account not found");
+                    return res;
+                }
+                var contestants = _contestantRepo.All(
+                    filter: x => x.AccountId == accountId,
+                    includeProperties: "Account,ContestantTeams.Team.Competition.Genre"
+                ).ToList();
+
+                if (contestants == null || !contestants.Any())
+                {
+                    res.SetError("No Data");
+                    return res;
+                }
+                var lstContestant = new List<ContestantInTournament>();
+                var nowTime = DateTime.Now;
+
+                foreach (var contestant in contestants)
+                {
+                    var competition = contestant.ContestantTeams?.ToList().Where(c => c.Team.Competition.StartTime < nowTime && c.Team.Competition.EndTime > nowTime).FirstOrDefault().Team?.Competition;
+                    var genreName = competition?.Genre?.Name;
+                    lstContestant.Add(new ContestantInTournament
+                    {
+                        Id = contestant.Id,
+                        Name = contestant.Name,
+                        Email = contestant.Email,
+                        AccountId = contestant.AccountId,
+                        TournamentId = contestant.TournamentId,
+                        Gender = contestant.Gender,
+                        Phone = contestant.Phone,
+                        Image = contestant.Image,
+                        GenreName = competition == null ? "Đang không tham gia" : genreName,
                     });
 
                 }
