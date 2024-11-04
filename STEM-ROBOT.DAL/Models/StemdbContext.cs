@@ -71,9 +71,6 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,6 +136,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.IsContestantTeam).HasColumnName("isContestantTeam");
             entity.Property(e => e.IsFormat)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isFormat");
@@ -201,11 +199,13 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Contestant");
 
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.Gender).HasMaxLength(50);
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Phone).HasMaxLength(50);
             entity.Property(e => e.SchoolName).HasMaxLength(500);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Contestants)
@@ -266,7 +266,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Location");
 
             entity.Property(e => e.Address).HasMaxLength(250);
-            entity.Property(e => e.ContactPerson).HasMaxLength(250);
+            entity.Property(e => e.ContactPerson).HasMaxLength(500);
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Competition).WithMany(p => p.Locations)
@@ -294,6 +294,10 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Stage).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.StageId)
                 .HasConstraintName("FK__Match__RoundId__0B91BA14");
+
+            entity.HasOne(d => d.TableGroup).WithMany(p => p.Matches)
+                .HasForeignKey(d => d.TableGroupId)
+                .HasConstraintName("FK_Match_TableGroup");
         });
 
         modelBuilder.Entity<MatchHalf>(entity =>
@@ -500,9 +504,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.ContactInfo).HasMaxLength(250);
             entity.Property(e => e.Image).HasColumnType("ntext");
-            entity.Property(e => e.IsSetup)
-                .HasDefaultValueSql("((0))")
-                .HasColumnName("isSetup");
+            entity.Property(e => e.IsSetup).HasColumnName("isSetup");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)

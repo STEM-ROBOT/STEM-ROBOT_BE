@@ -15,22 +15,25 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly LocationRepo _locationRepo;
         private readonly IMapper _mapper;
-
-        public LocationSvc(LocationRepo locationRepo, IMapper mapper)
+        private readonly CompetitionRepo _competitionRepo;
+        public LocationSvc(LocationRepo locationRepo, IMapper mapper, CompetitionRepo competitionRepo)
         {
             _locationRepo = locationRepo;
             _mapper = mapper;
+            _competitionRepo = competitionRepo;
         }
 
-        public async Task<MutipleRsp> GetLocations()
+        public MutipleRsp GetLocations()
         {
             var res = new MutipleRsp();
             try
             {
-                var lst = await _locationRepo.GetLocations();
+                var lst =_locationRepo.All();
                 if (lst != null)
                 {
-                    res.SetSuccess(lst, "200");
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lst);
+
+                    res.SetSuccess(locationMapp, "200");
                 }
                 else
                 {
@@ -44,18 +47,19 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<SingleRsp> GetById(int id)
+        public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var getLocation = await _locationRepo.GetLocationById(id);
+                var getLocation = _locationRepo.GetById(id);
 
                 if (getLocation == null)
                 {
                     res.SetError("404", "No data found");
                 }
-
+                var locationMapp = _mapper.Map<LocationRsp>(getLocation);
+                res.setData("200", locationMapp);
             }
             catch (Exception ex)
             {
@@ -87,7 +91,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var location = _locationRepo.GetById(id);
-                if(location == null)
+                if (location == null)
                 {
                     res.SetError("404", "No data found");
                 }
@@ -105,7 +109,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp  DeleteLocation(int id)
+        public SingleRsp DeleteLocation(int id)
         {
             var res = new SingleRsp();
             try
@@ -127,6 +131,76 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
+        public MutipleRsp GetLocationsByCompetition(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "No competition found");
+                }
+                var lstLocation = _locationRepo.All().Where(l => l.CompetitionId == competitionId).ToList();
+                if (lstLocation != null)
+                {
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
+                    res.SetData("200",locationMapp);
+                }
+                else
+                {
+                    res.SetError("404", "No data found");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public MutipleRsp GetAvailableLocations(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var lstLocation = _locationRepo.All().Where(l => l.CompetitionId == competitionId && l.Status == "Trống").ToList();
+                if (lstLocation != null)
+                {
+                    var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
+                    res.SetData("200", locationMapp);
+                }
+                else
+                {
+                    res.SetError("404", "No data found");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp AddListLocation(List<LocationReq> locations, int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var locationList = new List<Location>();
+                foreach (var location in locations)
+                {
+                    var locationMapp = _mapper.Map<Location>(location);
+                    locationMapp.CompetitionId = competitionId;
+                    locationList.Add(locationMapp);
+                    _locationRepo.Add(locationMapp);
+                }
+                res.SetData("data", locationList);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -75,8 +77,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-               var mapper = _mapper.Map<Match>(req);
-                if(mapper == null)
+                var mapper = _mapper.Map<Match>(req);
+                if (mapper == null)
                 {
                     res.SetError("Please check data");
                 }
@@ -89,7 +91,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp UpdateMatch(int id,MatchReq req)
+        public SingleRsp UpdateMatch(int id, MatchReq req)
         {
             var res = new SingleRsp();
             try
@@ -175,15 +177,55 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> GetRoundParentTable(int CompetitionId)
+        public async Task<SingleRsp> GetRoundParentTable(int CompetitionId)
         {
 
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
                 var list = await _matchRepo.GetRoundParentTable(CompetitionId);
                 if (list == null) throw new Exception("No data");
-                res.SetData("data", list);
+                RoundParentTable round_table = new RoundParentTable
+                {
+                    tableGroup = list.TableGroups.Select(tg=> new tableGroup
+                    {
+                        team_tableId=tg.Id,
+                        team_table= tg.TeamTables.Select(tb=> new RoundTableTeam
+                        {
+                            teamId=tb.TeamId,
+                            teamName= tb.Team.Name
+                        }).ToList()
+                    }).ToList(),
+                    rounds = list.Stages.Select(s=> new RoundGameTable
+                    {
+                        roundId=s.Id,
+                        roundName=s.Name,
+                        tables= s.StageTables.Select( ts=> new RoundTable
+                        {
+                           tableId=  ts.TableGroupId,
+                           tableName=ts.TableGroup.Name,
+                            matches = ts.TableGroup.Matches.Where(m => m.StageId == s.Id).Select(m => new RoundGameMatch
+                            {
+                                matchId = m.Id,
+                                teamMatches = m.TeamMatches.Select(tm => new RoundGameTeamMatch
+                                {
+                                    teamId = tm.TeamId,
+                                    teamMatchId = tm.MatchId,
+                                    teamName = tm.NameDefault
+
+                                }).ToList()
+                            }).ToList(),
+
+
+
+                        }
+                        ).ToList() 
+                    } ).ToList()
+
+
+                };
+              
+                res.setData("data", round_table);
 
             }
             catch

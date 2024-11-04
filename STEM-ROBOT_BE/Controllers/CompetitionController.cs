@@ -92,7 +92,7 @@ namespace STEM_ROBOT.Web.Controllers
             var res = await _competionSvc.UpdateCompetitionConfig(request);
             if (!res.Success)
             {
-                res.SetError("400", res.Message);
+                res.SetError("400", res.Message); 
 
 
             }
@@ -197,6 +197,16 @@ namespace STEM_ROBOT.Web.Controllers
         public async Task<IActionResult> ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = await _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpGet("data-to-assing/{competitionId}")]
+        public async Task<IActionResult> GetDataToAssign(int competitionId)
+        {
+            var res = await _competionSvc.GetDataToAssign(competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);

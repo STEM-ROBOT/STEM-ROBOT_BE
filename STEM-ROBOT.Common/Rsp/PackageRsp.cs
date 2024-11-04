@@ -13,5 +13,8 @@ namespace STEM_ROBOT.Common.Rsp
         public int? MaxTournament { get; set; }
 
         public decimal? Price { get; set; }
+
+        public int MaxTeam { get; set; }
+        public int MaxMatch { get; set; }
     }
 }

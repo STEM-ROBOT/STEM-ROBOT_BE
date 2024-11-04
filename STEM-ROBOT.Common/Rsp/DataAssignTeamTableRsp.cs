@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.BLL.Svc
 {
-    public class AssignTeamTableRsp
+    public class DataAssignTeamTableRsp
     {
-        public List<Teams> Teams { get; set; }
-        public List<Tables> Tables { get; set; }
+        public List<DataTeamRsp> Teams { get; set; }
+        public List<DataTableRsp> Tables { get; set; }
     }
 
-    public class Teams
+    public class DataTeamRsp
     {
         public int TeamId { get; set; }
         public string TeamName { get; set; }
     }
-    public class Tables
+    public class DataTableRsp
     {
         public int TableId { get; set; }
         public string TableName { get; set; }
-        public List<Teams> Teams { get; set; }
+        public List<DataTeamRsp> Teams { get; set; }
     }
 }

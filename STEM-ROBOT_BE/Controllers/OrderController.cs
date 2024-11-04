@@ -45,7 +45,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("success/{orderCode}")]
         public IActionResult Success()
         {
-            return Ok("Payment success");
+            return Redirect("https://www.facebook.com/");
         }
 
         [HttpGet("cancel/{orderCode}")]
@@ -55,7 +55,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Redirect("https://www.youtube.com/");
         }
 
-        [HttpGet("get-total-revenue")]
+        [HttpGet("total-revenue")]
         public IActionResult GetRevenue()
         {
             var res = _orderSvc.GetRevenue();
@@ -66,7 +66,7 @@ namespace STEM_ROBOT.Web.Controllers
             return StatusCode(500, res.Message);
         }
 
-        [HttpGet("get-revenue-by-time")]
+        [HttpGet("revenue-by-time")]
         public IActionResult GetrevenueByTime(DateTime? fromDate, DateTime? toDate)
         {
             var res = _orderSvc.GetRevenueByTime(fromDate, toDate);
@@ -76,5 +76,27 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
+
+        [HttpGet()]
+        public IActionResult GetOrder()
+        {
+            var res = _orderSvc.GetOrders();
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetOrderById(int id)
+        {
+            var res = _orderSvc.GetOrderById(id);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
+        
     }
 }

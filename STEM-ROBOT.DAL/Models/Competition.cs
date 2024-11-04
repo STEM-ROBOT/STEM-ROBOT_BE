@@ -73,6 +73,8 @@ public partial class Competition
 
     public bool? IsReferee { get; set; }
 
+    public bool? IsContestantTeam { get; set; }
+
     public virtual CompetitionFormat? Format { get; set; }
 
     public virtual Genre? Genre { get; set; }
