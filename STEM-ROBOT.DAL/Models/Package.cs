@@ -15,5 +15,7 @@ public partial class Package
 
     public int? MaxTeam { get; set; }
 
+    public int? MaxMatch { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

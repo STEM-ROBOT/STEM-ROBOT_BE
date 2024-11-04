@@ -81,9 +81,9 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/payments/cancel/{orderCode}", $"https://localhost:7283/api/payments/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/orders/cancel/{orderCode}", $"https://localhost:7283/api/order/success/{orderCode}");
 
- 
+
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
@@ -158,6 +158,35 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        public MutipleRsp GetOrders()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var orders = _orderRepo.All();
+                res.SetData("200", orders);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetOrderById(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var order = _orderRepo.GetById(id);
+                res.setData("200", order);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
 
     }
 }
