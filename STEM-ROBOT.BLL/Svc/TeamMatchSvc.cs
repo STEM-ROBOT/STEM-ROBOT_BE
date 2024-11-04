@@ -68,6 +68,37 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
+        public async  Task<SingleRsp>  UpdateTeamMatchConfig(List<TeamMatchConfigCompetition> request,int competitionId)
+        {
+            var res = new SingleRsp();
+            var competition = await _teamMatchRepo.getCompetition(competitionId);
+
+            if (request.Count < 1 && competition == false) 
+            {
+                res.SetError("Kiểu dữ liệu không đúng");
+                return res;
+            }
+            try
+            {
+               List<TeamMatch> teamMatches = new List<TeamMatch>();
+                foreach (var teamMatch in request)
+                {
+                    var team_match = new TeamMatch
+                    {
+                        Id = teamMatch.teamMatchId,
+                        TeamId = teamMatch.teamId,
+                        NameDefault = teamMatch.teamName,
+                    };
+                    teamMatches.Add(team_match);
+                }
+                _teamMatchRepo.UpdateRange(teamMatches);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
     }
 }
