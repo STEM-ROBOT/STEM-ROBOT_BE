@@ -136,6 +136,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+        //xem lịch trình thi đấu vong bang của nội dung
+        [HttpGet("match-group-stage-view")]
+        public async Task<IActionResult> MatchGroupStageCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchGroupStageCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
         [HttpPost]
         public async Task<IActionResult> AddCompetition(CompetitionReq request)
         {
