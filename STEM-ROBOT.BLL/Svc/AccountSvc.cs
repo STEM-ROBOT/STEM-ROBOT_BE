@@ -172,13 +172,11 @@ namespace STEM_ROBOT.BLL.Svc
                 var recentOrder = _orderRepo.All(o => o.AccountId == accountId && o.Status == "Success").OrderByDescending(o => o.OrderDate).FirstOrDefault();
                 if (recentOrder != null)
                 {
-                    // Lấy thông tin package dựa vào recentOrder.PackageId
                     var package = _packageRepo.GetById(recentOrder.PackageId);
 
                     if (package != null)
                     {
                         var packageRsp = _mapper.Map<PackageRsp>(package);
-                        // Đặt dữ liệu package vào response
                         res.setData("200", packageRsp);
                         return res;
                     }
