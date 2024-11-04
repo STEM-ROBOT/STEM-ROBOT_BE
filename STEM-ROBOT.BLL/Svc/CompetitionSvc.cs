@@ -538,33 +538,38 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> matchGroupStageCompetition(int competitionId)
         {
             var res = new SingleRsp();
-            var stage = await _stageRepo.GetAllStagesCompetition(competitionId);
+            var group = await _stageRepo.GetAllGroupStageCompetition(competitionId);
             try
             {
-                var matchSchedule = stage.Select(s => new MatchScheduleCompetition
+                var matchGroup = group.Select(tb => new MatchGroupStageCompetition
                 {
-                    round = s.Name,
-                    matches = s.Matches.Select(m => new MatchRoundViewRsp
+                    groupName=tb.Name,
+                    round= tb.StageTables.Select(st =>  new MatchGroupStageRound
                     {
-                        matchId = m.Id,
-                        //team tham gia
+                        roundNumber = st.Stage.Name,
+                        matches = st.Stage.Matches.Where(m=> m.TableGroupId == tb.Id).Select(m => new MatchRoundViewRsp
+                        {
+                            matchId = m.Id,
+                            //team tham gia
 
-                        homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
-                        awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
-                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
-                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
-                        //ti so tran dau
-                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
-                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
-                        //thoi gian, dia diem   
-                        //thoi gian, dia diem   
-                        startTime = m.StartDate,
-                        locationName = m.LocationId == null ? "" : m.Location.Address,
-                    }).ToList()
-
+                            homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
+                            awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
+                            homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
+                            awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                            //ti so tran dau
+                            homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
+                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                            //thoi gian, dia diem   
+                            //thoi gian, dia diem   
+                            startTime = m.StartDate,
+                            locationName = m.LocationId == null ? "" : m.Location.Address,
+                        }).ToList()
+                    }).ToList(),
+                   
+                   
                 }).ToList();
 
-                res.setData("data", matchSchedule);
+                res.setData("data", matchGroup);
                 return res;
             }
             catch (Exception ex)
