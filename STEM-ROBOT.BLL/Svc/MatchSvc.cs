@@ -141,7 +141,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var competition = await _matchRepo.GetRoundGameAsync(competitionId);
                 if (competition == null) throw new Exception("No data");
 
-                if (isFormatTable)
+                if (competition.FormatId == 2)
                 {
                     var roundParent = new roundTableParentConfig
                     {
@@ -178,7 +178,7 @@ namespace STEM_ROBOT.BLL.Svc
                     };
                     res.setData("data", roundParent);
                 }
-                else
+                else if(competition.FormatId == 1)
                 {
                     var roundKnocOutParentConfig = new roundKnocOutParentConfig
                     {

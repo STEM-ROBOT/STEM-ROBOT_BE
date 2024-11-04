@@ -138,6 +138,13 @@ namespace STEM_ROBOT.Common.Rsp
         public bool? isActive { get; set; }
     }
 
+    //model reponse view "vonfdaubang"
+    public class MatchGroupStageCompetition
+    {
+        public string? groupName { get; set; }
+        public ICollection<MatchRoundViewRsp> matches { get; set; } = new List<MatchRoundViewRsp>();
+    }
+
     //model reponse view "lichthidau"
     public class MatchScheduleCompetition
     {

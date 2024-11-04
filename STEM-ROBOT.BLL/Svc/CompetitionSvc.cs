@@ -391,9 +391,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var stage = new Stage
                 {
                     CompetitionId = competitionId,
-                    Name = roundName,
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddHours(2),
+                    Name = roundName,                 
                     Status = "Vòng phụ"
                 };
                 _stageRepo.Add(stage);
@@ -412,10 +410,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        StartDate = DateTime.Now,
                         Status = "Đấu phụ",
-                        TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero,
                         MatchCode = randomCodes.ToString()
                     };
 
@@ -457,8 +452,6 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     CompetitionId = competitionId,
                     Name = roundName,
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddDays(1),
                     StageCheck = "Vòng chính",
                     StageMode = "Knockout"
                 };
@@ -478,10 +471,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var match = new Match
                     {
                         StageId = stage.Id,
-                        StartDate = DateTime.Now,
                         Status = "Loại trực tiếp",
-                        TimeIn = TimeSpan.Zero,
-                        TimeOut = TimeSpan.Zero,
                         MatchCode = matchCode.ToString()
                     };
                     _matchRepo.Add(match);
@@ -506,7 +496,7 @@ namespace STEM_ROBOT.BLL.Svc
             return true;
         }
 
-        //danh sach tran dau cua competition
+        //danh sach tran dau vòng loạicua competition
         public async Task<SingleRsp> matchScheduleCompetition(int competitionId)
         {
             var res = new SingleRsp();
@@ -544,7 +534,44 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception(ex.Message);
             }
         }
+        //danh sach tran dau vòng bảng cua competition
+        public async Task<SingleRsp> matchGroupStageCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            var stage = await _stageRepo.GetAllStagesCompetition(competitionId);
+            try
+            {
+                var matchSchedule = stage.Select(s => new MatchScheduleCompetition
+                {
+                    round = s.Name,
+                    matches = s.Matches.Select(m => new MatchRoundViewRsp
+                    {
+                        matchId = m.Id,
+                        //team tham gia
 
+                        homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
+                        awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
+                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
+                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                        //ti so tran dau
+                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
+                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                        //thoi gian, dia diem   
+                        //thoi gian, dia diem   
+                        startTime = m.StartDate,
+                        locationName = m.LocationId == null ? "" : m.Location.Address,
+                    }).ToList()
+
+                }).ToList();
+
+                res.setData("data", matchSchedule);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
