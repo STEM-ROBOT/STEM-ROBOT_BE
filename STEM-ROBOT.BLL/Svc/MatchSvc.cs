@@ -304,7 +304,7 @@ namespace STEM_ROBOT.BLL.Svc
                                 teamMatches = m.TeamMatches.Select(tm => new RoundGameTeamMatch
                                 {
                                     teamId = tm.TeamId,
-                                    teamMatchId = tm.MatchId,
+                                    teamMatchId = tm.Id,
                                     teamName = tm.NameDefault
 
                                 }).ToList()
