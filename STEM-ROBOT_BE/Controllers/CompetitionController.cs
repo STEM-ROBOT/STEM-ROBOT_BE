@@ -140,7 +140,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("match-group-stage-view")]
         public async Task<IActionResult> MatchGroupStageCompetition(int competitionId)
         {
-            var res = await _competionSvc.matchScheduleCompetition(competitionId);
+            var res = await _competionSvc.matchGroupStageCompetition(competitionId);
             if (!res.Success)
             {
                 throw new Exception("Please check input");

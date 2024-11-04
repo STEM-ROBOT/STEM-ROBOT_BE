@@ -142,9 +142,14 @@ namespace STEM_ROBOT.Common.Rsp
     public class MatchGroupStageCompetition
     {
         public string? groupName { get; set; }
-        public ICollection<MatchRoundViewRsp> matches { get; set; } = new List<MatchRoundViewRsp>();
+        public ICollection<MatchGroupStageRound> round { get; set; } = new List<MatchGroupStageRound>();
     }
+    public class MatchGroupStageRound
+    {
+        public string? roundNumber { get; set; }
+        public ICollection<MatchRoundViewRsp> matches { get; set; } = new List<MatchRoundViewRsp>();
 
+    }
     //model reponse view "lichthidau"
     public class MatchScheduleCompetition
     {

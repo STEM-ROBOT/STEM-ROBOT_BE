@@ -146,7 +146,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var roundParent = new roundTableParentConfig
                     {
                         isMatch = (bool)competition.IsMacth,
-
+                        startTime=competition.StartTime,
                         group = new GroupRound
                         {
                             rounds = competition.Stages.Where(st => st.StageMode == "Vòng bảng").Select(s => new RoundGroupGame
@@ -182,6 +182,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var roundKnocOutParentConfig = new roundKnocOutParentConfig
                     {
+                        startTime = competition.StartTime,
                         isMatch = (bool)competition.IsMacth,
                         knockout = await getListRoundKnocOut(competition) ,
                         locations= competition.Locations.Select(l=> new locationCompetitionConfig
