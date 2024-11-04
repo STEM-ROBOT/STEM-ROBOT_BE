@@ -72,6 +72,7 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -565,6 +566,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Tournament");
 
+            entity.Property(e => e.CreateDate).HasColumnType("date");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
