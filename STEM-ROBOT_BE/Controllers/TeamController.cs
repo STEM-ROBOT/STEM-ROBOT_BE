@@ -91,5 +91,20 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+        [HttpPost("contestant-to-team/{teamId}")]
+        public IActionResult AddContestantToTeam(int teamId, [FromBody] List<ContestantTeamReq> req)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var res = _teamSvc.AddContestant(teamId, req);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
     }
 }

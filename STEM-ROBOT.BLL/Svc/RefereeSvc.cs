@@ -124,6 +124,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     refereeList.Add(referee);
                     _refereeRepo.Add(referee);
+
                     for (int i = 0; i < 10; i++)
                     {
                         string email;

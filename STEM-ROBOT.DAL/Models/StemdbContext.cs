@@ -136,6 +136,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.IsContestantTeam).HasColumnName("isContestantTeam");
             entity.Property(e => e.IsFormat)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isFormat");
@@ -265,7 +266,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Location");
 
             entity.Property(e => e.Address).HasMaxLength(250);
-            entity.Property(e => e.ContactPerson).HasMaxLength(250);
+            entity.Property(e => e.ContactPerson).HasMaxLength(500);
             entity.Property(e => e.Status).HasMaxLength(250);
 
             entity.HasOne(d => d.Competition).WithMany(p => p.Locations)
@@ -503,9 +504,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.ContactInfo).HasMaxLength(250);
             entity.Property(e => e.Image).HasColumnType("ntext");
-            entity.Property(e => e.IsSetup)
-                .HasDefaultValueSql("((0))")
-                .HasColumnName("isSetup");
+            entity.Property(e => e.IsSetup).HasColumnName("isSetup");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)

@@ -58,6 +58,18 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
+        [HttpGet("available/tournamentId")]
+        public IActionResult GetListAvailableContestantInTournamentId(int tournamentId)
+        {
+            var res = _contestantSvc.GetListAvailableContestantByTournament(tournamentId);
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res);
+
+        }
+
         [HttpGet("tournamentId")]
         public IActionResult GetListContestantInTournamentId(int tournamentId)
         {
@@ -69,6 +81,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
+
         [HttpGet("id")]
         public async Task<IActionResult> GetIdContestant(int id)
         {
