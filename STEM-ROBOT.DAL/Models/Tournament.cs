@@ -21,6 +21,8 @@ public partial class Tournament
 
     public string? Phone { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();
