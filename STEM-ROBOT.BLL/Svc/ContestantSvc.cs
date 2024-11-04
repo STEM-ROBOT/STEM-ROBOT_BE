@@ -19,13 +19,19 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly IMapper _mapper;
         private readonly ContestantRepo _contestantRepo;
         private readonly TournamentRepo _tournamentRepo;
+        private readonly ContestantTeamRepo _contestantTeamRepo;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor)
+        private readonly TeamRepo _teamRepo;
+        private readonly CompetitionRepo _competitionRepo;
+        public ContestantSvc(ContestantRepo contestantRepo, IMapper mapper, TournamentRepo tournamentRepo, IHttpContextAccessor httpContextAccessor, ContestantTeamRepo contestantTeamRepo, TeamRepo teamRepo, CompetitionRepo competitionRepo)
         {
+            _competitionRepo = competitionRepo;
             _tournamentRepo = tournamentRepo;
             _contestantRepo = contestantRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _contestantTeamRepo = contestantTeamRepo;
+            _teamRepo = teamRepo;
         }
         public async Task<MutipleRsp> AddContestant(IFormFile file)
         {
@@ -86,11 +92,17 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
 
-        public MutipleRsp AddListContestant(List<ContestantReq> contestants, int accountId, int tournamentId)
+        public MutipleRsp AddListContestantInTournament(List<ContestantReq> contestants, int accountId, int tournamentId)
         {
             var res = new MutipleRsp();
             try
             {
+                var tournament = _tournamentRepo.GetById(tournamentId);
+                if (tournament == null)
+                {
+                    res.SetError("404", "Tournament not found");
+                    return res;
+                }
                 var contestantList = new List<Contestant>();
 
                 foreach (var item in contestants)
@@ -105,7 +117,7 @@ namespace STEM_ROBOT.BLL.Svc
                         Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
                         Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
                         Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
-
+                        StartTime = tournament.CreateDate,
 
                     };
 
@@ -172,7 +184,6 @@ namespace STEM_ROBOT.BLL.Svc
                             Gender = contestant.Gender,
                             Phone = contestant.Phone,
                             Image = contestant.Image,
-                            
                         });
                     }
                 }
@@ -204,20 +215,20 @@ namespace STEM_ROBOT.BLL.Svc
                 var lstContestant = new List<ContestantInTournament>();
                 foreach (var contestant in contestants)
                 {
-                    
-                        lstContestant.Add(new ContestantInTournament
-                        {
-                            Id = contestant.Id,
-                            Name = contestant.Name,
-                            Email = contestant.Email,
-                            AccountId = contestant.AccountId,
-                            TournamentId = contestant.TournamentId,
-                            Gender = contestant.Gender,
-                            Phone = contestant.Phone,
-                            Image = contestant.Image,
 
-                        });
-                    
+                    lstContestant.Add(new ContestantInTournament
+                    {
+                        Id = contestant.Id,
+                        Name = contestant.Name,
+                        Email = contestant.Email,
+                        AccountId = contestant.AccountId,
+                        TournamentId = contestant.TournamentId,
+                        Gender = contestant.Gender,
+                        Phone = contestant.Phone,
+                        Image = contestant.Image,
+
+                    });
+
                 }
 
                 res.SetData("data", lstContestant);
@@ -238,7 +249,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<Contestant>(contestant);
-                    res.setData("200", mapper);
+                    res.setData("data", mapper);
                 }
             }
             catch (Exception ex)
@@ -257,7 +268,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(contestantReq, contestant);
                     _contestantRepo.Update(contestant);
-                    res.setData("200", contestant);
+                    res.setData("data", contestant);
                 }
             }
             catch (Exception ex)
@@ -275,7 +286,42 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     _contestantRepo.Delete(contestant.Id);
-                    res.setData("200", contestant);
+                    res.setData("data", contestant);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public MutipleRsp AddContestantTeam(int teamId, List<ContestantTeamReq> request)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var team = _teamRepo.GetById(teamId);
+                var competition = _competitionRepo.Find(x => x.Id == team.CompetitionId).FirstOrDefault();
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found");
+                }
+                if (team == null)
+                {
+                    res.SetError("404", "Team not found");
+                }
+                else
+                {
+                    foreach (var item in request)
+                    {
+                        var contestant = _contestantRepo.GetById(item.ContestantId);
+                        contestant.EndTime = competition.EndTime;
+                        _contestantRepo.Update(contestant);
+                        var contestantTeam = _mapper.Map<ContestantTeam>(item);
+                        contestantTeam.TeamId = teamId;
+                        _contestantTeamRepo.Add(contestantTeam);
+                    }
+                    res.SetMessage("Add successfully");
                 }
             }
             catch (Exception ex)
