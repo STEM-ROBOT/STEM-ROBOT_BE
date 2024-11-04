@@ -131,25 +131,27 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp GetRevenueByTime(DateTime? fromDate, DateTime? toDate)
+        public SingleRsp GetRevenueByTime()
         {
             var res = new SingleRsp();
             try
             {
                 var query = _paymentRepo.All(p => p.Status == "Success");
 
-                if (fromDate.HasValue)
-                {
-                    query = query.Where(p => p.PurchaseDate >= fromDate.Value);
-                }
+                var monthlyRevenue = query
+                    .GroupBy(p => new { p.PurchaseDate.Value.Year, p.PurchaseDate.Value.Month })
+                    .Select(g => new
+                    {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Revenue = g.Sum(p => p.Amount)
+                    })
+                    .OrderBy(result => result.Year)
+                    .ThenBy(result => result.Month)
+                    .ToList();
 
-                if (toDate.HasValue)
-                {
-                    query = query.Where(p => p.PurchaseDate <= toDate.Value);
-                }
-
-                var totalRevenue = query.Sum(p => p.Amount);
-                res.setData("200", totalRevenue);
+                // Đưa dữ liệu vào kết quả trả về
+                res.setData("200", monthlyRevenue);
             }
             catch (Exception ex)
             {
@@ -157,6 +159,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
 
         public MutipleRsp GetOrders()
         {

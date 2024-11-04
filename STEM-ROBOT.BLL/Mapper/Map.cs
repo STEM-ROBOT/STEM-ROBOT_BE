@@ -161,6 +161,9 @@ namespace STEM_ROBOT.BLL.Mapper
 
             //contestantteam
             CreateMap<ContestantTeam, ContestantTeamReq>().ReverseMap();
+
+            //payment
+            CreateMap<Payment, PaymentRsp>().ReverseMap();
         }
     }
 }

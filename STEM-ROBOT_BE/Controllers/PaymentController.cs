@@ -14,15 +14,15 @@ namespace STEM_ROBOT.Web.Controllers
             _paymentSvc = paymentSvc;
         }
 
-        [HttpGet("{orderId}")]
-        public IActionResult GetPaymentByOrderId(int orderId)
+        [HttpGet("{orderCode}")]
+        public IActionResult GetPaymentByOrderId(int orderCode)
         {
-            var res = _paymentSvc.GetPaymentByOrder(orderId);
-            if (res.Success)
+            var res = _paymentSvc.GetPaymentByOrder(orderCode);
+            if (!res.Success)
             {
-                return Ok(res.Data);
+                return StatusCode(500, res.Message);
             }
-            return StatusCode(500, res.Message);
+            return Ok(res.Data);
         }
     }
 }
