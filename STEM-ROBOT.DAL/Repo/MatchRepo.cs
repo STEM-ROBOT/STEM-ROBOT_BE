@@ -5,11 +5,12 @@ using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using Table = STEM_ROBOT.Common.Rsp.Table;
+
 
 namespace STEM_ROBOT.DAL.Repo
 {
@@ -20,86 +21,72 @@ namespace STEM_ROBOT.DAL.Repo
         }
 
 
-        public async Task<roundParent> GetRoundGameAsync(int competitionID)
+        public async Task<Competition> GetRoundGameAsync(int competitionId)
         {
             // First fetch the relevant stages for the given competitionID
-            var stages = await _context.Competitions
-                .Where(x => x.Id == competitionID)
-                .SelectMany(comp => comp.Stages)
-                .ToListAsync();
 
-            // Process each stage to build the RoundParent object
-            var roundParent = stages.Select(async comp => new roundParent
-            {
-                IsAsign = comp.StageTables.FirstOrDefault()?.TableGroup.IsAsign ?? false, // Use null conditional operator
-                groups = await GetListRoundAsync(comp.Id) // Await asynchronously outside of LINQ
-            }).FirstOrDefault();
+            var competition = await _context.Competitions
+               .Where(s => s.Id == competitionId)
+               .Include(l=> l.Locations)
+               .Include(tb => tb.TableGroups)
+               .ThenInclude(tt => tt.TeamTables)
+               .ThenInclude(t => t.Team)
+               .Include(st => st.Stages)
+               .ThenInclude(s => s.StageTables)
+               .ThenInclude(tb => tb.TableGroup)
+               .ThenInclude(m => m.Matches)
+               .ThenInclude(tm => tm.TeamMatches)
+               .Include(st => st.Stages)
+               .ThenInclude(m => m.Matches)
+               .ThenInclude(tm => tm.TeamMatches)
+               .FirstOrDefaultAsync();
 
-            // Await the task and return the result
-            return roundParent != null ? await roundParent : null;
+            //var roundParent = stages.Select(async comp => new roundParent
+            //{
+            //    IsAsign = comp.StageTables.FirstOrDefault()?.TableGroup.IsAsign ?? false, // Use null conditional operator
+            //    groups = await GetListRoundAsync(comp.Id) // Await asynchronously outside of LINQ
+            //}).FirstOrDefault();
+
+
+            return competition != null ?  competition : null;
         }
 
         // Get groups
-        private async Task<List<RoundGame>> GetListRoundAsync(int stageID)
-        {
-            var stage = await _context.Stages
-                .Where(x => x.Id == stageID)
-                .Include(x => x.StageTables)
-                    .ThenInclude(x => x.TableGroup)
-                .FirstOrDefaultAsync();
-
-            var listRound = new List<RoundGame>();
-            if (stage?.StageTables != null)
-            {
-                foreach (var stageTable in stage.StageTables)
-                {
-                    var roundGame = new RoundGame
-                    {
-                        Id = stage.Id,
-                        Name = stage.Name,
-                        Status = stage.Status,
-                        matchrounds = await getTabel(stageTable.TableGroup.Id) // Adjusted to use async
-                    };
-                    listRound.Add(roundGame);
-                }
-            }
-
-            return listRound;
-        }
+   
 
         // Get table
-        private async Task<List<Table>> getTabel(int stageID)
-        {
-            var list = await _context.Stages.Where(x => x.Id == stageID).Include(x => x.Matches).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
-            var listTabel = new List<Table>();
-            foreach (var table in list.Matches)
-            {
-                var tables = new Table
-                {
-                    Id = table.Id,
-                    tableName = list.Name,
-                    matches = list.Matches
-                    .Select(x => new
-                    {
+        //private async Task<List<Table>> getTabel(int stageID)
+        //{
+        //    var list = await _context.Stages.Where(x => x.Id == stageID).Include(x => x.Matches).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
+        //    var listTabel = new List<Table>();
+        //    foreach (var table in list.Matches)
+        //    {
+        //        var tables = new Table
+        //        {
+        //            Id = table.Id,
+        //            tableName = list.Name,
+        //            matches = list.Matches
+        //            .Select(x => new
+        //            {
 
-                        teams = x.TeamMatches.ToList(),
-                    }).Select(x => new TeamMatchRound
-                    {
-                        Id = table.Id,
-                        IdMatch = x.teams.FirstOrDefault().MatchId,
-                        TeamNameA = x.teams[0].NameDefault,
-                        TeamNameB = x.teams[1].NameDefault,
-                        date = table.StartDate,
-                        time = table.TimeIn,
+        //                teams = x.TeamMatches.ToList(),
+        //            }).Select(x => new TeamMatchRound
+        //            {
+        //                Id = table.Id,
+        //                IdMatch = x.teams.FirstOrDefault().MatchId,
+        //                TeamNameA = x.teams[0].NameDefault,
+        //                TeamNameB = x.teams[1].NameDefault,
+        //                date = table.StartDate,
+        //                time = table.TimeIn,
 
-                    }).ToList()
+        //            }).ToList()
 
 
-                };
-                listTabel.Add(tables);
-            }
-            return listTabel;
-        }
+        //        };
+        //        listTabel.Add(tables);
+        //    }
+        //    return listTabel;
+        //}
 
         // public async Task<IEnumerable<roundParent>> getKnockOut(int competitionID)
         // {

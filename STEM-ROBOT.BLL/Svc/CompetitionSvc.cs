@@ -254,26 +254,28 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //update competitionformatconfig
-        public async Task<SingleRsp> UpdateCompetitionConfig(CompetitionConfigReq request)
+        public async Task<SingleRsp> UpdateCompetitionConfig(int competitionId,CompetitionConfigFormatReq request)
         {
             var res = new SingleRsp();
             try
             {
 
-                var competition_data = _competitionRepo.GetById(request.Id);
+                var competition_data = _competitionRepo.GetById(competitionId);
 
                 if (competition_data == null)
                 {
                     res.SetError("No ID");
                 }
                 competition_data.FormatId = request.FormatId;
+                competition_data.IsFormat = true;
+                competition_data.NumberTeam= request.NumberTeam;
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
                 {
                     int teamCount = (int)request.NumberTeam;
 
-                    var create_team = await TeamsSetup(teamCount, request.Id);
+                    var create_team = await TeamsSetup(teamCount, competitionId);
 
                     if (create_team == true)
                     {
@@ -283,7 +285,7 @@ namespace STEM_ROBOT.BLL.Svc
                             TeamMatch team = new TeamMatch();
                             winningTeamsFromExtraRound.Add(team);
                         }
-                        var checkBool = await StateSetup(teamCount, request.Id, winningTeamsFromExtraRound);
+                        var checkBool = await StateSetup(teamCount, competitionId, winningTeamsFromExtraRound);
 
                         if (checkBool == false)
                         {
@@ -305,6 +307,41 @@ namespace STEM_ROBOT.BLL.Svc
             }
 
         }
+        public SingleRsp UpdateCompetitionFormatTable(int competitionId, CompetitionConfigFormatReq request)
+
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
+                competition.IsFormat = true;
+                if (competition == null)
+                {
+                    res.SetError("Competition not found with the provided ID.");
+                    return res;
+                }
+                var competitionFormat = _mapper.Map(request, competition);
+                _competitionRepo.Update(competitionFormat);
+
+                if (competitionFormat.FormatId == 2)
+                {
+
+                    // Create teams
+                    CreateTeams(competitionId, (int)request.NumberTeam);
+
+                    // Create tables
+                    CreateTables((int)request.NumberTable, competitionId);
+                }
+
+                res.setData("200", "Success");
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
         private async Task<bool> TeamsSetup(int number, int competitionId)
         {
             if (number <= 0)
@@ -512,7 +549,6 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
-
             try
             {
                 // Validate that table assignments are provided
@@ -664,39 +700,7 @@ namespace STEM_ROBOT.BLL.Svc
             return winningTeamsFromExtraRound;
         }
 
-        public SingleRsp UpdateCompetitionFormatTable(int competitionId, CompetitionFormatTableReq request)
 
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
-                if (competition == null)
-                {
-                    res.SetError("Competition not found with the provided ID.");
-                    return res;
-                }
-                var competitionFormat = _mapper.Map(request, competition);
-                _competitionRepo.Update(competitionFormat);
-
-                if (competitionFormat.FormatId == 2)
-                {
-
-                    // Create teams
-                    CreateTeams(competitionId, request.NumberTeam);
-
-                    // Create tables
-                    CreateTables(request.NumberTable, competitionId);
-                }
-
-                res.setData("200", "Success");
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
 
         // Hàm tính toán số lượng trận đấu cần có trong giải đấu
         public SingleRsp CalculateTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)
