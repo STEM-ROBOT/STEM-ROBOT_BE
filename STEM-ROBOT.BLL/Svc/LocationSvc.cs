@@ -15,11 +15,12 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly LocationRepo _locationRepo;
         private readonly IMapper _mapper;
-
-        public LocationSvc(LocationRepo locationRepo, IMapper mapper)
+        private readonly CompetitionRepo _competitionRepo;
+        public LocationSvc(LocationRepo locationRepo, IMapper mapper, CompetitionRepo competitionRepo)
         {
             _locationRepo = locationRepo;
             _mapper = mapper;
+            _competitionRepo = competitionRepo;
         }
 
         public MutipleRsp GetLocations()
@@ -135,6 +136,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "No competition found");
+                }
                 var lstLocation = _locationRepo.All().Where(l => l.CompetitionId == competitionId).ToList();
                 if (lstLocation != null)
                 {
@@ -167,6 +173,28 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("404", "No data found");
                 }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp AddListLocation(List<LocationReq> locations, int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var locationList = new List<Location>();
+                foreach (var location in locations)
+                {
+                    var locationMapp = _mapper.Map<Location>(location);
+                    locationMapp.CompetitionId = competitionId;
+                    locationList.Add(locationMapp);
+                    _locationRepo.Add(locationMapp);
+                }
+                res.SetData("data", locationList);
             }
             catch (Exception ex)
             {

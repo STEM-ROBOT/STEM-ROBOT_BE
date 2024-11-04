@@ -16,12 +16,13 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRepo _teamRepo;
         private readonly IMapper _mapper;
         private readonly CompetitionRepo _competitionRepo;
-
-        public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo)
+        private readonly ContestantTeamRepo _contestantTeamRepo;
+        public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo)
         {
             _teamRepo = teamRepo;
             _mapper = mapper;
             _competitionRepo = competitionRepo;
+            _contestantTeamRepo = contestantTeamRepo;
         }
 
         public MutipleRsp GetTeams()
@@ -153,5 +154,32 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        public MutipleRsp AddContestant(int teamId, List<ContestantTeamReq> request)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var team = _teamRepo.GetById(teamId);
+                if (team == null)
+                {
+                    res.SetError("404", "Team not found");
+                }
+                else
+                {
+                    foreach (var item in request)
+                    {
+                        var contestantTeam = _mapper.Map<ContestantTeam>(item);
+                        contestantTeam.TeamId = teamId;
+                        _contestantTeamRepo.Add(contestantTeam);
+                    }
+                    res.SetMessage("Add successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }

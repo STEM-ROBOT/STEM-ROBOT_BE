@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
-    public class LocationReq
+    public class ContestantTeamReq
     {
-        public string Address { get; set; }
+        public int? ContestantId { get; set; }
 
     }
 }

@@ -158,6 +158,9 @@ namespace STEM_ROBOT.BLL.Mapper
             //genre
             CreateMap<Genre, GenreReq>().ReverseMap();
             CreateMap<Genre, GenreRsp>().ReverseMap();
+
+            //contestantteam
+            CreateMap<ContestantTeam, ContestantTeamReq>().ReverseMap();
         }
     }
 }
