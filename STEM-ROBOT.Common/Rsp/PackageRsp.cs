@@ -8,6 +8,7 @@ namespace STEM_ROBOT.Common.Rsp
 {
     public class PackageRsp
     {
+        public int Id { get; set; }
         public string? Name { get; set; }
 
         public int? MaxTournament { get; set; }
