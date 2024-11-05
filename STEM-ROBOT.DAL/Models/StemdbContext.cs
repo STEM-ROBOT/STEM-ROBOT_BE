@@ -72,7 +72,6 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -166,8 +165,6 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.RegulationScore).HasColumnType("ntext");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(250);
-            entity.Property(e => e.TimeEndPlay).HasColumnType("datetime");
-            entity.Property(e => e.TimeStartPlay).HasColumnType("datetime");
 
             entity.HasOne(d => d.Format).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.FormatId)

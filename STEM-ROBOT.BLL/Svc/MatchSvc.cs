@@ -20,9 +20,10 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamTableRepo _teamTableRepo;
         private readonly TableGroupRepo _tableGroupRepo;
         private readonly TeamRepo _teamRepo;
+        private readonly CompetitionRepo _competition;
         private readonly StageRepo _stageRepo;
         private readonly StageSvc _stageSvc;
-        public MatchSvc(MatchRepo repo, IMapper mapper, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc)
+        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -31,6 +32,7 @@ namespace STEM_ROBOT.BLL.Svc
             _teamRepo = teamRepo;
             _stageRepo = stageRepo;
             _stageSvc = stageSvc;
+            _competition = competition;
         }
        
         public MutipleRsp GetListMatch()
@@ -326,6 +328,40 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception("Fail");
             }
+            return res;
+        }
+
+        public async Task<SingleRsp> conFigTimeMtch(int competitionId , MatchConfigReq reqs)
+        {
+             var res = new SingleRsp();
+            var competition_data = _competition.GetById(competitionId);
+            if(competition_data == null ) {
+                res.SetError("400");
+                res.SetMessage("Nội dung thi đấu không tồn tại");
+            }
+            List<Match> matches = new List<Match>();
+            DateTime endTime = DateTime.Now;    
+            foreach( var match in reqs.matchs)
+            {
+                var matchUd = new Match
+                {
+                    Id= (int)match.id,
+                    LocationId= (int)match.locationId,  
+                    StartDate= match.startDate,
+                    TimeIn = match.TimeIn,
+                    TimeOut = match.TimeOut,    
+
+                };
+                matches.Add(matchUd);
+                endTime = (DateTime)match.startDate;
+            }
+            competition_data.EndTime= endTime;  
+            competition_data.IsMacth = true;    
+            competition_data.TimeBreak= reqs.TimeBreak;
+            //competition_data.TimeEndPlay = reqs.TimeEndPlay;
+            //   competition_data.TimeStartPlay=reqs.TimeStartPlay;
+            _matchRepo.UpdateRange(matches);
+
             return res;
         }
     }
