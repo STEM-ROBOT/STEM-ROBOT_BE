@@ -88,7 +88,7 @@ namespace STEM_ROBOT.BLL.Svc
                         Id = teamMatch.teamMatchId,
                         TeamId = teamMatch.teamId,
                         NameDefault = teamMatch.teamName,
-                        MatchId= teamMatch.teamMatchId, 
+                        MatchId= teamMatch.matchId, 
                     };
                     teamMatches.Add(team_match);
                 }
