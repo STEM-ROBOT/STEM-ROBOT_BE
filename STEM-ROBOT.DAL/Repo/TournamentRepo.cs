@@ -78,5 +78,9 @@ namespace STEM_ROBOT.DAL.Repo
             return listTournamentModerator;
         }
 
+        public async Task<int> CountTournament()
+        {
+            return await _context.Tournaments.CountAsync(x=> x.Status == "Public");
+        }
     }
 }
