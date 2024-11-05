@@ -214,6 +214,7 @@ namespace STEM_ROBOT.BLL.Svc
             var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
+
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,
@@ -289,6 +290,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (list == null) throw new Exception("No data");
                 RoundParentTable round_table = new RoundParentTable
                 {
+                    isTeamMatch = list.IsTeamMacth,
                     tableGroup = list.TableGroups.Select(tg => new tableGroup
                     {
                         team_tableId = tg.Id,
@@ -340,7 +342,7 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> conFigTimeMtch(int competitionId, MatchConfigReq reqs)
         {
             var res = new SingleRsp();
-            var competition_data = _competition.GetById(competitionId);
+            var competition_data = await _competition.getCompetitionMatchUpdate(competitionId);
             if (competition_data == null)
             {
                 res.SetError("400");
@@ -350,15 +352,15 @@ namespace STEM_ROBOT.BLL.Svc
             DateTime endTime = DateTime.Now;
             foreach (var match in reqs.matchs)
             {
-                var matchUd = new Match
-                {
-                    Id = (int)match.id,
-                    LocationId = (int)match.locationId,
-                    StartDate = match.startDate,
-                    TimeIn = match.TimeIn,
-                    TimeOut = match.TimeOut,
+                var matchUd = competition_data.Stages.Select(s => s.Matches.Where(m => m.Id == match.id).FirstOrDefault()).FirstOrDefault();
 
-                };
+                matchUd.Id = (int)match.id;
+                matchUd.LocationId = (int)match.locationId;
+                matchUd.StartDate = match.startDate;
+                matchUd.TimeIn = match.TimeIn;
+                matchUd.TimeOut = match.TimeOut;
+
+
                 matches.Add(matchUd);
                 endTime = (DateTime)match.startDate;
             }
