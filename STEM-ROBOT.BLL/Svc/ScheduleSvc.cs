@@ -15,11 +15,15 @@ namespace STEM_ROBOT.BLL.Svc
     public class ScheduleSvc
     {
         private readonly ScheduleRepo _scheduleRepo;
+        private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
+
+  
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
         {
             _scheduleRepo = scheduleRepo;
+            _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
         }
@@ -200,5 +204,55 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public async Task<SingleRsp> ScheduleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                if (schedule == null)
+                {
+                    res.SetError("404", "Schedule not found");
+                }
+                else
+                {
+                    var data = new ScheduleConfigRsp
+                    {
+                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        {
+                            Id = cr.Id,
+                            Name = cr.Referee.Name,
+                        }).ToList(),
+
+                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                        {
+                            Id = cs.Id,
+                            Name = cs.Referee.Name,
+                        }).ToList(),
+
+                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        {
+                            RoundId = s.Id,
+                            roundName = s.Name,
+                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                            {
+                                matchId = m.Id,
+                                timeIn = (TimeSpan)m.TimeIn,
+                                date = (DateTime)m.StartDate,
+                                arena = m.Location.Address,
+                            }).ToList(),
+                        }).ToList(),
+                    };
+                    res.setData("data", schedule);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
     }
 }

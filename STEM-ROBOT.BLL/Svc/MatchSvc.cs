@@ -348,26 +348,26 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("400");
                 res.SetMessage("Nội dung thi đấu không tồn tại");
             }
+           var Stag = competition_data.Stages.Select(s => new Stage()).ToList();
+            var matchList = Stag.Select(m=> new Match()).ToList();
             List<Match> matches = new List<Match>();
+
             DateTime endTime = DateTime.Now;
             foreach (var match in reqs.matchs)
             {
-                var matchUd = competition_data.Stages.Select(s => s.Matches.Where(m => m.Id == match.id).FirstOrDefault()).FirstOrDefault();
-
+                var matchUd = matchList.Where(m => m.Id == match.id).FirstOrDefault();
                 matchUd.Id = (int)match.id;
                 matchUd.LocationId = (int)match.locationId;
                 matchUd.StartDate = match.startDate;
                 matchUd.TimeIn = match.TimeIn;
                 matchUd.TimeOut = match.TimeOut;
-
-
                 matches.Add(matchUd);
                 endTime = (DateTime)match.startDate;
             }
             competition_data.EndTime = endTime;
             competition_data.IsMacth = true;
             competition_data.TimeBreak = reqs.TimeBreak;
-            competition_data.TimeOfMatch= reqs.TimeOfMatch;
+            competition_data.TimeOfMatch = reqs.TimeOfMatch;
             competition_data.TimeEndPlay = reqs.TimeEndPlay;
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
             _competition.Update(competition_data);
