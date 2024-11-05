@@ -66,8 +66,8 @@ namespace STEM_ROBOT.BLL.Svc
         new Claim(JwtRegisteredClaimNames.Sub, user.Email),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim("Email", user.Email),
-        new Claim("SchoolName", school.SchoolName),
-        new Claim("Image", user.Image),
+        new Claim("SchoolName", school?.SchoolName),
+        new Claim("Image", user?.Image),
         new Claim(ClaimTypes.Role, user.Role.ToString())
     };
 
