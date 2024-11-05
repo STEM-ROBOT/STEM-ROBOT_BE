@@ -125,8 +125,10 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("403", "You can't update an account with role Admin");
                     return res;
                 }
-
+                var pass = account.Password;
+               
                 _mapper.Map(req, account);
+
                 _accountRepo.Update(account);
                 res.setData("200", account);
             }

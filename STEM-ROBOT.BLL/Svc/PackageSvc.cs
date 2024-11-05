@@ -39,7 +39,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
             }
             catch (Exception ex)
-            {
+            {   
                 res.SetError(ex.StackTrace);
             }
             return res;

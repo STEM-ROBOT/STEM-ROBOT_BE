@@ -68,7 +68,7 @@ namespace STEM_ROBOT.BLL.Svc
                     new ItemData(package.Name, 1, (int)package.Price)
                 };
                 var payLink = await CreatePayos(items, orderCode, (int)package.Price);
-                res.setData("200", payLink);
+                res.setData("data", payLink);
 
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var totalRevenue = _paymentRepo.All(p => p.Status == "Success").Sum(p => p.Amount);
-                res.setData("200", totalRevenue);
+                res.setData("data", totalRevenue);
 
             }
             catch (Exception ex)
@@ -151,7 +151,7 @@ namespace STEM_ROBOT.BLL.Svc
                     .ToList();
 
                 // Đưa dữ liệu vào kết quả trả về
-                res.setData("200", monthlyRevenue);
+                res.setData("data", monthlyRevenue);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var orders = _orderRepo.All();
-                res.SetData("200", orders);
+                res.SetData("data", orders);
             }
             catch (Exception ex)
             {
@@ -182,7 +182,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var order = _orderRepo.GetById(id);
-                res.setData("200", order);
+                res.setData("data", order);
             }
             catch (Exception ex)
             {
