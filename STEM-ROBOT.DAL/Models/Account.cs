@@ -29,6 +29,8 @@ public partial class Account
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
+    public virtual ICollection<Referee> Referees { get; set; } = new List<Referee>();
+
     public virtual School? School { get; set; }
 
     public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();

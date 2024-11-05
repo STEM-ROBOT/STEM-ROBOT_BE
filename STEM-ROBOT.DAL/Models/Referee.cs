@@ -19,6 +19,10 @@ public partial class Referee
 
     public string? Image { get; set; }
 
+    public int? AccountId { get; set; }
+
+    public virtual Account? Account { get; set; }
+
     public virtual ICollection<RefereeCompetition> RefereeCompetitions { get; set; } = new List<RefereeCompetition>();
 
     public virtual Tournament? Tournament { get; set; }
