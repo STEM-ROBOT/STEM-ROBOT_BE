@@ -28,16 +28,15 @@ namespace STEM_ROBOT.DAL.Repo
                .Where(s => s.Id == competitionId)
                .Include(l => l.Locations)
                .Include(tb => tb.TableGroups)
-               .ThenInclude(tt => tt.TeamTables)
-               .ThenInclude(t => t.Team)
-               .Include(st => st.Stages)
                .ThenInclude(s => s.StageTables)
-               .ThenInclude(tb => tb.TableGroup)
+               .ThenInclude(st => st.Stage)
                .ThenInclude(m => m.Matches)
                .ThenInclude(tm => tm.TeamMatches)
-               .Include(st => st.Stages)
-               .ThenInclude(m => m.Matches)
-               .ThenInclude(tm => tm.TeamMatches)
+               .ThenInclude(t => t.Team)
+               .ThenInclude(tt => tt.TeamTables)
+               //.Include(st => st.Stages)
+               .ThenInclude(m => m.TableGroup)
+               //.ThenInclude(tm => tm.TeamMatches)
                .FirstOrDefaultAsync();
 
             //var roundParent = stages.Select(async comp => new roundParent
@@ -47,11 +46,23 @@ namespace STEM_ROBOT.DAL.Repo
             //}).FirstOrDefault();
 
 
-            return competition != null ?  competition : null;
+            return competition != null ? competition : null;
         }
+        public async Task<Competition> GetRoundKnocoutGameAsync(int competitionId)
+        {
 
+            var competition = await _context.Competitions
+               .Where(s => s.Id == competitionId)
+               .Include(l => l.Locations)
+               .Include(st => st.Stages)
+               .ThenInclude(m => m.Matches)
+               .ThenInclude(tm => tm.TeamMatches)
+               .ThenInclude(t => t.Team)
+               .FirstOrDefaultAsync();
+            return competition != null ? competition : null;
+        }
         // Get groups
-   
+
 
         // Get table
         //private async Task<List<Table>> getTabel(int stageID)
@@ -205,7 +216,7 @@ namespace STEM_ROBOT.DAL.Repo
                 .ThenInclude(s => s.StageTables)
                 .ThenInclude(tb => tb.TableGroup)
                 .ThenInclude(m => m.Matches)
-                .ThenInclude(tm=>tm.TeamMatches)
+                .ThenInclude(tm => tm.TeamMatches)
                 .FirstOrDefaultAsync();
 
             return competition;

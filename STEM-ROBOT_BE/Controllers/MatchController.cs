@@ -62,6 +62,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpGet("get-round-knockout-late")]
         public async Task<IActionResult> getRoundKnockoutgameLate(int CompetitionID)
         {
@@ -69,6 +70,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpGet("get-round-table")]
         public async Task<IActionResult> GetRoundParentTables(int competitionID)
         {
@@ -76,6 +78,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpPost]
         public IActionResult AddStage(MatchReq request)
         {

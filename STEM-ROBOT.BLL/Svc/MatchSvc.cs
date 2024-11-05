@@ -170,7 +170,7 @@ namespace STEM_ROBOT.BLL.Svc
                             }).ToList()
 
                         },
-                        knockout = await getListRoundKnocOut(competition),
+                        knockout = await getListRoundKnocOut(competitionId),
                         locations = competition.Locations.Select(l => new locationCompetitionConfig
                         {
                             locationId = l.Id,
@@ -186,7 +186,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         startTime = competition.StartTime,
                         isMatch = (bool)competition.IsMacth,
-                        knockout = await getListRoundKnocOut(competition),
+                        knockout = await getListRoundKnocOut(competitionId),
                         locations = competition.Locations.Select(l => new locationCompetitionConfig
                         {
                             locationId = l.Id,
@@ -209,16 +209,20 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //done
-        public async Task<GroupRound> getListRoundKnocOut(Competition competition)
+        public async Task<GroupRound> getListRoundKnocOut(int competitionId)
         {
+            var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
+
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,
                     round = s.Name,
-                    matchrounds = s.Matches.Select(ts => new RoundGroupGameMatch
+                    matchrounds = new List<RoundGroupGameMatch>
                     {
+                        new RoundGroupGameMatch
+                        {
                         tableName = "",
                         matches = s.Matches.Select(md => new TeamMatchRound
                         {
@@ -228,8 +232,11 @@ namespace STEM_ROBOT.BLL.Svc
                             date = md.StartDate,
                             locationId = md.LocationId
                         }).ToList(),
-                    }).ToList(),
+                        },
+
+                    }
                 }).ToList()
+
 
             };
             return knocout;
@@ -283,6 +290,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (list == null) throw new Exception("No data");
                 RoundParentTable round_table = new RoundParentTable
                 {
+                    isTeamMatch = list.IsTeamMacth,
                     tableGroup = list.TableGroups.Select(tg => new tableGroup
                     {
                         team_tableId = tg.Id,
@@ -334,7 +342,7 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> conFigTimeMtch(int competitionId, MatchConfigReq reqs)
         {
             var res = new SingleRsp();
-            var competition_data = _competition.GetById(competitionId);
+            var competition_data = await _competition.getCompetitionMatchUpdate(competitionId);
             if (competition_data == null)
             {
                 res.SetError("400");
@@ -344,23 +352,25 @@ namespace STEM_ROBOT.BLL.Svc
             DateTime endTime = DateTime.Now;
             foreach (var match in reqs.matchs)
             {
-                var matchUd = new Match
-                {
-                    Id = (int)match.id,
-                    LocationId = (int)match.locationId,
-                    StartDate = match.startDate,
-                    TimeIn = match.TimeIn,
-                    TimeOut = match.TimeOut,
+                var matchUd = competition_data.Stages.Select(s => s.Matches.Where(m => m.Id == match.id).FirstOrDefault()).FirstOrDefault();
 
-                };
+                matchUd.Id = (int)match.id;
+                matchUd.LocationId = (int)match.locationId;
+                matchUd.StartDate = match.startDate;
+                matchUd.TimeIn = match.TimeIn;
+                matchUd.TimeOut = match.TimeOut;
+
+
                 matches.Add(matchUd);
                 endTime = (DateTime)match.startDate;
             }
             competition_data.EndTime = endTime;
             competition_data.IsMacth = true;
             competition_data.TimeBreak = reqs.TimeBreak;
+            competition_data.TimeOfMatch= reqs.TimeOfMatch;
             competition_data.TimeEndPlay = reqs.TimeEndPlay;
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
+            _competition.Update(competition_data);
             _matchRepo.UpdateRange(matches);
 
             return res;
