@@ -86,7 +86,7 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ReverseMap();
 
             CreateMap<Competition, CompetitionReq>().ReverseMap();
-            CreateMap<Competition, CompetitionConfigReq>().ReverseMap();
+            CreateMap<Competition, CompetitionConfigFormatReq>().ReverseMap();
 
             //CreateMap<Competition, ListCompetiton>()
             //    .ForMember(x => x.Name, op => op.MapFrom(x => x.Genre.Name))
@@ -175,6 +175,9 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ReverseMap();
                 
                 
+
+            //payment
+            CreateMap<Payment, PaymentRsp>().ReverseMap();
         }
     }
 }
