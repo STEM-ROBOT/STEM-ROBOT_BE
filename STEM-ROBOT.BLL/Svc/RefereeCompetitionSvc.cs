@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Repo;
 using System;
@@ -13,10 +14,12 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly RefereeCompetitionRepo _refereeCompetitionRepo;
         private readonly IMapper _mapper;
-        public RefereeCompetitionSvc(RefereeCompetitionRepo refereeCompetitionRepo, IMapper mapper)
+        private readonly IMailService _mailService;
+        public RefereeCompetitionSvc(RefereeCompetitionRepo refereeCompetitionRepo, IMapper mapper,IMailService mailService)
         {
             _refereeCompetitionRepo = refereeCompetitionRepo;
             _mapper = mapper;
+            _mailService = mailService;
         }
         public async Task<MutipleRsp> ListRefeeCompetition()
         {
@@ -35,5 +38,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
 
         }
+        
+        
     }
 }
