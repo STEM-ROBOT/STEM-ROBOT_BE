@@ -68,7 +68,7 @@ namespace STEM_ROBOT.BLL.Svc
                     new ItemData(package.Name, 1, (int)package.Price)
                 };
                 var payLink = await CreatePayos(items, orderCode, (int)package.Price);
-                res.setData("200", payLink);
+                res.setData("data", payLink);
 
             }
             catch (Exception ex)
@@ -81,9 +81,9 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/payments/cancel/{orderCode}", $"https://localhost:7283/api/payments/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/orders/cancel/{orderCode}", $"https://localhost:7283/api/order/success/{orderCode}");
 
- 
+
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
@@ -122,7 +122,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var totalRevenue = _paymentRepo.All(p => p.Status == "Success").Sum(p => p.Amount);
-                res.setData("200", totalRevenue);
+                res.setData("data", totalRevenue);
 
             }
             catch (Exception ex)
@@ -131,25 +131,27 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp GetRevenueByTime(DateTime? fromDate, DateTime? toDate)
+        public SingleRsp GetRevenueByTime()
         {
             var res = new SingleRsp();
             try
             {
                 var query = _paymentRepo.All(p => p.Status == "Success");
 
-                if (fromDate.HasValue)
-                {
-                    query = query.Where(p => p.PurchaseDate >= fromDate.Value);
-                }
+                var monthlyRevenue = query
+                    .GroupBy(p => new { p.PurchaseDate.Value.Year, p.PurchaseDate.Value.Month })
+                    .Select(g => new
+                    {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Revenue = g.Sum(p => p.Amount)
+                    })
+                    .OrderBy(result => result.Year)
+                    .ThenBy(result => result.Month)
+                    .ToList();
 
-                if (toDate.HasValue)
-                {
-                    query = query.Where(p => p.PurchaseDate <= toDate.Value);
-                }
-
-                var totalRevenue = query.Sum(p => p.Amount);
-                res.setData("200", totalRevenue);
+                // Đưa dữ liệu vào kết quả trả về
+                res.setData("data", monthlyRevenue);
             }
             catch (Exception ex)
             {
@@ -158,6 +160,36 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+
+        public MutipleRsp GetOrders()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var orders = _orderRepo.All();
+                res.SetData("data", orders);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetOrderById(int id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var order = _orderRepo.GetById(id);
+                res.setData("data", order);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
 
     }
 }

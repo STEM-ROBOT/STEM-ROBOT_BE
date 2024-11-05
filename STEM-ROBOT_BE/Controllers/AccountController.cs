@@ -29,10 +29,13 @@ namespace STEM_ROBOT_BE.Controllers
             return StatusCode(500, res.Message);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetAccountById(int id)
+        [HttpGet("userId")]
+        public IActionResult GetAccountById()
         {
-            var res = _accountSvc.GetById(id);
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please check User ");
+            int userID = int.Parse(user.Value);
+            var res = _accountSvc.GetById(userID);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -56,14 +59,13 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateAccount([FromBody] AccountReq req, int id)
+        [HttpPut("update-account")]
+        public IActionResult UpdateAccount([FromBody] AccountReq req)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var res = _accountSvc.Update(req, id);
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please check User ");
+            int userID = int.Parse(user.Value);
+            var res = _accountSvc.Update(req, userID);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -96,5 +98,15 @@ namespace STEM_ROBOT_BE.Controllers
             }
             return Ok(res.Data);
         }
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePass(ChangePass pass)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please check User ");
+            int userID = int.Parse(user.Value);
+            var passWord = _accountSvc.ChangePassword(userID,pass);
+            return Ok("Success");
+        }
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -20,7 +21,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TableGroupRepo _tableGroupRepo;
         private readonly TeamTableRepo _teamTableRepo;
         private readonly StageRepo _stageRepo;
-        public TeamMatchSvc(TeamMatchRepo teamMatchRepo, IMapper mapper, TeamRepo teamRepo, MatchRepo matchRepo, TableGroupRepo tableGroupRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo)
+        private readonly CompetitionRepo _competition;
+        public TeamMatchSvc(TeamMatchRepo teamMatchRepo, IMapper mapper, CompetitionRepo competition, TeamRepo teamRepo, MatchRepo matchRepo, TableGroupRepo tableGroupRepo, TeamTableRepo teamTableRepo, StageRepo stageRepo)
         {
             _teamMatchRepo = teamMatchRepo;
             _mapper = mapper;
@@ -29,6 +31,7 @@ namespace STEM_ROBOT.BLL.Svc
             _tableGroupRepo = tableGroupRepo;
             _teamTableRepo = teamTableRepo;
             _stageRepo = stageRepo;
+            _competition = competition;
         }
         public MutipleRsp GetListTeamMatch()
         {
@@ -68,6 +71,39 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
+        public async  Task<SingleRsp>  UpdateTeamMatchConfig(List<TeamMatchConfigCompetition> request,int competitionId)
+        {
+            var res = new SingleRsp();
+            var competition = await _teamMatchRepo.getCompetition(competitionId);
+            if (request.Count < 1 && competition == null)
+            {
+                res.SetError("Kiểu dữ liệu không đúng");
+                return res;
+            }
+            competition.IsTeamMacth = true;
+            _competition.Update(competition);    
+            try
+            {
+               List<TeamMatch> teamMatches = new List<TeamMatch>();
+                foreach (var teamMatch in request)
+                {
+                    var team_match = new TeamMatch
+                    {
+                        Id = teamMatch.teamMatchId,
+                        TeamId = teamMatch.teamId,
+                        NameDefault = teamMatch.teamName,
+                        MatchId= teamMatch.matchId, 
+                    };
+                    teamMatches.Add(team_match);
+                }
+                _teamMatchRepo.UpdateRange(teamMatches);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+
     }
 }

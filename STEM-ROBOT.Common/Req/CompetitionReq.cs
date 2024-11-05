@@ -75,11 +75,7 @@ namespace STEM_ROBOT.Common.Req
 
         public DateTime StartTime { get; set; }*/
 
-        public int NumberTeam { get; set; }
-
-        public int NumberTeamNextRound { get; set; }
-
-        public int NumberTable { get; set; }
+    
 
        /* public int WinScore { get; set; }
 

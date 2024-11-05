@@ -63,6 +63,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<OrderRepo>();
             services.AddScoped<OrderSvc>();
             services.AddScoped<PaymentRepo>();
+            services.AddScoped<PaymentSvc>();
             services.AddScoped<TeamTableRepo>();
             services.AddScoped<TeamTableSvc>();
             services.AddScoped<TeamMatchRepo>();
@@ -76,6 +77,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<RealTimeSvc>();
             services.AddSingleton<Random>();
             services.AddScoped<StageTableRepo>();
+            services.AddScoped<ContestantTeamRepo>();
+            services.AddScoped<AdminSvc>();
             return services;
         }
 
