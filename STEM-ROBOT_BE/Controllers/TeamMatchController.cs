@@ -15,9 +15,9 @@ namespace STEM_ROBOT.Web.Controllers
             _teamMatchSvc = teamMatchSvc;
         }
         [HttpPut("")]
-        public IActionResult GetListTeamMatch(int competitionId,List<TeamMatchConfigCompetition>  teamsMatchs)
+        public async Task<IActionResult> GetListTeamMatch(int competitionId,List<TeamMatchConfigCompetition>  teamsMatchs)
         {
-            var res = _teamMatchSvc.UpdateTeamMatchConfig(teamsMatchs, competitionId);
+            var res = await _teamMatchSvc.UpdateTeamMatchConfig(teamsMatchs, competitionId);
             return Ok(res);
         }
         [HttpGet("{id}")]
