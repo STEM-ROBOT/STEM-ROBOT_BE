@@ -23,13 +23,16 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Status { get; set; }
 
-        public int? MaxTournatment { get; set; }
+        public int? CountTournament { get; set; }
 
         public int? SchoolId { get; set; }
 
         public string? Role { get; set; }
 
+        public string? PackageName { get; set; }
+        public int CountContestant { get; set; }
     }
    
+
     
 }

@@ -31,5 +31,9 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.Accounts.Where(x => x.RoleId != 1 && x.Id == id).Include(x => x.Role).FirstOrDefaultAsync();
         }*/
 
+        public async Task<List<Account>> GetAccount()
+        {
+            return await _context.Accounts.Where(x => x.Role != "AD").Include(x => x.Orders).ThenInclude(pa => pa.Package).Include(x=> x.Tournaments).Include(x=> x.Contestants).ToListAsync();        }
     }
+    
 }
