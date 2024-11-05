@@ -73,8 +73,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var userName = user.Name;
                 var email = user.Email;
                 var status = request.Status;
+                tournament.CreateDate = DateTime.Now;
 
-                
                 _tournament.Add(tournament);
                 foreach(var competition in request.competition)
                 {
@@ -228,6 +228,32 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception($"Lỗi khi tính tổng số lượng đội tham gia: {ex.Message}");
             }
         }
-        
+
+        public MutipleRsp GetTournamentsPerMonth()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var tournaments = _tournament.All()
+                    .Where(t => t.CreateDate.HasValue)
+                    .GroupBy(t => new { t.CreateDate.Value.Year, t.CreateDate.Value.Month })
+                    .Select(g => new
+                    {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Count = g.Count()
+                    })
+                    .OrderBy(res => res.Year)
+                    .ThenBy(res => res.Month)
+                    .ToList();
+                res.SetData("data", tournaments);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
     }
 }

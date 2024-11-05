@@ -172,13 +172,11 @@ namespace STEM_ROBOT.BLL.Svc
                 var recentOrder = _orderRepo.All(o => o.AccountId == accountId && o.Status == "Success").OrderByDescending(o => o.OrderDate).FirstOrDefault();
                 if (recentOrder != null)
                 {
-                    // Lấy thông tin package dựa vào recentOrder.PackageId
                     var package = _packageRepo.GetById(recentOrder.PackageId);
 
                     if (package != null)
                     {
                         var packageRsp = _mapper.Map<PackageRsp>(package);
-                        // Đặt dữ liệu package vào response
                         res.setData("200", packageRsp);
                         return res;
                     }
@@ -192,6 +190,30 @@ namespace STEM_ROBOT.BLL.Svc
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public SingleRsp ChangePassword(int userID, ChangePass pass)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var user = _accountRepo.GetById(userID);
+                if (user == null) throw new Exception("No data");
+                bool isOldPasswordCorrect = BCrypt.Net.BCrypt.Verify(pass.PasswordOld,user.Password);
+                if (!isOldPasswordCorrect)
+                {
+                    throw new Exception("Please check again pass");
+                }
+                if (pass.NewPassword != pass.ConfirmPass) throw new Exception("Please check confirm");
+                var passwords = BCrypt.Net.BCrypt.HashPassword(pass.NewPassword);
+                user.Password = passwords;
+                _accountRepo.Update(user);
+                res.SetMessage("OK");
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Change password fail");
             }
             return res;
         }

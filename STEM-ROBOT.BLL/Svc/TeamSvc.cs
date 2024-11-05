@@ -16,7 +16,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRepo _teamRepo;
         private readonly IMapper _mapper;
         private readonly CompetitionRepo _competitionRepo;
-
+ 
         public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo)
         {
             _teamRepo = teamRepo;
@@ -153,5 +153,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+        
     }
 }

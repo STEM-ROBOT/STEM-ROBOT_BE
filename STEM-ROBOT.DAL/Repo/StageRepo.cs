@@ -26,6 +26,20 @@ namespace STEM_ROBOT.DAL.Repo
 
             return stage.Id;
         }
+        public async Task<List<TableGroup>> GetAllGroupStageCompetition(int competitionId)
+        {
+            var tables = await _context.TableGroups
+                .Where(tb => tb.CompetitionId == competitionId)
+                .Include(st=> st.StageTables)
+                .ThenInclude(s => s.Stage)
+                .ThenInclude(m => m.Matches)
+                .ThenInclude(tm => tm.TeamMatches)
+                .ThenInclude(t => t.Team)
+                .Include(m => m.Matches)
+                .ThenInclude(l => l.Location)
+                .ToListAsync();
+            return tables;
+        }
         public async Task<List<Stage>> GetAllStagesCompetition(int competitionId)
         {
 

@@ -30,10 +30,9 @@ namespace STEM_ROBOT.Common.Rsp
     public class ContestantInTournament
     {
         public int? Id { get; set; }
+        public int? TournamentId { get; set; }
 
         public string? Image { get; set; }
-
-        public string? SchoolName { get; set; }
 
         public string? Name { get; set; }
 
@@ -41,5 +40,8 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Gender { get; set; }
         public string? Phone { get; set; }
+        public int? AccountId { get; set; }
+        public string? GenreName { get; set; }    
+
     }
 }

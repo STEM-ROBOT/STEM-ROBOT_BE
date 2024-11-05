@@ -29,7 +29,13 @@ public class GenericRep<T> : IGenericRep<T> where T : class
     {
         _context.SaveChanges();
     }
-    
+
+    public void AddRange(IEnumerable<T> entities)
+    {
+        _dbSet.AddRange(entities);
+        _context.SaveChanges();  // Lưu tất cả thay đổi vào DB
+    }
+
     public virtual IEnumerable<T> All(
     Expression<Func<T, bool>> filter = null,
     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
@@ -93,6 +99,11 @@ public class GenericRep<T> : IGenericRep<T> where T : class
     public void Update(T entity)
     {
         _dbSet.Update(entity);
+        _context.SaveChanges();  // Thêm SaveChanges để cập nhật vào DB
+    }
+    public void UpdateRange(IEnumerable<T> entity)
+    {
+        _dbSet.UpdateRange(entity);
         _context.SaveChanges();  // Thêm SaveChanges để cập nhật vào DB
     }
 }

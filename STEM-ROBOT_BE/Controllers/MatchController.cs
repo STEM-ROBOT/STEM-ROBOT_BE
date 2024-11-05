@@ -36,13 +36,25 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpGet("get-round")]
-        public async Task<IActionResult> getRoundgame(int CompetitionID)
+        [HttpGet("match-config-time")]
+        public async Task<IActionResult> getRoundTableGame(int CompetitionID)
         {
-            var res = await _matchSvc.getListRound(CompetitionID);
+            bool isFormatTable = true;
+            var res = await _matchSvc.getListRound(CompetitionID, isFormatTable);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
+        //[HttpGet("match-knockout-config-time")]
+        //public async Task<IActionResult> getRoundKnocOutGame(int CompetitionID)
+        //{
+        //    bool isFormatTable = true;
+        //    var res = await _matchSvc.getListRound(CompetitionID, isFormatTable);
+        //    if (!res.Success) throw new Exception("Check again");
+        //    return Ok(res);
+        //}
+
+
         [HttpGet("get-round-knockout")]
         public async Task<IActionResult> getRoundKnockoutgame(int CompetitionID)
         {
@@ -50,6 +62,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpGet("get-round-knockout-late")]
         public async Task<IActionResult> getRoundKnockoutgameLate(int CompetitionID)
         {
@@ -57,6 +70,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpGet("get-round-table")]
         public async Task<IActionResult> GetRoundParentTables(int competitionID)
         {
@@ -64,10 +78,22 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
+
         [HttpPost]
         public IActionResult AddStage(MatchReq request)
         {
             var res = _matchSvc.AddMatch(request);
+            if (!res.Success)
+            {
+                res.SetMessage(res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpPut("")]
+        public async Task<IActionResult> ConFigTimeMtch(int competition, MatchConfigReq request)
+        {
+            var res = await _matchSvc.conFigTimeMtch(competition, request);
             if (!res.Success)
             {
                 res.SetMessage(res.Message);

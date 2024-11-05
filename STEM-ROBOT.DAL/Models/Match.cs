@@ -23,6 +23,8 @@ public partial class Match
 
     public string? MatchCode { get; set; }
 
+    public int? TableGroupId { get; set; }
+
     public virtual Location? Location { get; set; }
 
     public virtual ICollection<MatchHalf> MatchHalves { get; set; } = new List<MatchHalf>();
@@ -30,6 +32,8 @@ public partial class Match
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
     public virtual Stage? Stage { get; set; }
+
+    public virtual TableGroup? TableGroup { get; set; }
 
     public virtual ICollection<TeamMatch> TeamMatches { get; set; } = new List<TeamMatch>();
 }

@@ -21,4 +21,33 @@ namespace STEM_ROBOT.Common.Req
 
         public DateTime? TimeOut { get; set; }
     }
+    public class MatchConfigReq
+    {
+        public TimeSpan? TimeOfMatch { get; set; }
+
+        public TimeSpan? TimeBreak { get; set; }
+
+
+        public TimeSpan? TimeStartPlay { get; set; }
+
+        public TimeSpan? TimeEndPlay { get; set; }
+
+        public DateTime? startTime { get; set; }
+
+        public ICollection<MatchDataTimeReq> matchs { get; set; } = new List<MatchDataTimeReq>();
+    }
+
+    public class MatchDataTimeReq
+    {
+
+        public int? id { get; set; }
+
+        public DateTime? startDate { get; set; }
+
+        public int? locationId { get; set; }
+
+        public TimeSpan? TimeIn { get; set; }
+
+        public TimeSpan? TimeOut { get; set; }
+    }
 }

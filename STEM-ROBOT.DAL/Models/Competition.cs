@@ -53,9 +53,9 @@ public partial class Competition
 
     public DateTime? EndTime { get; set; }
 
-    public DateTime? TimeStartPlay { get; set; }
+    public TimeSpan? TimeStartPlay { get; set; }
 
-    public DateTime? TimeEndPlay { get; set; }
+    public TimeSpan? TimeEndPlay { get; set; }
 
     public string? RegulationScore { get; set; }
 
@@ -72,6 +72,8 @@ public partial class Competition
     public bool? IsMacth { get; set; }
 
     public bool? IsReferee { get; set; }
+
+    public bool? IsContestantTeam { get; set; }
 
     public virtual CompetitionFormat? Format { get; set; }
 
