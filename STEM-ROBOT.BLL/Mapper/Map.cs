@@ -16,11 +16,18 @@ namespace STEM_ROBOT.BLL.Mapper
         public Map()
         {
 
-            CreateMap<Account, Account>().ReverseMap();
+          
 
-            CreateMap<Account, AccountRsp>().ReverseMap();
+            CreateMap<Account, AccountRsp>()
+               .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src =>
+        src.Orders != null && src.Orders.Any()
+        ? src.Orders.Select(o => o.Package.Name).FirstOrDefault()
+        : null))
+               .ForMember(x=> x.CountTournament , op => op.MapFrom(a => a.Tournaments.Count(x => x.AccountId == x.Id)))
+               .ForMember(x=> x.CountContestant, op => op.MapFrom(x=> x.Contestants.Count(x => x.AccountId == x.Id)))
+                .ReverseMap();
 
-            CreateMap<Account, AccountRsp>().ReverseMap();
+            
 
             CreateMap<Account, AccountReq>().ReverseMap();
 
@@ -57,6 +64,16 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Referee, RefereeReq>().ReverseMap();
             CreateMap<Referee, RefereeRsp>().ReverseMap();
             CreateMap<Referee, AssginRefereeReq>().ReverseMap();
+            CreateMap<Referee, RefereeTournament>()
+                .ForMember(x => x.NameTournament, op => op.MapFrom(x => x.Tournament.Name))
+                .ForMember(x => x.Location, op => op.MapFrom(x => x.Tournament.Location))
+                .ForMember(x => x.ImageTournament, op => op.MapFrom(x => x.Tournament.Image))
+                .ForMember(x => x.referee, op => op.MapFrom(x => x.RefereeCompetitions))
+                .ReverseMap();
+            CreateMap<RefereeCompetition, ListRefereeCompetition>()
+                .ForMember(x => x.nameGenre, op => op.MapFrom(x => x.Competition.Genre.Name))
+                .ForMember(x => x.imageGenre, op => op.MapFrom(x => x.Competition.Genre.Image))
+                .ReverseMap();
 
             //scorecategory
             CreateMap<ScoreCategory, ScoreCategoryReq>().ReverseMap();
@@ -161,6 +178,13 @@ namespace STEM_ROBOT.BLL.Mapper
 
             //contestantteam
             CreateMap<ContestantTeam, ContestantTeamReq>().ReverseMap();
+            //order
+            CreateMap<Order, OrderRsp>()
+                .ForMember(x => x.nameUser, op => op.MapFrom(x => x.Account.Name))
+                .ForMember(x=> x.Image, op => op.MapFrom(x=> x.Account.Image))
+                .ReverseMap();
+                
+                
 
             //payment
             CreateMap<Payment, PaymentRsp>().ReverseMap();

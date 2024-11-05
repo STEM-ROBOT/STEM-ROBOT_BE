@@ -193,5 +193,29 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public SingleRsp ChangePassword(int userID, ChangePass pass)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var user = _accountRepo.GetById(userID);
+                if (user == null) throw new Exception("No data");
+                bool isOldPasswordCorrect = BCrypt.Net.BCrypt.Verify(pass.PasswordOld,user.Password);
+                if (!isOldPasswordCorrect)
+                {
+                    throw new Exception("Please check again pass");
+                }
+                if (pass.NewPassword != pass.ConfirmPass) throw new Exception("Please check confirm");
+                var passwords = BCrypt.Net.BCrypt.HashPassword(pass.NewPassword);
+                user.Password = passwords;
+                _accountRepo.Update(user);
+                res.SetMessage("OK");
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Change password fail");
+            }
+            return res;
+        }
     }
 }
