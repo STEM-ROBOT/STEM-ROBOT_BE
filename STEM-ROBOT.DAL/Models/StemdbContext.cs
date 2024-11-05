@@ -71,7 +71,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -378,6 +378,10 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Referees)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_Referee_Account");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Referees)
                 .HasForeignKey(d => d.TournamentId)
