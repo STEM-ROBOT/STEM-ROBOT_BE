@@ -29,8 +29,8 @@ namespace STEM_ROBOT.Common.Rsp
         public string name { get; set; }
         public string image { get; set; }
         public string status { get; set; }
-        public DateTime registerTime { get; set; }
+        public DateTime? registerTime { get; set; }
         
-        public int numberContestantTeam { get; set; }
+        public int? numberContestantTeam { get; set; }
     }
 }

@@ -94,20 +94,14 @@ namespace STEM_ROBOT.DAL.Repo
                 }).ToListAsync();
             return listplayer;
         }
-        public async Task<GenerCompetitonID> getGenerCompetitionID(int competitionID)
+        public async Task<Competition> getGenerCompetitionID(int competitionId)
         {
-            return await (from competition in _context.Competitions
-                          where competition.Id == competitionID
-                          join genre in _context.Genres on competition.GenreId equals genre.Id
-                          select new GenerCompetitonID
-                          {
-                              id = competition.Id,
-                              name = genre.Name,
-                              status = competition.Status,
-                              image = genre.Image,
-                              registerTime = (DateTime)competition.RegisterTime,
-                              numberContestantTeam = competition.NumberContestantTeam ?? 0
-                          }).FirstOrDefaultAsync();
+            var competition = _context.Competitions.Where(c => c.Id == competitionId).Include(c => c.Genre).FirstOrDefault();
+
+            return competition;
+
+            
+        
         }
         
     }

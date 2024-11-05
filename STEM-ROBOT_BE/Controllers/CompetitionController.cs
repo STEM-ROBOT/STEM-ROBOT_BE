@@ -87,30 +87,33 @@ namespace STEM_ROBOT.Web.Controllers
 
         //cấu hình hình thức thi đấu của nội dung thi đấu
         [HttpPut("format-config")]
-        public async Task<IActionResult> UpdateCompetitionFormat(CompetitionConfigReq request)
+        public async Task<IActionResult> UpdateCompetitionFormat(int competitionId, CompetitionConfigFormatReq request)
         {
-            var res = await _competionSvc.UpdateCompetitionConfig(request);
-            if (!res.Success)
+         
+            if (request.FormatId == 1)
             {
-                res.SetError("400", res.Message); 
+                var res = await _competionSvc.UpdateCompetitionConfig(competitionId,request);
+                if (!res.Success)
+                {
+                    res.SetError("400", res.Message);
 
 
-            }
-            return Ok(res);
-        }
-        //cấu hình hình thức thi đấu của nội dung thi đấu
-        [HttpPut("format-table")]
-        public async Task<IActionResult> AddCompetitionFormatTable(int competitionId, [FromBody] CompetitionFormatTableReq request)
-        {
-            var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
-            if (!res.Success)
+                }
+                return Ok(res);
+            }else if (request.FormatId == 2)
             {
-                res.SetError("400", res.Message);
+                var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
+                if (!res.Success)
+                {
+                    res.SetError("400", res.Message);
 
+                }
+                return Ok(res);
             }
-            return Ok(res);
+              return Ok();
+           
         }
-
+ 
         //thông tin cấu hình đăng kí thí sinh tham gia nội dung
         [HttpGet("config-register")]
         public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
@@ -127,6 +130,17 @@ namespace STEM_ROBOT.Web.Controllers
         public async Task<IActionResult> MatchScheduleCompetition(int competitionId)
         {
             var res = await _competionSvc.matchScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
+        //xem lịch trình thi đấu vong bang của nội dung
+        [HttpGet("match-group-stage-view")]
+        public async Task<IActionResult> MatchGroupStageCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchGroupStageCompetition(competitionId);
             if (!res.Success)
             {
                 throw new Exception("Please check input");

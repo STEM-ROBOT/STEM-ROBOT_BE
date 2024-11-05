@@ -165,8 +165,6 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.RegulationScore).HasColumnType("ntext");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(250);
-            entity.Property(e => e.TimeEndPlay).HasColumnType("datetime");
-            entity.Property(e => e.TimeStartPlay).HasColumnType("datetime");
 
             entity.HasOne(d => d.Format).WithMany(p => p.Competitions)
                 .HasForeignKey(d => d.FormatId)
@@ -565,6 +563,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Tournament");
 
+            entity.Property(e => e.CreateDate).HasColumnType("date");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);

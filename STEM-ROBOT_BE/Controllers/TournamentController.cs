@@ -93,5 +93,13 @@ namespace STEM_ROBOT_BE.Controllers
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
+
+        [HttpGet("per-month")]
+        public IActionResult GetTournamentPerMonth()
+        {
+            var res = _tournament.GetTournamentsPerMonth();
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
     }
 }

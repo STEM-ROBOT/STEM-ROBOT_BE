@@ -53,9 +53,9 @@ public partial class Competition
 
     public DateTime? EndTime { get; set; }
 
-    public DateTime? TimeStartPlay { get; set; }
+    public TimeSpan? TimeStartPlay { get; set; }
 
-    public DateTime? TimeEndPlay { get; set; }
+    public TimeSpan? TimeEndPlay { get; set; }
 
     public string? RegulationScore { get; set; }
 
