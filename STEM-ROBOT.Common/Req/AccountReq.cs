@@ -28,4 +28,11 @@ namespace STEM_ROBOT.Common.Req
 
         public string? Role = "MD";
     }
+    public class ChangePass
+    {
+        public string? PasswordOld { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmPass { get; set; }
+
+    }
 }
