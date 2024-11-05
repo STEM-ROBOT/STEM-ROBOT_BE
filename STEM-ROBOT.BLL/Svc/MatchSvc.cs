@@ -367,6 +367,7 @@ namespace STEM_ROBOT.BLL.Svc
             competition_data.EndTime = endTime;
             competition_data.IsMacth = true;
             competition_data.TimeBreak = reqs.TimeBreak;
+            competition_data.TimeOfMatch= reqs.TimeOfMatch;
             competition_data.TimeEndPlay = reqs.TimeEndPlay;
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
             _competition.Update(competition_data);
