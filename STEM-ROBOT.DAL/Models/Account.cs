@@ -27,6 +27,8 @@ public partial class Account
 
     public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual ICollection<Referee> Referees { get; set; } = new List<Referee>();
