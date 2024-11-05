@@ -170,7 +170,7 @@ namespace STEM_ROBOT.BLL.Svc
                             }).ToList()
 
                         },
-                        knockout = await getListRoundKnocOut(competition),
+                        knockout = await getListRoundKnocOut(competitionId),
                         locations = competition.Locations.Select(l => new locationCompetitionConfig
                         {
                             locationId = l.Id,
@@ -186,7 +186,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         startTime = competition.StartTime,
                         isMatch = (bool)competition.IsMacth,
-                        knockout = await getListRoundKnocOut(competition),
+                        knockout = await getListRoundKnocOut(competitionId),
                         locations = competition.Locations.Select(l => new locationCompetitionConfig
                         {
                             locationId = l.Id,
@@ -209,16 +209,19 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //done
-        public async Task<GroupRound> getListRoundKnocOut(Competition competition)
+        public async Task<GroupRound> getListRoundKnocOut(int competitionId)
         {
+            var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,
                     round = s.Name,
-                    matchrounds = s.Matches.Select(ts => new RoundGroupGameMatch
+                    matchrounds = new List<RoundGroupGameMatch>
                     {
+                        new RoundGroupGameMatch
+                        {
                         tableName = "",
                         matches = s.Matches.Select(md => new TeamMatchRound
                         {
@@ -228,8 +231,11 @@ namespace STEM_ROBOT.BLL.Svc
                             date = md.StartDate,
                             locationId = md.LocationId
                         }).ToList(),
-                    }).ToList(),
+                        },
+
+                    }
                 }).ToList()
+
 
             };
             return knocout;
@@ -361,6 +367,7 @@ namespace STEM_ROBOT.BLL.Svc
             competition_data.TimeBreak = reqs.TimeBreak;
             competition_data.TimeEndPlay = reqs.TimeEndPlay;
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
+            _competition.Update(competition_data);
             _matchRepo.UpdateRange(matches);
 
             return res;
