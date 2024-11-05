@@ -13,6 +13,8 @@ public partial class Schedule
 
     public DateTime? StartTime { get; set; }
 
+    public string? OptCode { get; set; }
+
     public virtual Match? Match { get; set; }
 
     public virtual RefereeCompetition? Referee { get; set; }
