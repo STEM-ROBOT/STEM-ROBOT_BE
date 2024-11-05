@@ -21,6 +21,14 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.Competitions.Include(x => x.Locations)
                 .Include(x => x.Genre).ToListAsync();
         }
+        public async Task<Competition> getCompetitionMatchUpdate(int id)
+        {
+            return await _context.Competitions
+                .Where(x => x.Id == id)
+                .Include(s => s.Stages)
+                .ThenInclude(m => m.Matches)
+                .FirstOrDefaultAsync();
+        }
         public async Task<Competition> getCompetition(int id)
         {
             return await _context.Competitions.Where(x => x.Id == id).Include(t => t.Tournament).Include(g => g.Genre).FirstOrDefaultAsync();
@@ -100,9 +108,9 @@ namespace STEM_ROBOT.DAL.Repo
 
             return competition;
 
-            
-        
+
+
         }
-        
+
     }
 }
