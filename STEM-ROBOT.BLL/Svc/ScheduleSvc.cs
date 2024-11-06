@@ -300,64 +300,67 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
 
-            {  var competition= _competition.GetById(competitionId);
-
             {
+                var competition = _competition.GetById(competitionId);
 
-                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
-                if (schedule == null)
-                {
-                    res.SetError("404", "Schedule not found");
-                }
-                else
                 {
 
-                    var main_referee = "";
-                    var data = new ScheduleConfigRsp
+                    var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                    if (schedule == null)
                     {
-                        IsSchedule = competition.IsSchedule,
-
-                    var data = new ScheduleConfigRsp
+                        res.SetError("404", "Schedule not found");
+                    }
+                    else
                     {
 
-                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        var main_referee = "";
+                        var data = new ScheduleConfigRsp
                         {
-                            Id = cr.Id,
-                            Name = cr.Referee.Name,
-                        }).ToList(),
+                            IsSchedule = competition.IsSchedule,
 
-                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
-                        {
-                            Id = cs.Id,
-                            Name = cs.Referee.Name,
-                        }).ToList(),
 
-                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
-                        {
-                            RoundId = s.Id,
-                            roundName = s.Name,
-                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+
+                            MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                             {
-                                matchId = m.Id,
-                                timeIn = (TimeSpan)m.TimeIn,
-                                date = (DateTime)m.StartDate,
-                                arena = m.Location.Address,
-
-                                mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
-                                mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
-                                matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
-                                {
-                                    SubRefereeId= rs.RefereeCompetition.Id,
-                                    SubRefereeName  = rs.RefereeCompetition.Referee.Name,
-                                }).ToList(),
-
-
+                                Id = cr.Id,
+                                Name = cr.Referee.Name,
                             }).ToList(),
-                        }).ToList(),
-                    };
+
+                            Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                            {
+                                Id = cs.Id,
+                                Name = cs.Referee.Name,
+                            }).ToList(),
+
+                            Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
+                            {
+                                RoundId = s.Id,
+                                roundName = s.Name,
+                                Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                                {
+                                    matchId = m.Id,
+                                    timeIn = (TimeSpan)m.TimeIn,
+                                    date = (DateTime)m.StartDate,
+                                    arena = m.Location.Address,
+
+                                    mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
+                                    mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
+                                    matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
+                                    {
+                                        SubRefereeId = rs.RefereeCompetition.Id,
+                                        SubRefereeName = rs.RefereeCompetition.Referee.Name,
+                                    }).ToList(),
+
+
+                                }).ToList(),
+                            }).ToList(),
+                        };
+                    }
+
                     res.setData("data", schedule);
                 }
             }
+
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
