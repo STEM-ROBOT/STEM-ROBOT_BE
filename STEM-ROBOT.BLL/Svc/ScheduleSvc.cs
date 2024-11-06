@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Google.Api.Gax;
+using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -204,7 +206,40 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        //public async Task<SingleRsp> UpdateBusy(int scheduleID,int accountID)
+        //{
+        //    var res = new SingleRsp();
+        //    try
+        //    {
+        //        var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+        //        if (schedule == null) throw new Exception("No data");
+        //        var email = schedule.RefereeCompetition.Referee.Email;
+        //        var name = schedule.RefereeCompetition.Referee.Name;
+        //        var startDate = schedule.StartTime;
 
+        //        schedule.BackupReferee = "Bận";
+        //        var emailbody = $@"
+        //                <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
+        //                <div>
+                            
+        //                    <span>Trọng tài  : </span> <strong>{randomCode}</strong><br>
+                           
+        //                </div>
+                       
+        //                <div>
+        //                    <span>Mã có hiệu lực trong 120 giây</strong>
+        //                </div>
+                           
+        //                <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+        //            </div>
+        //            ";
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw new Exception("UpdateBusy fail");
+        //    } 
+        //}
         public async Task<SingleRsp> ScheduleCompetition(int competitionId)
         {
             var res = new SingleRsp();
@@ -217,6 +252,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
+                    var main_referee = "";
                     var data = new ScheduleConfigRsp
                     {
                         MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
@@ -241,6 +277,13 @@ namespace STEM_ROBOT.BLL.Svc
                                 timeIn = (TimeSpan)m.TimeIn,
                                 date = (DateTime)m.StartDate,
                                 arena = m.Location.Address,
+                                mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
+                                mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
+                                matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
+                                {
+                                    SubRefereeId= rs.RefereeCompetition.Id,
+                                    SubRefereeName  = rs.RefereeCompetition.Referee.Name,
+                                }).ToList(),
                             }).ToList(),
                         }).ToList(),
                     };
@@ -253,6 +296,13 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
+        public async Task<SingleRsp> updateScheduleConfigCompetition(int competitionID, List<ScheduleReq> reques)
+        {
+            var res = new SingleRsp();
+            var list_schedule = _mapper.Map<List<Schedule>>( reques);
+            _scheduleRepo.AddRange(list_schedule);
+            return res; 
+        }
+      
     }
 }

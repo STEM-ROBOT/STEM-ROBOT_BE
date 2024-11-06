@@ -423,6 +423,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Schedule");
 
+            entity.Property(e => e.BackupReferee).HasMaxLength(100);
             entity.Property(e => e.OptCode)
                 .HasMaxLength(20)
                 .IsFixedLength();
