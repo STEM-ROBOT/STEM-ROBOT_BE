@@ -591,7 +591,39 @@ namespace STEM_ROBOT.BLL.Svc
             }
         }
 
-        public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        public SingleRsp getActiveCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition =  _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
+                if (competition != null)
+                {
+                    var resData = new ActiveCompetitionRsp();
+                    resData.isFormat = competition.IsFormat;
+                    resData.isReferee = competition.IsReferee;
+                    resData.isTeam = competition.IsTeam;
+                    resData.isTable = competition.IsTable;
+                    resData.isMatch = competition.IsMacth;
+                    resData.isTeamMatch = (bool)competition.IsTeamMacth;
+                    resData.isSchedule = competition.IsContestantTeam;
+                    resData.formatId = competition.FormatId;
+                    res.setData("data", resData);
+                }
+                else
+                {
+                    res.SetError("Competition not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError($"An error occurred: {ex.Message}");
+            }
+
+            return res;  
+        }
+
+       public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
             try

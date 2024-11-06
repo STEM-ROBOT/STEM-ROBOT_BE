@@ -33,7 +33,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var locationMapp = _mapper.Map<List<LocationRsp>>(lst);
 
-                    res.SetSuccess(locationMapp, "200");
+                    res.SetSuccess(locationMapp, "data");
                 }
                 else
                 {
@@ -145,7 +145,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lstLocation != null)
                 {
                     var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
-                    res.SetData("200",locationMapp);
+                    res.SetData("data",locationMapp);
                 }
                 else
                 {
