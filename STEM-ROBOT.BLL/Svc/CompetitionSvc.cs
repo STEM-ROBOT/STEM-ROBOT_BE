@@ -953,8 +953,13 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     competition.IsActive = true;
                     _competitionRepo.Update(competition);
+                    res.SetMessage("Competition is now active.");
                 }
-                res.SetMessage("Competition is now active.");
+                else
+                {
+                    res.SetError("400", "Competition is missing some required information.");
+                    return res;
+                }
             }
             catch (Exception ex)
             {
