@@ -11,8 +11,9 @@ namespace STEM_ROBOT.Common.Rsp
         public int Id { get; set; }
 
         public string? Name { get; set; }
+
     }
-    public class ProvinceList
+    public class ProvinceRsp
     {
         public int Id { get; set; }
 
@@ -21,9 +22,9 @@ namespace STEM_ROBOT.Common.Rsp
         public int? AreaId { get; set; }
 
         public string? ProvinceCode { get; set; }
-        public ICollection<DistrictList> districts { get; set; } = new List<DistrictList>();
+
     }
-    public class DistrictList
+    public class DistrictRsp
     {
         public int Id { get; set; }
 
@@ -34,10 +35,9 @@ namespace STEM_ROBOT.Common.Rsp
         public string? DistrictCode { get; set; }
 
         public string? ProvinceCode { get; set; }
-        public ICollection<ListSchool> schools { get; set; } = new List<ListSchool>();
     }
 
-    public class ListSchool
+    public class ListSchoolRsp
     {
         public int Id { get; set; }
 

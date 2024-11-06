@@ -49,9 +49,6 @@ namespace STEM_ROBOT.Common.Rsp
     public class SchedulRoundsMatchsRefereeRsp
     {
         public int matchId { get; set; }
-        public string roundName { get; set; }
-        public string teamA { get; set; }
-        public string teamB { get; set; }
         public int mainReferee { get; set; }
         public string mainRefereeName { get; set; }
         public ICollection<SchedulMainMatchRefereeRsp> matchRefereesdata { get; set; } = new List<SchedulMainMatchRefereeRsp>();
