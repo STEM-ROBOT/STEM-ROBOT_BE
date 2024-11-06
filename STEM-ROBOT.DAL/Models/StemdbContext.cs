@@ -442,7 +442,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.RefereeCompetition).WithMany(p => p.Schedules)
                 .HasForeignKey(d => d.RefereeCompetitionId)
-                .HasConstraintName("FK_Schedule_RefereeCompetition1");
+                .HasConstraintName("FK_Schedule_RefereeCompetition");
         });
 
         modelBuilder.Entity<School>(entity =>

@@ -20,7 +20,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
 
-  
+
         private readonly IMailService _mailService;
         public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
         {
@@ -221,15 +221,15 @@ namespace STEM_ROBOT.BLL.Svc
         //        var emailbody = $@"
         //                <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
         //                <div>
-                            
+
         //                    <span>Trọng tài  : </span> <strong>{randomCode}</strong><br>
-                           
+
         //                </div>
-                       
+
         //                <div>
         //                    <span>Mã có hiệu lực trong 120 giây</strong>
         //                </div>
-                           
+
         //                <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
         //            </div>
         //            ";
@@ -244,7 +244,8 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             try
-            {  var competition= _competition.GetById(competitionId);
+            {
+                var scheduleMatch = await _scheduleRepo.GetRefereeGameAsync(competitionId);
                 var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
                 if (schedule == null)
                 {
@@ -252,23 +253,23 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var main_referee = "";
+
                     var data = new ScheduleConfigRsp
                     {
-                        IsSchedule = competition.IsSchedule,
-                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        IsSchedule = schedule.IsSchedule,
+                        MatchReferees = schedule.RefereeCompetitions.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                         {
                             Id = cr.Id,
                             Name = cr.Referee.Name,
                         }).ToList(),
 
-                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                        Referees = schedule.RefereeCompetitions.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
                         {
                             Id = cs.Id,
                             Name = cs.Referee.Name,
                         }).ToList(),
 
-                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        Rounds = schedule.Stages.Select(s => new SchedulRoundsRefereeRsp
                         {
                             RoundId = s.Id,
                             roundName = s.Name,
@@ -278,17 +279,17 @@ namespace STEM_ROBOT.BLL.Svc
                                 timeIn = (TimeSpan)m.TimeIn,
                                 date = (DateTime)m.StartDate,
                                 arena = m.Location.Address,
-                                mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
-                                mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
-                                matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
+                               mainReferee =scheduleMatch.Count > 0? (int)scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetitionId:0  ,
+                               mainRefereeName = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetition.Referee.Name : "",
+                               matchRefereesdata = scheduleMatch.Count > 0 ?scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "SRF" && sc.MatchId == m.Id).ToList().Select(rs => new SchedulMainMatchRefereeRsp
                                 {
-                                    SubRefereeId= rs.RefereeCompetition.Id,
-                                    SubRefereeName  = rs.RefereeCompetition.Referee.Name,
-                                }).ToList(),
+                                   SubRefereeId = rs.RefereeCompetition.Id,
+                                   SubRefereeName = rs.RefereeCompetition.Referee.Name,
+                                }).ToList(): new List<SchedulMainMatchRefereeRsp>(),
                             }).ToList(),
                         }).ToList(),
                     };
-                    res.setData("data", schedule);
+                    res.setData("data", data);
                 }
             }
             catch (Exception ex)
@@ -301,12 +302,12 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var competition = _competition.GetById(competitionId);
-            competition.IsSchedule=true;
-            var list_schedule = _mapper.Map<List<Schedule>>( reques);
+            competition.IsSchedule = true;
+            var list_schedule = _mapper.Map<List<Schedule>>(reques);
             _competition.Update(competition);
             _scheduleRepo.AddRange(list_schedule);
-            return res; 
+            return res;
         }
-      
+
     }
 }
