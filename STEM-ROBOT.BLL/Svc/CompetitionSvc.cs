@@ -596,7 +596,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition =  _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
+                var competition = _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
                 if (competition != null)
                 {
                     var resData = new ActiveCompetitionRsp();
@@ -620,10 +620,10 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError($"An error occurred: {ex.Message}");
             }
 
-            return res;  
+            return res;
         }
 
-       public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
             try
@@ -928,6 +928,38 @@ namespace STEM_ROBOT.BLL.Svc
                 // Handle exception
             }
 
+            return res;
+        }
+
+        public SingleRsp SetCompetitionActive(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found with the provided ID.");
+                    return res;
+                }
+                if(competition.IsActive == true)
+                {
+                    res.SetError("400", "Competition is already active.");
+                    return res;
+                }
+                if (competition.IsFormat == true && competition.IsMacth == true && competition.IsTeamMacth == true
+                    && competition.IsTable == true && competition.IsContestantTeam == true && competition.IsTeam == true
+                    && competition.IsReferee == true && competition.IsLocation == true && competition.IsSchedule == true)
+                {
+                    competition.IsActive = true;
+                    _competitionRepo.Update(competition);
+                }
+                res.SetMessage("Competition is now active.");
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
             return res;
         }
     }
