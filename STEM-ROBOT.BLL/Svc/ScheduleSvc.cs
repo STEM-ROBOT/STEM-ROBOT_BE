@@ -15,11 +15,15 @@ namespace STEM_ROBOT.BLL.Svc
     public class ScheduleSvc
     {
         private readonly ScheduleRepo _scheduleRepo;
+        private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
+
+  
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
         {
             _scheduleRepo = scheduleRepo;
+            _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
         }
