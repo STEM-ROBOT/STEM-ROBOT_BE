@@ -19,6 +19,7 @@ namespace STEM_ROBOT.Common.Rsp
 
     public class ScheduleConfigRsp
     {
+        public bool? IsSchedule { get; set; }
         public ICollection<SchedulMainRefereeRsp> Referees { get; set; } = new List<SchedulMainRefereeRsp>();
         public ICollection<SchedulSubRefereeRsp> MatchReferees { get; set; } = new List<SchedulSubRefereeRsp>();
         public ICollection<SchedulRoundsRefereeRsp> Rounds { get; set; } = new List<SchedulRoundsRefereeRsp>();

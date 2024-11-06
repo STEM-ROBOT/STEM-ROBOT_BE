@@ -134,7 +134,7 @@ namespace STEM_ROBOT.BLL.Svc
 
 
         //done
-        public async Task<SingleRsp> getListRound(int competitionId, bool isFormatTable)
+        public async Task<SingleRsp> getListRound(int competitionId)
         {
             var res = new SingleRsp();
 
@@ -215,7 +215,7 @@ namespace STEM_ROBOT.BLL.Svc
             var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
-
+                IsTeamMatch = (bool)competition.IsTeamMacth,
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,

@@ -39,8 +39,8 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("match-config-time")]
         public async Task<IActionResult> getRoundTableGame(int CompetitionID)
         {
-            bool isFormatTable = true;
-            var res = await _matchSvc.getListRound(CompetitionID, isFormatTable);
+           
+            var res = await _matchSvc.getListRound(CompetitionID);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
