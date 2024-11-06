@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Google.Api.Gax;
+using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -238,5 +240,69 @@ namespace STEM_ROBOT.BLL.Svc
         //        throw new Exception("UpdateBusy fail");
         //    } 
         //}
+        public async Task<SingleRsp> ScheduleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                if (schedule == null)
+                {
+                    res.SetError("404", "Schedule not found");
+                }
+                else
+                {
+                    var main_referee = "";
+                    var data = new ScheduleConfigRsp
+                    {
+                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        {
+                            Id = cr.Id,
+                            Name = cr.Referee.Name,
+                        }).ToList(),
+
+                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                        {
+                            Id = cs.Id,
+                            Name = cs.Referee.Name,
+                        }).ToList(),
+
+                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        {
+                            RoundId = s.Id,
+                            roundName = s.Name,
+                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                            {
+                                matchId = m.Id,
+                                timeIn = (TimeSpan)m.TimeIn,
+                                date = (DateTime)m.StartDate,
+                                arena = m.Location.Address,
+                                mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
+                                mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
+                                matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
+                                {
+                                    SubRefereeId= rs.RefereeCompetition.Id,
+                                    SubRefereeName  = rs.RefereeCompetition.Referee.Name,
+                                }).ToList(),
+                            }).ToList(),
+                        }).ToList(),
+                    };
+                    res.setData("data", schedule);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> updateScheduleConfigCompetition(int competitionID, List<ScheduleReq> reques)
+        {
+            var res = new SingleRsp();
+            var list_schedule = _mapper.Map<List<Schedule>>( reques);
+            _scheduleRepo.AddRange(list_schedule);
+            return res; 
+        }
+      
     }
 }
