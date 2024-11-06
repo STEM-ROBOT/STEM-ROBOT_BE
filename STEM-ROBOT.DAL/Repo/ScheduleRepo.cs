@@ -46,5 +46,14 @@ namespace STEM_ROBOT.DAL.Repo
                 .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee)
                 .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
         }
+        public async Task<Schedule> UpdateBusy(int scheduleID, int accountID)
+        {
+            return await _context.Schedules.Where(x => x.Id == scheduleID)
+                .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee)
+                .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID)
+                .Include(x=> x.Match)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }

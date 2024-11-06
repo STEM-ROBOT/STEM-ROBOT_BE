@@ -174,7 +174,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var lstContestant = new List<ContestantInTournament>();
                 foreach (var contestant in contestants)
                 {
-                    if (contestant.EndTime < DateTime.Now)
+                    if (contestant.EndTime < DateTime.Now || contestant.EndTime == null)
                     {
                         lstContestant.Add(new ContestantInTournament
                         {
@@ -430,6 +430,74 @@ namespace STEM_ROBOT.BLL.Svc
                     }
                     res.SetMessage("Add successfully");
                 }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public MutipleRsp GetContestantInTeam(int teamId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var team = _teamRepo.GetById(teamId);
+                if (team == null)
+                {
+                    res.SetError("404", "Team not found");
+                    return res;
+                }
+                var lstContestantTeam = _contestantTeamRepo.All().Where(ct => ct.TeamId == team.Id).ToList();
+                if (lstContestantTeam == null || !lstContestantTeam.Any())
+                {
+                    res.SetError("No Data");
+                    return res;
+                }
+                var lstContestant = new List<Contestant>();
+                foreach (var contestantteam in lstContestantTeam)
+                {
+                    var contestant = _contestantRepo.GetById(contestantteam.ContestantId);
+                    lstContestant.Add(contestant);
+                }
+                var lstContestantRsp = _mapper.Map<List<ContestantRep>>(lstContestant);
+                res.SetData("data", lstContestantRsp);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public MutipleRsp GetAvailableContestantByCompetition(int competitionId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if(competition == null)
+                {
+                    res.SetError("No competition found");
+                }
+                var contestants = _contestantRepo.All(
+                    filter: x => x.TournamentId == competition.TournamentId,
+                    includeProperties: "ContestantTeams"
+                ).ToList();
+                if(contestants.Count == 0)
+                {
+                    res.SetError("No contestant found");
+                }
+                var lstContestant = new List<Contestant>();
+                foreach (var contestant in contestants)
+                {
+                    if (contestant.ContestantTeams == null || contestant.ContestantTeams.Count == 0)
+                    {
+                        lstContestant.Add(contestant);
+                    }
+                }
+                var lstContestantRsp = _mapper.Map<List<ContestantRep>>(lstContestant);
+                res.SetData("data", lstContestantRsp);
             }
             catch (Exception ex)
             {
