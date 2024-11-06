@@ -71,6 +71,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+        //[HttpPut("")]
+        //public async Task<IActionResult> UpdateScheduleConfigCompetition(int competitionId)
+        //{
+        //    var res = _scheduleSvc.updateScheduleConfigCompetition()
+
+        //    if (!res.Success)
+        //    {
+        //        return StatusCode(500, res.Message);
+        //    }
+        //    return Ok(res.Data);
+        //}
 
         [HttpDelete("{id}")]
         public IActionResult DeleteSchedule(int id)
@@ -99,6 +110,18 @@ namespace STEM_ROBOT.Web.Controllers
             int userID = int.Parse(user.Value);
             var sendmail = await _scheduleSvc.CheckCodeSchedule(scheduleId, userID,code);
             return Ok(sendmail);
+        }
+
+
+        [HttpGet("mactch-config-schedule")]
+        public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)
+        {
+            var res = await _scheduleSvc.ScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(404, res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }
