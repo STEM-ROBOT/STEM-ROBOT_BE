@@ -257,7 +257,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 };
 
-               
+
                 res.setData("data", competitionRps);
             }
             catch (Exception ex)
@@ -267,7 +267,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //update competitionformatconfig
-        public async Task<SingleRsp> UpdateCompetitionConfig(int competitionId,CompetitionConfigFormatReq request)
+        public async Task<SingleRsp> UpdateCompetitionConfig(int competitionId, CompetitionConfigFormatReq request)
         {
             var res = new SingleRsp();
             try
@@ -281,7 +281,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 competition_data.FormatId = request.FormatId;
                 competition_data.IsFormat = true;
-                competition_data.NumberTeam= request.NumberTeam;
+                competition_data.NumberTeam = request.NumberTeam;
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
@@ -404,7 +404,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var stage = new Stage
                 {
                     CompetitionId = competitionId,
-                    Name = roundName,                 
+                    Name = roundName,
                     Status = "Vòng phụ"
                 };
                 _stageRepo.Add(stage);
@@ -556,11 +556,11 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var matchGroup = group.Select(tb => new MatchGroupStageCompetition
                 {
-                    groupName=tb.Name,
-                    round= tb.StageTables.Select(st =>  new MatchGroupStageRound
+                    groupName = tb.Name,
+                    round = tb.StageTables.Select(st => new MatchGroupStageRound
                     {
                         roundNumber = st.Stage.Name,
-                        matches = st.Stage.Matches.Where(m=> m.TableGroupId == tb.Id).Select(m => new MatchRoundViewRsp
+                        matches = st.Stage.Matches.Where(m => m.TableGroupId == tb.Id).Select(m => new MatchRoundViewRsp
                         {
                             matchId = m.Id,
                             //team tham gia
@@ -578,8 +578,8 @@ namespace STEM_ROBOT.BLL.Svc
                             locationName = m.LocationId == null ? "" : m.Location.Address,
                         }).ToList()
                     }).ToList(),
-                   
-                   
+
+
                 }).ToList();
 
                 res.setData("data", matchGroup);
@@ -591,7 +591,39 @@ namespace STEM_ROBOT.BLL.Svc
             }
         }
 
-        public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        public SingleRsp getActiveCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition =  _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
+                if (competition != null)
+                {
+                    var resData = new ActiveCompetitionRsp();
+                    resData.isFormat = competition.IsFormat;
+                    resData.isReferee = competition.IsReferee;
+                    resData.isTeam = competition.IsTeam;
+                    resData.isTable = competition.IsTable;
+                    resData.isMatch = competition.IsMacth;
+                    resData.isTeamMatch = (bool)competition.IsTeamMacth;
+                    resData.isSchedule = competition.IsContestantTeam;
+                    resData.formatId = competition.FormatId;
+                    res.setData("data", resData);
+                }
+                else
+                {
+                    res.SetError("Competition not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError($"An error occurred: {ex.Message}");
+            }
+
+            return res;  
+        }
+
+       public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
             try
@@ -877,6 +909,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         TableId = x.Id,
                         TableName = x.Name,
+                        IsTable = (bool)competitition.IsTable,
                         Teams = _teamTableRepo.All().Where(t => t.TableGroupId == x.Id).Select(t => new DataTeamRsp
                         {
                             TeamId = t.Id,
@@ -887,6 +920,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var teamTableRsp = new DataAssignTeamTableRsp();
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
+                teamTableRsp.IsTable = (bool)competitition.IsTable;
                 res.setData("200", teamTableRsp);
             }
             catch (Exception ex)

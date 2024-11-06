@@ -154,6 +154,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsReferee)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isReferee");
+            entity.Property(e => e.IsSchedule).HasColumnName("isSchedule");
             entity.Property(e => e.IsTable)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isTable");
@@ -432,6 +433,7 @@ public partial class StemdbContext : DbContext
                 .HasMaxLength(20)
                 .IsFixedLength();
             entity.Property(e => e.StartTime).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
             entity.HasOne(d => d.Match).WithMany(p => p.Schedules)
