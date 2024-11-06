@@ -93,7 +93,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpPut("")]
         public async Task<IActionResult> ConFigTimeMtch(int competition, MatchConfigReq request)
         {
-            var res = await _matchSvc.conFigTimeMatch(competition, request);
+            var res = await _matchSvc.conFigTimeMtch(competition, request);
             if (!res.Success)
             {
                 res.SetMessage(res.Message);
