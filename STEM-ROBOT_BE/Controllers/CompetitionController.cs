@@ -159,8 +159,6 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-
         [HttpPut("id")]
         public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
         {

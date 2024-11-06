@@ -9,15 +9,8 @@ namespace STEM_ROBOT.Common.Req
 {
     public class ScheduleReq
     {
-        [Required(ErrorMessage = "Start time is required")]
-        public DateTime StartTime { get; set; }
+        public int? RefereeCompetitionId { get; set; }
 
-        [Required(ErrorMessage = "RefereeId is required")]
-        public int RefereeId { get; set; }
-
-        [Required(ErrorMessage = "MatchId is required")]
-        public int MatchId { get; set; }
-
-
+        public int? MatchId { get; set; }
     }
 }

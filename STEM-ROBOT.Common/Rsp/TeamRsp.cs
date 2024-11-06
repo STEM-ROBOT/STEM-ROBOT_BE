@@ -8,6 +8,8 @@ namespace STEM_ROBOT.Common.Rsp
 {
     public class TeamRsp
     {
+        public int? Id { get; set; }
+
         public int? CompetitionId { get; set; }
 
         public int? ContestantInTeam { get; set;}

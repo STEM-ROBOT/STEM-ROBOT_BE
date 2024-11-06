@@ -71,6 +71,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+     
 
         [HttpDelete("{id}")]
         public IActionResult DeleteSchedule(int id)
@@ -81,6 +82,47 @@ namespace STEM_ROBOT.Web.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Message);
+        }
+        [HttpGet("schedule-sendmail")]
+        public async Task<IActionResult> Sendmail(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.SendMail(scheduleId, userID);
+            return Ok("Send Success");
+        }
+        [HttpPost("schedule-sendcode")]
+        public async Task<IActionResult> SendCode(int scheduleId,string code)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.CheckCodeSchedule(scheduleId, userID,code);
+            return Ok(sendmail);
+        }
+
+
+        [HttpGet("mactch-config-schedule")]
+        public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)
+        {
+            var res = await _scheduleSvc.ScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                return StatusCode(404, res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateScheduleConfigCompetition(int competitionId , List<ScheduleReq> reqs)
+        {
+            var res =  await  _scheduleSvc.updateScheduleConfigCompetition(competitionId, reqs);
+
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }
