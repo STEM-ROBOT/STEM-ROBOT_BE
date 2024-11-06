@@ -65,8 +65,8 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var list = await _refereeRepo.GetListReferee(userID);
                 if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<List<RefereeTournament>>(list);
-                res.SetData("200", mapper);
+                var mapper = _mapper.Map<RefereeTournament>(list);
+                res.SetData("data", mapper);
             }
             catch (Exception ex)
             {

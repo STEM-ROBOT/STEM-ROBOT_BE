@@ -14,7 +14,7 @@ namespace STEM_ROBOT.DAL.Repo
         public RefereeCompetitionRepo(StemdbContext context) : base(context)
         {
         }
-        public async Task<List<RefereeCompetition>> ListRefereeCompetition()
+        public async Task<RefereeCompetition> ListRefereeCompetition(int comeptitionID, int acountID)
         {
             return await _context.RefereeCompetitions
     .Include(x => x.Referee)
@@ -27,8 +27,9 @@ namespace STEM_ROBOT.DAL.Repo
     .ThenInclude(x => x.Match)
     .ThenInclude(x => x.TeamMatches)
     .ThenInclude(x=> x.Team)
+    .Where(x => x.Referee.Account.Id == acountID && x.Competition.Id == comeptitionID)
 
-    .ToListAsync();
+    .FirstOrDefaultAsync();
         }
 
       
