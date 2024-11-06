@@ -200,5 +200,39 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        //public async Task<SingleRsp> UpdateBusy(int scheduleID,int accountID)
+        //{
+        //    var res = new SingleRsp();
+        //    try
+        //    {
+        //        var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+        //        if (schedule == null) throw new Exception("No data");
+        //        var email = schedule.RefereeCompetition.Referee.Email;
+        //        var name = schedule.RefereeCompetition.Referee.Name;
+        //        var startDate = schedule.StartTime;
+
+        //        schedule.BackupReferee = "Bận";
+        //        var emailbody = $@"
+        //                <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
+        //                <div>
+                            
+        //                    <span>Trọng tài  : </span> <strong>{randomCode}</strong><br>
+                           
+        //                </div>
+                       
+        //                <div>
+        //                    <span>Mã có hiệu lực trong 120 giây</strong>
+        //                </div>
+                           
+        //                <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+        //            </div>
+        //            ";
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw new Exception("UpdateBusy fail");
+        //    } 
+        //}
     }
 }
