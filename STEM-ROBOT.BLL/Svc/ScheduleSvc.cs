@@ -20,7 +20,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
 
-  
+
         private readonly IMailService _mailService;
         public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
         {
@@ -206,45 +206,104 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        //public async Task<SingleRsp> UpdateBusy(int scheduleID,int accountID)
-        //{
-        //    var res = new SingleRsp();
-        //    try
-        //    {
-        //        var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
-        //        if (schedule == null) throw new Exception("No data");
-        //        var email = schedule.RefereeCompetition.Referee.Email;
-        //        var name = schedule.RefereeCompetition.Referee.Name;
-        //        var startDate = schedule.StartTime;
 
-        //        schedule.BackupReferee = "Bận";
-        //        var emailbody = $@"
-        //                <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
-        //                <div>
-                            
-        //                    <span>Trọng tài  : </span> <strong>{randomCode}</strong><br>
-                           
-        //                </div>
-                       
-        //                <div>
-        //                    <span>Mã có hiệu lực trong 120 giây</strong>
-        //                </div>
-                           
-        //                <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
-        //            </div>
-        //            ";
+        public async Task<SingleRsp> UpdateBusy(int scheduleID, int accountID)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var account = await _scheduleRepo.getEmail(scheduleID);
+                var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+                if (schedule == null) throw new Exception("No data");
 
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        throw new Exception("UpdateBusy fail");
-        //    } 
-        //}
+                var email = schedule.RefereeCompetition?.Referee?.Email ?? "N/A";
+                var emailModer = account?.Email ?? "N/A";
+                var name = schedule.RefereeCompetition?.Referee?.Name ?? "N/A";
+
+                DateTime startDate = (DateTime)(schedule.Match?.StartDate);
+                TimeSpan timeIn = (TimeSpan)(schedule.Match?.TimeIn);
+                TimeSpan timeOut = (TimeSpan)(schedule.Match?.TimeOut);
+
+                schedule.Status = true;
+
+                var emailbody = $@"
+        <div style='font-family: Arial, sans-serif;'>
+            <h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
+
+            <table style='width: 100%; border-collapse: collapse;'>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd;'><strong>Trọng tài</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{name}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd;'><strong>Email</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{email}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd;'><strong>Ngày bắt đầu</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{startDate}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd;'><strong>Thời gian vào sân</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{timeIn}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd;'><strong>Thời gian ra sân</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{timeOut}</td>
+                </tr>
+            </table>
+
+            <div style='margin-top: 16px;'>   
+                <p>Bạn vui lòng bổ sung thêm trọng tài vào trận này nhé</p>
+                <p>STEM xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+            </div>
+        </div>
+    ";
+
+                var mail = new MailReq
+                {
+                    ToEmail = email,
+                    Subject = "[STEM PLATFORM]",
+                    Body = emailbody
+                };
+
+                await _mailService.SendEmailAsync(mail);
+                _scheduleRepo.Update(schedule);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("UpdateBusy fail: " + ex.Message, ex);
+            }
+            return res;
+
+        }
+        public async Task<SingleRsp> CancelBusy(int scheduleID, int accountID)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+                if (schedule == null) throw new Exception("No data");
+                schedule.Status = false;
+                
+
+            } catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+
         public async Task<SingleRsp> ScheduleCompetition(int competitionId)
         {
             var res = new SingleRsp();
             try
+
             {  var competition= _competition.GetById(competitionId);
+
+            {
+
                 var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
                 if (schedule == null)
                 {
@@ -252,10 +311,15 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
+
                     var main_referee = "";
                     var data = new ScheduleConfigRsp
                     {
                         IsSchedule = competition.IsSchedule,
+
+                    var data = new ScheduleConfigRsp
+                    {
+
                         MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                         {
                             Id = cr.Id,
@@ -278,6 +342,7 @@ namespace STEM_ROBOT.BLL.Svc
                                 timeIn = (TimeSpan)m.TimeIn,
                                 date = (DateTime)m.StartDate,
                                 arena = m.Location.Address,
+
                                 mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
                                 mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
                                 matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
@@ -285,6 +350,8 @@ namespace STEM_ROBOT.BLL.Svc
                                     SubRefereeId= rs.RefereeCompetition.Id,
                                     SubRefereeName  = rs.RefereeCompetition.Referee.Name,
                                 }).ToList(),
+
+
                             }).ToList(),
                         }).ToList(),
                     };
@@ -297,6 +364,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public async Task<SingleRsp> updateScheduleConfigCompetition(int competitionId, List<ScheduleReq> reques)
         {
             var res = new SingleRsp();
@@ -307,6 +375,6 @@ namespace STEM_ROBOT.BLL.Svc
             _scheduleRepo.AddRange(list_schedule);
             return res; 
         }
-      
+
     }
 }
