@@ -140,6 +140,7 @@ namespace STEM_ROBOT.BLL.Mapper
                  ContestantId = ct.ContestantId,
                  ContestantName = ct.Contestant.Name
              }).ToList()));
+            CreateMap<Team, ListTeamRspByTournament>().ReverseMap();
 
             //action
             CreateMap<Action, ActionReq>().ReverseMap();
