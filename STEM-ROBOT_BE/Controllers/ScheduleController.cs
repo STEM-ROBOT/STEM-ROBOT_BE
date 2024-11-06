@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using STEM_ROBOT.DAL.Models;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -123,6 +124,15 @@ namespace STEM_ROBOT.Web.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
+        }
+        [HttpPost("schedule-busy")]
+        public async Task<IActionResult> UpdateBusy(int scheduleID)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.UpdateBusy(scheduleID, userID);
+            return Ok(sendmail);
         }
     }
 }
