@@ -299,63 +299,56 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             try
-
-            {  var competition= _competition.GetById(competitionId);
-
             {
+                var scheduleMatch = await _scheduleRepo.GetRefereeGameAsync(competitionId);
 
-                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
-                if (schedule == null)
-                {
-                    res.SetError("404", "Schedule not found");
-                }
-                else
                 {
 
-                    var main_referee = "";
-                    var data = new ScheduleConfigRsp
+                    var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                    if (schedule == null)
                     {
-                        IsSchedule = competition.IsSchedule,
-
-                    var data = new ScheduleConfigRsp
+                        res.SetError("404", "Schedule not found");
+                    }
+                    else
                     {
 
-                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        var data = new ScheduleConfigRsp
                         {
-                            Id = cr.Id,
-                            Name = cr.Referee.Name,
-                        }).ToList(),
-
-                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
-                        {
-                            Id = cs.Id,
-                            Name = cs.Referee.Name,
-                        }).ToList(),
-
-                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
-                        {
-                            RoundId = s.Id,
-                            roundName = s.Name,
-                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                            IsSchedule = schedule.IsSchedule,
+                            MatchReferees = schedule.RefereeCompetitions.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                             {
-                                matchId = m.Id,
-                                timeIn = (TimeSpan)m.TimeIn,
-                                date = (DateTime)m.StartDate,
-                                arena = m.Location.Address,
-
-                                mainReferee = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Id,
-                                mainRefereeName = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "MRF").FirstOrDefault().RefereeCompetition.Referee.Name,
-                                matchRefereesdata = m.Schedules.Where(ms => ms.RefereeCompetition.Role == "SRF").ToList().Select(rs => new SchedulMainMatchRefereeRsp
-                                {
-                                    SubRefereeId= rs.RefereeCompetition.Id,
-                                    SubRefereeName  = rs.RefereeCompetition.Referee.Name,
-                                }).ToList(),
-
-
+                                Id = cr.Id,
+                                Name = cr.Referee.Name,
                             }).ToList(),
-                        }).ToList(),
-                    };
-                    res.setData("data", schedule);
+
+                            Referees = schedule.RefereeCompetitions.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                            {
+                                Id = cs.Id,
+                                Name = cs.Referee.Name,
+                            }).ToList(),
+
+                            Rounds = schedule.Stages.Select(s => new SchedulRoundsRefereeRsp
+                            {
+                                RoundId = s.Id,
+                                roundName = s.Name,
+                                Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                                {
+                                    matchId = m.Id,
+                                    timeIn = (TimeSpan)m.TimeIn,
+                                    date = (DateTime)m.StartDate,
+                                    arena = m.Location.Address,
+                                    mainReferee = scheduleMatch.Count > 0 ? (int)scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetitionId : 0,
+                                    mainRefereeName = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetition.Referee.Name : "",
+                                    matchRefereesdata = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "SRF" && sc.MatchId == m.Id).ToList().Select(rs => new SchedulMainMatchRefereeRsp
+                                    {
+                                        SubRefereeId = rs.RefereeCompetition.Id,
+                                        SubRefereeName = rs.RefereeCompetition.Referee.Name,
+                                    }).ToList() : new List<SchedulMainMatchRefereeRsp>(),
+                                }).ToList(),
+                            }).ToList(),
+                        };
+                        res.setData("data", data);
+                    }
                 }
             }
             catch (Exception ex)
@@ -369,11 +362,11 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var competition = _competition.GetById(competitionId);
-            competition.IsSchedule=true;
-            var list_schedule = _mapper.Map<List<Schedule>>( reques);
+            competition.IsSchedule = true;
+            var list_schedule = _mapper.Map<List<Schedule>>(reques);
             _competition.Update(competition);
             _scheduleRepo.AddRange(list_schedule);
-            return res; 
+            return res;
         }
 
     }
