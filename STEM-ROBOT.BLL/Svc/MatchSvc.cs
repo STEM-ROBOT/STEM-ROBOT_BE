@@ -164,6 +164,7 @@ namespace STEM_ROBOT.BLL.Svc
                                         teamA = md.TeamMatches.FirstOrDefault().TeamId == null ? md.TeamMatches.FirstOrDefault().NameDefault : md.TeamMatches.FirstOrDefault().Team.Name,
                                         teamB = md.TeamMatches.LastOrDefault().TeamId == null ? md.TeamMatches.LastOrDefault().NameDefault : md.TeamMatches.LastOrDefault().Team.Name,
                                         date = md.StartDate,
+                                        time = md.TimeIn,
                                         locationId = md.LocationId
                                     }).ToList(),
                                 }).ToList(),
@@ -229,7 +230,8 @@ namespace STEM_ROBOT.BLL.Svc
                             matchId = md.Id,
                             teamA = md.TeamMatches.FirstOrDefault().TeamId == null ? md.TeamMatches.FirstOrDefault().NameDefault : md.TeamMatches.FirstOrDefault().Team.Name,
                             teamB = md.TeamMatches.LastOrDefault().TeamId == null ? md.TeamMatches.LastOrDefault().NameDefault : md.TeamMatches.LastOrDefault().Team.Name,
-                            date = md.StartDate,
+                            date =md.StartDate,
+                            time=md.TimeIn,
                             locationId = md.LocationId
                         }).ToList(),
                         },
