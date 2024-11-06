@@ -17,6 +17,8 @@ public partial class Schedule
 
     public DateTime? TimeOut { get; set; }
 
+    public string? BackupReferee { get; set; }
+
     public virtual Match? Match { get; set; }
 
     public virtual RefereeCompetition? RefereeCompetition { get; set; }
