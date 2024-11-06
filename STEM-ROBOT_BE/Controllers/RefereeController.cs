@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.DAL.Models;
@@ -32,6 +33,19 @@ namespace STEM_ROBOT.Web.Controllers
         public IActionResult GetRefereeById(int id)
         {
             var res = _refereeSvc.GetById(id);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("referee-tournament")]
+        public async Task<IActionResult> ListRefereeTournament()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please Login ");
+            int userID = int.Parse(user.Value);
+            var res = await _refereeSvc.ListRefereeTournament(userID);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);

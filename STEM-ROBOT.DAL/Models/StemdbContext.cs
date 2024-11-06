@@ -39,6 +39,8 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<MatchHalf> MatchHalves { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<Package> Packages { get; set; }
@@ -71,7 +73,6 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
- 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -313,6 +314,17 @@ public partial class StemdbContext : DbContext
                 .HasConstraintName("FK__MatchHalf__Match__1332DBDC");
         });
 
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+
+            entity.Property(e => e.Description).HasMaxLength(1000);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_Notification_Account");
+        });
+
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_PakageAccount");
@@ -398,7 +410,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Competition).WithMany(p => p.RefereeCompetitions)
                 .HasForeignKey(d => d.CompetitionId)
-                .HasConstraintName("FK__RefereeCo__Compe__7C4F7684");
+                .HasConstraintName("FK_RefereeCompetition_Competition");
 
             entity.HasOne(d => d.Referee).WithMany(p => p.RefereeCompetitions)
                 .HasForeignKey(d => d.RefereeId)
@@ -411,15 +423,19 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Schedule");
 
+            entity.Property(e => e.OptCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.StartTime).HasColumnType("datetime");
+            entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
             entity.HasOne(d => d.Match).WithMany(p => p.Schedules)
                 .HasForeignKey(d => d.MatchId)
                 .HasConstraintName("FK__Schedule__MatchI__19DFD96B");
 
-            entity.HasOne(d => d.Referee).WithMany(p => p.Schedules)
-                .HasForeignKey(d => d.RefereeId)
-                .HasConstraintName("FK_Schedule_RefereeCompetition");
+            entity.HasOne(d => d.RefereeCompetition).WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.RefereeCompetitionId)
+                .HasConstraintName("FK_Schedule_RefereeCompetition1");
         });
 
         modelBuilder.Entity<School>(entity =>
