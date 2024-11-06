@@ -21,7 +21,6 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> GetListCompetition()
         {
@@ -91,10 +90,10 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpPut("format-config")]
         public async Task<IActionResult> UpdateCompetitionFormat(int competitionId, CompetitionConfigFormatReq request)
         {
-         
+
             if (request.FormatId == 1)
             {
-                var res = await _competionSvc.UpdateCompetitionConfig(competitionId,request);
+                var res = await _competionSvc.UpdateCompetitionConfig(competitionId, request);
                 if (!res.Success)
                 {
                     res.SetError("400", res.Message);
@@ -102,7 +101,8 @@ namespace STEM_ROBOT.Web.Controllers
 
                 }
                 return Ok(res);
-            }else if (request.FormatId == 2)
+            }
+            else if (request.FormatId == 2)
             {
                 var res = _competionSvc.UpdateCompetitionFormatTable(competitionId, request);
                 if (!res.Success)
@@ -112,10 +112,10 @@ namespace STEM_ROBOT.Web.Controllers
                 }
                 return Ok(res);
             }
-              return Ok();
-           
+            return Ok();
+
         }
- 
+
         //thông tin cấu hình đăng kí thí sinh tham gia nội dung
         [HttpGet("config-register")]
         public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
@@ -228,11 +228,21 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-
         [HttpGet("active/{competitionId}")]
         public IActionResult ActiveCompetition(int competitionId)
         {
-            var res =  _competionSvc.getActiveCompetition(competitionId);
+            var res = _competionSvc.getActiveCompetition(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpPut("set-active")]
+        public IActionResult SetActive(int competitionId)
+        {
+            var res = _competionSvc.SetCompetitionActive(competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
