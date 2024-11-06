@@ -8,6 +8,7 @@ namespace STEM_ROBOT.BLL.Svc
 {
     public class DataAssignTeamTableRsp
     {
+        public bool IsTable { get; set; }
         public List<DataTeamRsp> Teams { get; set; }
         public List<DataTableRsp> Tables { get; set; }
     }
@@ -20,6 +21,7 @@ namespace STEM_ROBOT.BLL.Svc
     public class DataTableRsp
     {
         public int TableId { get; set; }
+        public bool IsTable { get; set; }
         public string TableName { get; set; }
         public List<DataTeamRsp> Teams { get; set; }
     }

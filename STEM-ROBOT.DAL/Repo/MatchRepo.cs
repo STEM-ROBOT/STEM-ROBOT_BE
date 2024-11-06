@@ -148,6 +148,7 @@ namespace STEM_ROBOT.DAL.Repo
         {
             var rounds = new RoundGameKnockoutParent();
             var listRoundGameKnockOut = await _context.Competitions.Where(x => x.Id == competitionID).Include(x => x.Stages).ThenInclude(x => x.Matches).ThenInclude(x => x.TeamMatches).ThenInclude(tm => tm.Team).Include(c => c.Teams).FirstOrDefaultAsync();
+            
             if (listRoundGameKnockOut == null) return null;
             rounds.isTeamMatch = (bool)listRoundGameKnockOut.IsTeamMacth;
 
