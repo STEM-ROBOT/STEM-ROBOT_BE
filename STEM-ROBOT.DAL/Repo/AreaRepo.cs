@@ -18,15 +18,6 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.Areas.ToListAsync();
         }
 
-    public async Task<List<Province>> GetProvince(int Id)
-        {
-            return await _context.Provinces.Where(x => x.Id == Id).Include(x => x.Districts).ToListAsync();
-        }
-
-        public async Task<List<District>> GetDistrict(int Id)
-        {
-            return await _context.Districts.Where(x => x.Id == Id).Include(x => x.Schools).ToListAsync();
-        }
 
     }
 }

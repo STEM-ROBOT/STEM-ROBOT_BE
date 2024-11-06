@@ -21,14 +21,14 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
             _mailService = mailService;
         }
-        public async Task<MutipleRsp> ListRefeeCompetition()
+        public async Task<MutipleRsp> ListRefeeCompetition(int competitionID, int userID)
         {
             var res = new MutipleRsp();
             try
             {
-                var list = await _refereeCompetitionRepo.ListRefereeCompetition();
+                var list = await _refereeCompetitionRepo.ListRefereeCompetition(competitionID,userID);
                 if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<List<RefereeCompetitionRsp>>(list);
+                var mapper = _mapper.Map<RefereeCompetitionRsp>(list);
                 res.SetData("data", mapper);
 
             }catch(Exception ex)

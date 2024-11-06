@@ -19,16 +19,37 @@ namespace STEM_ROBOT.Web.Controllers
             var res = await _areaSvc.ListArea();
             return Ok(res.Data);
         }
-        [HttpGet("province")]
-        public async Task<IActionResult> ListProvince(int id)
+
+        [HttpGet("province/areaId")]
+        public IActionResult ListProvince(int areaId)
         {
-            var res = await _areaSvc.ListProvince(id);
+            var res =  _areaSvc.GetProvinceByArea(areaId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
             return Ok(res.Data);
         }
-        [HttpGet("district")]
-        public async Task<IActionResult> ListDistrict(int id)
+
+        [HttpGet("district/provinceId")]
+        public IActionResult ListDistrict(int provinceId)
         {
-            var res = await _areaSvc.ListDistrict(id);
+            var res = _areaSvc.GetDistrictByProvince(provinceId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+
+        [HttpGet("school/districtId")]
+        public IActionResult ListSchool(int districtId)
+        {
+            var res = _areaSvc.GetSchoolByDistrict(districtId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
             return Ok(res.Data);
         }
     }

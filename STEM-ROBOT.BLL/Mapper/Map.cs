@@ -73,7 +73,7 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x => x.referee, op => op.MapFrom(x => x.RefereeCompetitions))
                 .ReverseMap();
 
-            // CreateMap<RefereeCompetition, ListRefereeCompetition>().ReverseMap();
+            CreateMap<RefereeCompetition, AssignRefereeCompetitionRsp>().ReverseMap();
             CreateMap<RefereeCompetition, ListRefereeCompetition>()
                 .ForMember(x => x.nameGenre, op => op.MapFrom(x => x.Competition.Genre.Name))
                 .ForMember(x => x.imageGenre, op => op.MapFrom(x => x.Competition.Genre.Image))
@@ -201,14 +201,10 @@ namespace STEM_ROBOT.BLL.Mapper
 
             //area
             CreateMap<Area, AreaRsp>().ReverseMap();
-            CreateMap<Province, ProvinceList>()
-                .ForMember(x=> x.districts, op => op.MapFrom(x => x.Districts))
-                .ReverseMap();
-            CreateMap<District, DistrictList>().ReverseMap();
-            CreateMap<District, DistrictList>()
-                .ForMember(x=> x.schools , op => op.MapFrom(x=> x.Schools))
-                .ReverseMap();
-            CreateMap<School, ListSchool>().ReverseMap();
+            CreateMap<Province, ProvinceRsp>().ReverseMap();
+            CreateMap<District, DistrictRsp>().ReverseMap();
+            CreateMap<District, DistrictRsp>().ReverseMap();
+            CreateMap<School, ListSchoolRsp>().ReverseMap();
         }
         
     }

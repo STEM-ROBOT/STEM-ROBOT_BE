@@ -68,7 +68,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var mapper = _mapper.Map<RefereeTournament>(list);
                 res.SetData("data", mapper);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception("Get list Fail");
             }
@@ -360,37 +360,64 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp GetListRefereeAvailable(int tournamentId)
+        public SingleRsp GetListRefereeAvailable(int tournamentId, int competitionId)
         {
             var res = new SingleRsp();
             try
             {
-                var lstReferee = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
-                var availableReferee = new List<RefereeRsp>();
-                foreach (var referee in lstReferee)
+                var competition = _competitionRepo.Find(x => x.Id == competitionId).FirstOrDefault();
+                if (competition == null)
                 {
-                    bool isAvailable = true;
-                    var lstRefereeCompetition = _refereeCompetitionRepo.All(x => x.RefereeId == referee.Id).ToList();
-                    
-                    foreach (var competition in lstRefereeCompetition)
+                    res.SetError("404", "Competition not found");
+                    return res;
+                }
+                if (competition.IsReferee == true)
+                {
+                    var refereeCompetition = _refereeCompetitionRepo.All(
+                        includeProperties: "Referee",
+                        filter: x => x.CompetitionId == competitionId
+                        ).ToList();
+                    var lstReferee = new List<RefereeRsp>();
+                    foreach (var item in refereeCompetition)
                     {
-                        var competitionEndTime = _competitionRepo.Find(x => x.Id == competition.CompetitionId).Select(x => x.EndTime).FirstOrDefault();
-                        if (competitionEndTime.HasValue && competitionEndTime.Value > DateTime.Now)
+                        var referee = _refereeRepo.Find(x => x.Id == item.RefereeId).FirstOrDefault();
+                        var refereeRsp = _mapper.Map<RefereeRsp>(referee);
+                        refereeRsp.Role = item.Role;
+                        refereeRsp.IsReferee = true;
+                        lstReferee.Add(refereeRsp);
+                    }
+                    res.setData("data", lstReferee);
+                    res.SetMessage("True");
+                }
+                else
+                {
+                    var lstReferee = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
+                    var availableReferee = new List<RefereeRsp>();
+                    foreach (var referee in lstReferee)
+                    {
+                        bool isAvailable = true;
+                        var lstRefereeCompetition = _refereeCompetitionRepo.All(x => x.RefereeId == referee.Id).ToList();
+
+                        foreach (var item in lstRefereeCompetition)
                         {
-                            isAvailable = false;
-                            break;
+                            var competitionEndTime = _competitionRepo.Find(x => x.Id == item.CompetitionId).Select(x => x.EndTime).FirstOrDefault();
+                            if (competitionEndTime.HasValue && competitionEndTime.Value > DateTime.Now)
+                            {
+                                isAvailable = false;
+                                break;
+                            }
+                        }
+                        if (isAvailable)
+                        {
+                            var refereeRsp = _mapper.Map<RefereeRsp>(referee);
+                            refereeRsp.IsReferee = false;
+                            availableReferee.Add(refereeRsp);
                         }
                     }
-                    if(isAvailable)
-                    {
-                        var refereeRsp = _mapper.Map<RefereeRsp>(referee);
-                        availableReferee.Add(refereeRsp);
-                    }
+
+                    res.setData("data", availableReferee);
                 }
-
-                res.setData("data", availableReferee);
-
-            }
+                }
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
@@ -398,11 +425,21 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp AssignRefereeInCompetition(int competitionId,List<AssginRefereeReq> referees)
+        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
         {
             var res = new MutipleRsp();
             try
             {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found");
+                    return res;
+                }
+                competition.IsReferee = true;
+                competition.NumberSubReferee = numberSubReferee;
+                competition.NumberTeamReferee = numberTeamReferee;
+                _competitionRepo.Update(competition);
                 var refereeCompetitionList = new List<RefereeCompetition>();
                 foreach (var referee in referees)
                 {
@@ -415,7 +452,8 @@ namespace STEM_ROBOT.BLL.Svc
                     refereeCompetitionList.Add(refereeCompetition);
                     _refereeCompetitionRepo.Add(refereeCompetition);
                 }
-                res.SetData("200", refereeCompetitionList);
+                var refereeCompetitionListRsp = _mapper.Map<List<RefereeCompetitionRsp>>(refereeCompetitionList);
+                res.SetData("200", refereeCompetitionListRsp);
             }
             catch (Exception ex)
             {
