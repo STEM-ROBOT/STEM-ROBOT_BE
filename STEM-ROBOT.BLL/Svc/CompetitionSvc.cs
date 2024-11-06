@@ -909,6 +909,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         TableId = x.Id,
                         TableName = x.Name,
+                        IsTable = (bool)competitition.IsTable,
                         Teams = _teamTableRepo.All().Where(t => t.TableGroupId == x.Id).Select(t => new DataTeamRsp
                         {
                             TeamId = t.Id,
@@ -919,6 +920,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var teamTableRsp = new DataAssignTeamTableRsp();
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
+                teamTableRsp.IsTable = (bool)competitition.IsTable;
                 res.setData("200", teamTableRsp);
             }
             catch (Exception ex)

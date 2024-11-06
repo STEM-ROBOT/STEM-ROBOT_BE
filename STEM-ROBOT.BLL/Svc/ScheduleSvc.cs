@@ -244,7 +244,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             try
-            {
+            {  var competition= _competition.GetById(competitionId);
                 var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
                 if (schedule == null)
                 {
@@ -255,6 +255,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var main_referee = "";
                     var data = new ScheduleConfigRsp
                     {
+                        IsSchedule = competition.IsSchedule,
                         MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                         {
                             Id = cr.Id,
@@ -296,10 +297,13 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<SingleRsp> updateScheduleConfigCompetition(int competitionID, List<ScheduleReq> reques)
+        public async Task<SingleRsp> updateScheduleConfigCompetition(int competitionId, List<ScheduleReq> reques)
         {
             var res = new SingleRsp();
+            var competition = _competition.GetById(competitionId);
+            competition.IsSchedule=true;
             var list_schedule = _mapper.Map<List<Schedule>>( reques);
+            _competition.Update(competition);
             _scheduleRepo.AddRange(list_schedule);
             return res; 
         }

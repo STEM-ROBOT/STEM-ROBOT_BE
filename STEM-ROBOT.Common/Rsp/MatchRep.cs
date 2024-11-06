@@ -49,6 +49,7 @@ namespace STEM_ROBOT.Common.Rsp
     }
     public class GroupRound
     {
+        public bool IsTeamMatch { get; set; }
         public ICollection<RoundGroupGame> rounds { get; set; } = new List<RoundGroupGame>();
     }
     public class RoundGroupGame
