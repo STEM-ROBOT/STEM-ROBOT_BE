@@ -18,7 +18,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
 
-  
+
         private readonly IMailService _mailService;
         public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
         {
@@ -204,39 +204,92 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        //public async Task<SingleRsp> UpdateBusy(int scheduleID,int accountID)
-        //{
-        //    var res = new SingleRsp();
-        //    try
-        //    {
-        //        var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
-        //        if (schedule == null) throw new Exception("No data");
-        //        var email = schedule.RefereeCompetition.Referee.Email;
-        //        var name = schedule.RefereeCompetition.Referee.Name;
-        //        var startDate = schedule.StartTime;
+        public async Task<SingleRsp> UpdateBusy(int scheduleID, int accountID)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+                if (schedule == null) throw new Exception("No data");
+                var email = schedule.RefereeCompetition.Referee.Email;
+                var name = schedule.RefereeCompetition.Referee.Name;
+                var startDate = schedule.Match.StartDate;
+                var timeIn = schedule.Match.TimeIn;
+                var timeOut = schedule.Match.TimeOut;
+                schedule.Status = true;
 
-        //        schedule.BackupReferee = "Bận";
-        //        var emailbody = $@"
-        //                <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
-        //                <div>
-                            
-        //                    <span>Trọng tài  : </span> <strong>{randomCode}</strong><br>
-                           
-        //                </div>
-                       
-        //                <div>
-        //                    <span>Mã có hiệu lực trong 120 giây</strong>
-        //                </div>
-                           
-        //                <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
-        //            </div>
-        //            ";
+                schedule.BackupReferee = "Bận";
+                var emailbody = $@"
+                        <div><h3>THÔNG BÁO BẬN CỦA TRỌNG TÀI</h3> 
+                        <div>
 
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        throw new Exception("UpdateBusy fail");
-        //    } 
-        //}
+                            <span>Trọng tài   : </span> <strong>{name}</strong><br>
+                            <span>Email   : </span> <strong>{email}</strong><br>
+
+                        </div>
+
+                        <div>
+                            <span>Mã có hiệu lực trong 120 giây</strong>
+                        </div>
+
+                        <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+                    </div>
+                    ";
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("UpdateBusy fail");
+            }
+            return res;
+        }
+        public async Task<SingleRsp> ScheduleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                if (schedule == null)
+                {
+                    res.SetError("404", "Schedule not found");
+                }
+                else
+                {
+                    var data = new ScheduleConfigRsp
+                    {
+                        MatchReferees = schedule.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
+                        {
+                            Id = cr.Id,
+                            Name = cr.Referee.Name,
+                        }).ToList(),
+
+                        Referees = schedule.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                        {
+                            Id = cs.Id,
+                            Name = cs.Referee.Name,
+                        }).ToList(),
+
+                        Rounds = schedule.FirstOrDefault().Competition.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        {
+                            RoundId = s.Id,
+                            roundName = s.Name,
+                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                            {
+                                matchId = m.Id,
+                                timeIn = (TimeSpan)m.TimeIn,
+                                date = (DateTime)m.StartDate,
+                                arena = m.Location.Address,
+                            }).ToList(),
+                        }).ToList(),
+                    };
+                    res.setData("data", schedule);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }
