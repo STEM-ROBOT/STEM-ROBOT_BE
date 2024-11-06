@@ -41,21 +41,21 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPost()]
-        public IActionResult CreateSchedule([FromBody] ScheduleReq req)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost()]
+        //public IActionResult CreateSchedule([FromBody] ScheduleReq req)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var res = _scheduleSvc.Create(req);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
-            return Ok(res.Data);
-        }
+        //    var res = _scheduleSvc.Create(req);
+        //    if (!res.Success)
+        //    {
+        //        return StatusCode(500, res.Message);
+        //    }
+        //    return Ok(res.Data);
+        //}
 
         [HttpPut("{id}")]
         public IActionResult UpdateSchedule([FromBody] ScheduleReq req, int id)
@@ -72,17 +72,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-        //[HttpPut("")]
-        //public async Task<IActionResult> UpdateScheduleConfigCompetition(int competitionId)
-        //{
-        //    var res = _scheduleSvc.updateScheduleConfigCompetition()
-
-        //    if (!res.Success)
-        //    {
-        //        return StatusCode(500, res.Message);
-        //    }
-        //    return Ok(res.Data);
-        //}
+     
 
         [HttpDelete("{id}")]
         public IActionResult DeleteSchedule(int id)
@@ -114,13 +104,24 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        [HttpGet("mactch-config-schedule")]
+        [HttpGet("match-config-schedule")]
         public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)
         {
             var res = await _scheduleSvc.ScheduleCompetition(competitionId);
             if (!res.Success)
             {
                 return StatusCode(404, res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpPost("")]
+        public async Task<IActionResult> UpdateScheduleConfigCompetition(int competitionId , List<ScheduleReq> reqs)
+        {
+            var res =  await  _scheduleSvc.updateScheduleConfigCompetition(competitionId, reqs);
+
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
         }

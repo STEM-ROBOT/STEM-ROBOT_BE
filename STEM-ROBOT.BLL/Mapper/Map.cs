@@ -170,7 +170,8 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ReverseMap();
 
 
-
+            //schedule
+            CreateMap<Schedule, ScheduleReq>().ReverseMap();
             //payment
             CreateMap<Payment, PaymentRsp>().ReverseMap();
             //refereeCompetition
@@ -209,5 +210,6 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ReverseMap();
             CreateMap<School, ListSchool>().ReverseMap();
         }
+        
     }
 }
