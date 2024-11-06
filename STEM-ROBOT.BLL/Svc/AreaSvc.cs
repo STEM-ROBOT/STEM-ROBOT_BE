@@ -13,11 +13,19 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private AreaRepo _areaRepo;
         private IMapper _mapper;
-        public AreaSvc(AreaRepo areaRepo, IMapper mapper)
+        private readonly ProvinceRepo _provinceRepo;
+        private readonly DistrictRepo _districtRepo;
+        private readonly SchoolRepo _schoolRepo;
+
+        public AreaSvc(AreaRepo areaRepo, IMapper mapper, ProvinceRepo provinceRepo, DistrictRepo districtRepo, SchoolRepo schoolRepo)
         {
             _areaRepo = areaRepo;
             _mapper = mapper;
+            _provinceRepo = provinceRepo;
+            _districtRepo = districtRepo;
+            _schoolRepo = schoolRepo;
         }
+
         public async Task<MutipleRsp> ListArea()
         {
             var res = new MutipleRsp();
@@ -35,15 +43,16 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> ListProvince(int id)
+        
+        public MutipleRsp GetProvinceByArea(int areaId)
         {
             var res = new MutipleRsp();
             try
             {
-
-                var list = await _areaRepo.GetProvince(id);
-                if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<List<ProvinceList>>(list);
+                var area = _areaRepo.GetById(areaId);
+                if (area == null) throw new Exception("Area not found");
+                var list = _provinceRepo.All().Where(p => p.AreaId == areaId);
+                var mapper = _mapper.Map<List<ProvinceRsp>>(list);
                 res.SetData("data", mapper);
             }
             catch (Exception ex)
@@ -52,15 +61,33 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> ListDistrict(int id)
+        public MutipleRsp GetDistrictByProvince(int provinceId)
         {
             var res = new MutipleRsp();
             try
             {
+                var province = _provinceRepo.GetById(provinceId);
+                if (province == null) throw new Exception("Province not found");
+                var list = _districtRepo.All().Where(d => d.ProvinceId == provinceId);
+                var mapper = _mapper.Map<List<DistrictRsp>>(list);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
 
-                var list = await _areaRepo.GetDistrict(id);
-                if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<List<DistrictList>>(list);
+        public MutipleRsp GetSchoolByDistrict(int districtId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var district = _districtRepo.GetById(districtId);
+                if (district == null) throw new Exception("District not found");
+                var list = _schoolRepo.All().Where(s => s.DistrictId == districtId);
+                var mapper = _mapper.Map<List<ListSchoolRsp>>(list);
                 res.SetData("data", mapper);
             }
             catch (Exception ex)
@@ -70,4 +97,5 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
     }
+    
 }
