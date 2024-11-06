@@ -27,6 +27,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int Id { get; set; }
         public string StartTime { get; set; }
 
+        public bool? status { get; set; }
 
         public string location { get; set; } // location name owr bang location
 
