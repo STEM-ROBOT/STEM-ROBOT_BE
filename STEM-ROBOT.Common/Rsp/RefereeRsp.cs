@@ -16,6 +16,8 @@ namespace STEM_ROBOT.Common.Rsp
         public string Status { get; set; }
         public int TournamentId { get; set; }
         public string Image { get; set; }
+
+        public bool IsReferee { get; set; }
     }
 
     public class RefereeTournament
