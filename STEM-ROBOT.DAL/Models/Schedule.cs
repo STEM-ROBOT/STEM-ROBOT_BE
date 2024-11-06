@@ -7,7 +7,7 @@ public partial class Schedule
 {
     public int Id { get; set; }
 
-    public int? RefereeId { get; set; }
+    public int? RefereeCompetitionId { get; set; }
 
     public int? MatchId { get; set; }
 
@@ -15,7 +15,11 @@ public partial class Schedule
 
     public string? OptCode { get; set; }
 
+    public DateTime? TimeOut { get; set; }
+
+    public string? BackupReferee { get; set; }
+
     public virtual Match? Match { get; set; }
 
-    public virtual RefereeCompetition? Referee { get; set; }
+    public virtual RefereeCompetition? RefereeCompetition { get; set; }
 }
