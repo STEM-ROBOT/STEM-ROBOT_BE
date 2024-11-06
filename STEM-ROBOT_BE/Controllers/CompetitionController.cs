@@ -21,7 +21,6 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> GetListCompetition()
         {
