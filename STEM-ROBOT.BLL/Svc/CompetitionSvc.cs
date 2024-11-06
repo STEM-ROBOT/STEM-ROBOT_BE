@@ -253,8 +253,8 @@ namespace STEM_ROBOT.BLL.Svc
                     name = competition.Genre.Name,
                     numberContestantTeam = (int)competition.NumberContestantTeam,
                     registerTime = (DateTime)competition.RegisterTime,
-                    status = competition.Status
-
+                    status = competition.Status,
+                    FormatId = competition.Format.Id
                 };
 
 
