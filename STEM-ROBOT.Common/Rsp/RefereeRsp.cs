@@ -20,6 +20,7 @@ namespace STEM_ROBOT.Common.Rsp
 
     public class RefereeTournament
     {
+        public int? TournamentId { get; set; }
         public string? Email { get; set; }
 
         public string? PhoneNumber { get; set; }
@@ -28,13 +29,15 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Status { get; set; }
 
-        public string? Image { get; set; }
+        public string? avatar { get; set; }
 
-        public string? NameTournament { get; set; }
+        public string? nameTournament { get; set; }
 
         public string? Location { get; set; }
 
         public string? ImageTournament { get; set;}
+        public string? role { get; } = "TRỌNG TÀI";
+       
 
         public ICollection<ListRefereeCompetition> referee { get; set; } = new List<ListRefereeCompetition>();
 
@@ -47,6 +50,9 @@ namespace STEM_ROBOT.Common.Rsp
         public int? RefereeId { get; set; }
 
         public int? CompetitionId { get; set; }
+
+        public string? Role { get; set; }
+
 
         public string? imageGenre { get; set; }
 

@@ -214,6 +214,7 @@ namespace STEM_ROBOT.BLL.Svc
             var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
+
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,
@@ -289,6 +290,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (list == null) throw new Exception("No data");
                 RoundParentTable round_table = new RoundParentTable
                 {
+                    isTeamMatch = list.IsTeamMacth,
                     tableGroup = list.TableGroups.Select(tg => new tableGroup
                     {
                         team_tableId = tg.Id,
@@ -340,31 +342,37 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> conFigTimeMtch(int competitionId, MatchConfigReq reqs)
         {
             var res = new SingleRsp();
-            var competition_data = _competition.GetById(competitionId);
+            var competition_data = await _competition.getCompetitionMatchUpdate(competitionId);
             if (competition_data == null)
             {
                 res.SetError("400");
                 res.SetMessage("Nội dung thi đấu không tồn tại");
             }
-            List<Match> matches = new List<Match>();
-            DateTime endTime = DateTime.Now;
-            foreach (var match in reqs.matchs)
-            {
-                var matchUd = new Match
-                {
-                    Id = (int)match.id,
-                    LocationId = (int)match.locationId,
-                    StartDate = match.startDate,
-                    TimeIn = match.TimeIn,
-                    TimeOut = match.TimeOut,
 
-                };
-                matches.Add(matchUd);
-                endTime = (DateTime)match.startDate;
+
+            List<Match> matches = new List<Match>();
+
+            DateTime endTime = DateTime.Now;
+
+            foreach (var stage in competition_data.Stages)
+            {
+                foreach (var match in stage.Matches)
+                {
+
+                    var check = reqs.matchs.Where(m => m.id == match.Id).FirstOrDefault();
+                    match.LocationId = check.locationId;
+                    match.TimeIn = check.TimeIn;
+                    match.TimeOut = check.TimeOut;
+                    match.StartDate = check.startDate;
+                    endTime = (DateTime)check.startDate;
+                    matches.Add(match);
+                }
+
             }
             competition_data.EndTime = endTime;
             competition_data.IsMacth = true;
             competition_data.TimeBreak = reqs.TimeBreak;
+            competition_data.TimeOfMatch = reqs.TimeOfMatch;
             competition_data.TimeEndPlay = reqs.TimeEndPlay;
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
             _competition.Update(competition_data);

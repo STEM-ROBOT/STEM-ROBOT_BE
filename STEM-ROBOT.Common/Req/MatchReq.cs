@@ -23,6 +23,7 @@ namespace STEM_ROBOT.Common.Req
     }
     public class MatchConfigReq
     {
+        public TimeOnly? CheckTime { get; set; }
         public TimeSpan? TimeOfMatch { get; set; }
 
         public TimeSpan? TimeBreak { get; set; }
