@@ -279,9 +279,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("No ID");
                 }
-                competition_data.FormatId = request.FormatId;
-                competition_data.IsFormat = true;
-                competition_data.NumberTeam = request.NumberTeam;
+               _mapper.Map(request, competition_data);
+
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
@@ -326,17 +325,17 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
+                var competition = _competitionRepo.GetById(competitionId);
                 competition.IsFormat = true;
                 if (competition == null)
                 {
                     res.SetError("Competition not found with the provided ID.");
                     return res;
                 }
-                var competitionFormat = _mapper.Map(request, competition);
-                _competitionRepo.Update(competitionFormat);
+              _mapper.Map(request, competition);
+                _competitionRepo.Update(competition);
 
-                if (competitionFormat.FormatId == 2)
+                if (competition.FormatId == 2)
                 {
 
                     // Create teams
