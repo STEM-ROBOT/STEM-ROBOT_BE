@@ -205,19 +205,20 @@ namespace STEM_ROBOT.BLL.Svc
         //    return res;
         //}
 
-        public SingleRsp GetById(int id)
+        public async Task<SingleRsp> GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var tournament = _tournament.GetById(id);
+                var tournament = await  _tournament.TournamentById(id);
                 if (tournament == null)
                 {
                     res.SetError("404", "No ID");
                 };
                 //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
+  
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
-                int totalTeams = CalculateTotalTeamsInTournament(id);
+                int totalTeams = CalculateTotalTeamsInTournament(tournament); 
                 tourmanetRsp.NumberTeam = totalTeams;
 
                 res.setData("data", tourmanetRsp);
@@ -228,17 +229,13 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public int CalculateTotalTeamsInTournament(int tournamentId)
+        public int CalculateTotalTeamsInTournament(Tournament tournamentId)
         {
             try
             {
-                var competitions = _competitionRepo.All().Where(c => c.TournamentId == tournamentId).ToList();
-                if (competitions == null || !competitions.Any())
-                {
-                    throw new Exception("Không tìm thấy cuộc thi nào thuộc giải đấu.");
-                }
+              
                 int totalTeam = 0;
-                foreach (var competition in competitions)
+                foreach (var competition in tournamentId.Competitions)
                 {
                     if (competition.NumberTeam.HasValue)
                     {

@@ -15,7 +15,7 @@ namespace STEM_ROBOT.DAL.Repo
         {
         }
 
-        public async Task<TournamentListRep> GetListTournament(string? name = null, string? provinceCode = null ,string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
+        public async Task<TournamentListRep> GetListTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
 
             var query = _context.Tournaments.AsQueryable();
@@ -23,7 +23,7 @@ namespace STEM_ROBOT.DAL.Repo
             int totalItems = await query.CountAsync();
 
             // Tính tổng số trang
-          
+
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(t => t.Name.Contains(name));
@@ -40,7 +40,7 @@ namespace STEM_ROBOT.DAL.Repo
             }
             if (!string.IsNullOrEmpty(provinceCode))
             {
-                query = query.Where(t => t.Account.ProvinceCode ==provinceCode);
+                query = query.Where(t => t.Account.ProvinceCode == provinceCode);
             }
 
             int skip = (page - 1) * pageSize;
@@ -57,7 +57,7 @@ namespace STEM_ROBOT.DAL.Repo
                     Image = t.Image,
                     contestant = t.Contestants.Count(),
                     views = t.ViewTournament,
-                    Status=t.Status,
+                    Status = t.Status,
                     competitionNumber = t.Competitions.Count(),
                     competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
                     imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
@@ -79,9 +79,9 @@ namespace STEM_ROBOT.DAL.Repo
                     Name = x.Name,
                     genre = x.Competitions.Select(x => x.Genre.Name).Distinct().Count(),
                     Status = x.Status,
-                    Image =x.Image,
+                    Image = x.Image,
                     Location = x.Location,
-                    IsActive = x.Competitions.Count(x=> x.IsActive == true)
+                    IsActive = x.Competitions.Count(x => x.IsActive == true)
 
 
                 })
@@ -91,7 +91,11 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<int> CountTournament()
         {
-            return await _context.Tournaments.CountAsync(x=> x.Status == "Public");
+            return await _context.Tournaments.CountAsync(x => x.Status == "Public");
+        }
+        public async Task<Tournament> TournamentById(int tournamentId)
+        {
+            return await _context.Tournaments.Where(t => t.Id == tournamentId).Include(c => c.Contestants).Include(cp=> cp.Competitions).FirstOrDefaultAsync();
         }
     }
 }
