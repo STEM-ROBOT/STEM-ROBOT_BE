@@ -16,9 +16,12 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRepo _teamRepo;
         private readonly IMapper _mapper;
         private readonly CompetitionRepo _competitionRepo;
- 
-        public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo)
+        private readonly TournamentRepo _tournamentRepo;
+        private readonly ContestantTeamRepo _contestantTeamRepo;
+        public TeamSvc(TeamRepo teamRepo, IMapper mapper, CompetitionRepo competitionRepo, TournamentRepo tournamentRepo, ContestantTeamRepo contestantTeamRepo)
         {
+            _contestantTeamRepo = contestantTeamRepo;
+            _tournamentRepo = tournamentRepo;
             _teamRepo = teamRepo;
             _mapper = mapper;
             _competitionRepo = competitionRepo;
@@ -153,6 +156,45 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        
+        public MutipleRsp GetListTeamByTournament(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var tournaments = _tournamentRepo.GetById(tournamentId);     
+                if(tournaments == null)
+                {
+                    res.SetError("404", "Tournament not found");
+                }
+                else
+                {
+                    var teams = _teamRepo.All(
+                        filter: t => t.Competition.TournamentId == tournamentId,
+                        includeProperties: "Competition"
+                        ).ToList();
+
+                    var lstTeamRsp = new List<ListTeamRspByTournament>();
+                    foreach(var team in teams)
+                    {
+                        var teamRsp = new ListTeamRspByTournament
+                        {
+                            Id = team.Id,
+                            CompetitionId = team.CompetitionId,
+                            Name = team.Name,
+                            PhoneNumber = team.PhoneNumber,
+                            ContactInfo = team.ContactInfo,
+                            Image = team.Image
+                        };
+                        lstTeamRsp.Add(teamRsp);
+                    }
+                    res.SetData("data", lstTeamRsp);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
     }
 }

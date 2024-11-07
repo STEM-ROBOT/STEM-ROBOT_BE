@@ -302,7 +302,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var scheduleMatch = await _scheduleRepo.GetRefereeGameAsync(competitionId);
 
-                {
+                
 
                     var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
                     if (schedule == null)
@@ -348,9 +348,10 @@ namespace STEM_ROBOT.BLL.Svc
                             }).ToList(),
                         };
                         res.setData("data", data);
-                    }
+                    
                 }
             }
+
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);

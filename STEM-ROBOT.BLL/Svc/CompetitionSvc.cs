@@ -253,8 +253,8 @@ namespace STEM_ROBOT.BLL.Svc
                     name = competition.Genre.Name,
                     numberContestantTeam = (int)competition.NumberContestantTeam,
                     registerTime = (DateTime)competition.RegisterTime,
-                    status = competition.Status
-
+                    status = competition.Status,
+                    FormatId = competition.Format.Id
                 };
 
 
@@ -279,9 +279,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("No ID");
                 }
-                competition_data.FormatId = request.FormatId;
-                competition_data.IsFormat = true;
-                competition_data.NumberTeam = request.NumberTeam;
+               _mapper.Map(request, competition_data);
+
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
@@ -326,17 +325,17 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
+                var competition = _competitionRepo.GetById(competitionId);
                 competition.IsFormat = true;
                 if (competition == null)
                 {
                     res.SetError("Competition not found with the provided ID.");
                     return res;
                 }
-                var competitionFormat = _mapper.Map(request, competition);
-                _competitionRepo.Update(competitionFormat);
+              _mapper.Map(request, competition);
+                _competitionRepo.Update(competition);
 
-                if (competitionFormat.FormatId == 2)
+                if (competition.FormatId == 2)
                 {
 
                     // Create teams
@@ -596,7 +595,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition =  _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
+                var competition = _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
                 if (competition != null)
                 {
                     var resData = new ActiveCompetitionRsp();
@@ -620,10 +619,10 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError($"An error occurred: {ex.Message}");
             }
 
-            return res;  
+            return res;
         }
 
-       public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
+        public async Task<SingleRsp> AssignTeamsToTables(int competitionId, TableAssignmentReq tableAssignments)
         {
             var res = new SingleRsp();
             try
@@ -928,6 +927,43 @@ namespace STEM_ROBOT.BLL.Svc
                 // Handle exception
             }
 
+            return res;
+        }
+
+        public SingleRsp SetCompetitionActive(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found with the provided ID.");
+                    return res;
+                }
+                if(competition.IsActive == true)
+                {
+                    res.SetError("400", "Competition is already active.");
+                    return res;
+                }
+                if (competition.IsFormat == true && competition.IsMacth == true && competition.IsTeamMacth == true
+                    && competition.IsTable == true && competition.IsContestantTeam == true && competition.IsTeam == true
+                    && competition.IsReferee == true && competition.IsLocation == true && competition.IsSchedule == true)
+                {
+                    competition.IsActive = true;
+                    _competitionRepo.Update(competition);
+                    res.SetMessage("Competition is now active.");
+                }
+                else
+                {
+                    res.SetError("400", "Competition is missing some required information.");
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
             return res;
         }
     }

@@ -476,7 +476,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var competition = _competitionRepo.GetById(competitionId);
-                if(competition == null)
+                if (competition == null)
                 {
                     res.SetError("No competition found");
                 }
@@ -484,7 +484,7 @@ namespace STEM_ROBOT.BLL.Svc
                     filter: x => x.TournamentId == competition.TournamentId,
                     includeProperties: "ContestantTeams"
                 ).ToList();
-                if(contestants.Count == 0)
+                if (contestants.Count == 0)
                 {
                     res.SetError("No contestant found");
                 }
@@ -498,6 +498,38 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var lstContestantRsp = _mapper.Map<List<ContestantRep>>(lstContestant);
                 res.SetData("data", lstContestantRsp);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var tournament = _tournamentRepo.GetById(tournamentId);
+                if (tournament == null)
+                {
+                    res.SetError("404", "Tournament not found");
+                    return res;
+                }
+                if (tournament.Status == "Private")
+                {
+                    res.SetError("404", "You can not access this tournament");
+                    return res;
+                }
+                var account = _accountRepo.GetById(accountId);
+                if (account == null)
+                {
+                    res.SetError("404", "Account not found");
+                    return res;
+                }
+                var contestant = _mapper.Map<Contestant>(request);
+                _contestantRepo.Add(contestant);
             }
             catch (Exception ex)
             {
