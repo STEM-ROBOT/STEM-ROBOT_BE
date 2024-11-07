@@ -77,21 +77,21 @@ namespace STEM_ROBOT.BLL.Svc
                 tournament.CreateDate = DateTime.Now;
 
                 _tournament.Add(tournament);
-                foreach(var competition in request.competition)
+                foreach (var competition in request.competition)
                 {
                     var compettiondata = new Competition
                     {
                         TournamentId = tournament.Id,
                         Mode = status,
-                        Status=status,
+                        Status = status,
                         GenreId = competition.GenreId,
-                        IsActive= false,
+                        IsActive = false,
                     };
                     _competitionRepo.Update(compettiondata);
                     break;
                 }
-                
-                
+
+
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
                         <div>
@@ -163,8 +163,17 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-               var tourView =  _tournament.GetById(tournamentId);
-                tourView.ViewTournament += 1;
+                var tourView = _tournament.GetById(tournamentId);
+                if (tourView.ViewTournament == null)
+                {
+                    tourView.ViewTournament = 1;
+                }
+                else
+                {
+                    tourView.ViewTournament += 1;
+                }
+
+                _tournament.Update(tourView);
                 res.SetMessage("Success");
             }
             catch (Exception ex)
