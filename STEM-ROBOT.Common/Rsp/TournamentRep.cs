@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
+    public class TournamentListRep
+    {
+        public int totalPages { get; set; }
+        public ICollection<TournamentRep>  tournamentRep {  get; set; }  = new List<TournamentRep>();
+    }
     public class TournamentRep
     {
         public int Id { get; set; }

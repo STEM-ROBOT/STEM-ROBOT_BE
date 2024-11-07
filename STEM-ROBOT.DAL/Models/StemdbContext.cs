@@ -74,7 +74,6 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -89,6 +88,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
+            entity.Property(e => e.ProvinceCode).HasMaxLength(100);
             entity.Property(e => e.Role).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
 

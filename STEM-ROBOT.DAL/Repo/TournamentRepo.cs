@@ -15,12 +15,15 @@ namespace STEM_ROBOT.DAL.Repo
         {
         }
 
-        public async Task<List<TournamentRep>> GetListTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
+        public async Task<TournamentListRep> GetListTournament(string? name = null, string? provinceCode = null ,string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
 
             var query = _context.Tournaments.AsQueryable();
 
+            int totalItems = await query.CountAsync();
 
+            // Tính tổng số trang
+          
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(t => t.Name.Contains(name));
@@ -31,14 +34,17 @@ namespace STEM_ROBOT.DAL.Repo
                 query = query.Where(t => t.Status == status);
             }
 
-            if (competitionId.HasValue)
+            if (GenerId.HasValue)
             {
-                query = query.Where(t => t.Competitions.Any(c => c.Id == competitionId));
+                query = query.Where(t => t.Competitions.Any(c => c.GenreId == GenerId));
+            }
+            if (!string.IsNullOrEmpty(provinceCode))
+            {
+                query = query.Where(t => t.Account.ProvinceCode ==provinceCode);
             }
 
             int skip = (page - 1) * pageSize;
-
-
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             var tournament = await query
                 .OrderBy(t => t.Id)
                 .Skip(skip)
@@ -51,12 +57,16 @@ namespace STEM_ROBOT.DAL.Repo
                     Image = t.Image,
                     contestant = t.Contestants.Count(),
                     views = null,
-                    competitionNumber = t.Competitions.Count(c => c.TournamentId == t.Id),
-                    competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true && c.TournamentId == t.Id),
+                    competitionNumber = t.Competitions.Count(),
+                    competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
                     imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
                 }).ToListAsync();
-
-            return tournament;
+            var resData = new TournamentListRep
+            {
+                tournamentRep = tournament,
+                totalPages = totalPages,
+            };
+            return resData;
         }
 
         public async Task<IEnumerable<TournamentModerator>> getTournamentModerator(int userId)
