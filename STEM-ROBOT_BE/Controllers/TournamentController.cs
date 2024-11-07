@@ -57,6 +57,21 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(401, res.Message);
             }
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> getTournament(int id)
+        {
+            var res = await _tournament.GetById(id);
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
+
+        [HttpGet("per-month")]
+        public IActionResult GetTournamentPerMonth()
+        {
+            var res = _tournament.GetTournamentsPerMonth();
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
         [HttpPut("viewer")]
         public async Task<IActionResult> UpdateView(int tournamentId)
         {
@@ -102,20 +117,6 @@ namespace STEM_ROBOT_BE.Controllers
         //    }
         //    return Ok(res.Data);
         //}
-        [HttpGet("{id}")]
-        public IActionResult getTournament(int id)
-        {
-            var res = _tournament.GetById(id);
-            if (!res.Success) throw new Exception("Please check again");
-            return Ok(res);
-        }
-
-        [HttpGet("per-month")]
-        public IActionResult GetTournamentPerMonth()
-        {
-            var res = _tournament.GetTournamentsPerMonth();
-            if (!res.Success) throw new Exception("Please check again");
-            return Ok(res);
-        }
+        
     }
 }
