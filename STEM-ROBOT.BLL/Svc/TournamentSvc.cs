@@ -70,6 +70,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var tournament = _mapper.Map<Tournament>(request);
                 tournament.AccountId = userID;
+                tournament.ViewTournament = 0;
                 var userName = user.Name;
                 var email = user.Email;
                 var status = request.Status;
@@ -150,6 +151,21 @@ namespace STEM_ROBOT.BLL.Svc
                 var listTournament = await _tournament.getTournamentModerator(userID);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.SetData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+        public async Task<MutipleRsp> UpdateViewer(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+               var tourView =  _tournament.GetById(tournamentId);
+                tourView.ViewTournament += 1;
+                res.SetMessage("Success");
             }
             catch (Exception ex)
             {

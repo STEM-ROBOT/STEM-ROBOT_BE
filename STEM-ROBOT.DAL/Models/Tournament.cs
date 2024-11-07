@@ -23,6 +23,8 @@ public partial class Tournament
 
     public DateTime? CreateDate { get; set; }
 
+    public int? ViewTournament { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();

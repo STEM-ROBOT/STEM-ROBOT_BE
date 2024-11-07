@@ -57,6 +57,21 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(401, res.Message);
             }
         }
+        [HttpPut("viewer")]
+        public async Task<IActionResult> UpdateView(int tournamentId)
+        {
+
+          
+            MutipleRsp res = await _tournament.UpdateViewer(tournamentId);
+            if (res.Success)
+            {
+                return Ok(res.Message);
+            }
+            else
+            {
+                return StatusCode(401, res.Message);
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> addTournament(TournamentReq request)
         {
