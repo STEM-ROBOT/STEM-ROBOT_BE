@@ -81,7 +81,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         }
         [HttpGet("accountId")]
-        public IActionResult GetListContestantByAccount(int accountId)
+        public IActionResult GetListContestantByAccount()
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
@@ -168,6 +168,23 @@ namespace STEM_ROBOT.Web.Controllers
         public IActionResult GetAvailableContestantByCompetition(int competitionId)
         {
             var res = _contestantSvc.GetAvailableContestantByCompetition(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpPost("public-tournament")]
+        public IActionResult AddContestantPublicTournament([FromBody] ContestantReq contestants, int tournamentId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return BadRequest("Please Login!");
+            }
+            var accountId = int.Parse(user.Value);
+            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);
