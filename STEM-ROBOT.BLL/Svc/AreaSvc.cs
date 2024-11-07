@@ -61,6 +61,23 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public MutipleRsp AllProvinceByArea()
+        {
+            var res = new MutipleRsp();
+            try
+            {
+               
+                var list = _provinceRepo.All();
+                var mapper = _mapper.Map<List<ProvinceRsp>>(list);
+                res.SetData("data", mapper);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+
         public MutipleRsp GetDistrictByProvince(int provinceId)
         {
             var res = new MutipleRsp();
