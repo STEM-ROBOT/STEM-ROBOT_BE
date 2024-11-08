@@ -36,7 +36,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lst != null)
                 {
                     var lstRes = _mapper.Map<List<Common.Rsp.TeamRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "data");
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var teamRes = _mapper.Map<Common.Rsp.TeamRsp>(team);
-                    res.setData("200", teamRes);
+                    res.setData("data", teamRes);
                 }
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newTeam = _mapper.Map<Team>(req);
                 _teamRepo.Add(newTeam);
-                res.setData("200", newTeam);
+                res.setData("data", newTeam);
             }
             catch (Exception ex)
             {
@@ -103,7 +103,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(req, team);
                     _teamRepo.Update(team);
-                    res.setData("200", team);
+                    res.setData("data", team);
                 }
             }
             catch (Exception ex)
@@ -146,7 +146,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (teams != null)
                 {
                     var lstRes = _mapper.Map<List<Common.Rsp.TeamRsp>>(teams);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "data");
                 }
             }
             catch (Exception ex)

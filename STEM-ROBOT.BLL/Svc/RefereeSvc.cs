@@ -49,7 +49,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "data");
                 }
             }
             catch (Exception ex)
@@ -88,7 +88,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var refereeRes = _mapper.Map<RefereeRsp>(referee);
-                    res.setData("200", refereeRes);
+                    res.setData("data", refereeRes);
                 }
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var newReferee = _mapper.Map<Referee>(req);
                 _refereeRepo.Add(newReferee);
-                res.setData("200", newReferee);
+                res.setData("data", newReferee);
             }
             catch (Exception ex)
             {
@@ -275,7 +275,7 @@ namespace STEM_ROBOT.BLL.Svc
 
 
 
-                res.SetData("200", refereeList);
+                res.SetData("data", refereeList);
             }
             catch (Exception ex)
             {
@@ -304,7 +304,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     _mapper.Map(req, referee);
                     _refereeRepo.Update(referee);
-                    res.setData("200", referee);
+                    res.setData("data", referee);
                 }
             }
             catch (Exception ex)
@@ -453,7 +453,7 @@ namespace STEM_ROBOT.BLL.Svc
                     _refereeCompetitionRepo.Add(refereeCompetition);
                 }
                 var refereeCompetitionListRsp = _mapper.Map<List<RefereeCompetitionRsp>>(refereeCompetitionList);
-                res.SetData("200", refereeCompetitionListRsp);
+                res.SetData("data", refereeCompetitionListRsp);
             }
             catch (Exception ex)
             {

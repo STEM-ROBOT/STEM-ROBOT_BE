@@ -59,7 +59,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "No data found");
                 }
                 var locationMapp = _mapper.Map<LocationRsp>(getLocation);
-                res.setData("200", locationMapp);
+                res.setData("data", locationMapp);
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(res, location);
                     _locationRepo.Update(location);
-                    res.setData("200", location);
+                    res.setData("data", location);
                 }
                 res.setData("Account added successfully", location);
             }
@@ -167,7 +167,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lstLocation != null)
                 {
                     var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
-                    res.SetData("200", locationMapp);
+                    res.SetData("data", locationMapp);
                 }
                 else
                 {
