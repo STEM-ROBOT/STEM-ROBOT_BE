@@ -25,16 +25,16 @@ namespace STEM_ROBOT.BLL.Svc
             _configuration = configuration;
         }
 
-        public MutipleRsp GetGenres()
+        public SingleRsp GetGenres()
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
                 var lst = _genreRepo.All();
                 if (lst != null)
                 {
                     var lstRsp = _mapper.Map<List<GenreRsp>>(lst);
-                    res.SetData("200",lstRsp);
+                    res.setData("data",lstRsp);
                 }
                 else
                 {
@@ -61,7 +61,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var genreRes = _mapper.Map<GenreRsp>(getGenre);
-                    res.setData("200", genreRes);
+                    res.setData("data", genreRes);
                 }
                 
             }
@@ -79,7 +79,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newGenre = _mapper.Map<Genre>(genre);
                 _genreRepo.Add(newGenre);
-                res.setData("200", newGenre);
+                res.setData("data", newGenre);
             }
             catch (Exception ex)
             {
@@ -101,7 +101,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(res, updGenre);
                     _genreRepo.Update(updGenre);
-                    res.setData("200", updGenre);
+                    res.setData("data", updGenre);
                 }
             }
             catch (Exception ex)

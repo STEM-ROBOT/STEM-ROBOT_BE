@@ -30,7 +30,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-
+        [HttpGet("province")]
+        public IActionResult ListAllProvince()
+        {
+            var res = _areaSvc.AllProvinceByArea();
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
         [HttpGet("district/provinceId")]
         public IActionResult ListDistrict(int provinceId)
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
+using System.Drawing.Printing;
 
 namespace STEM_ROBOT_BE.Controllers
 {
@@ -14,9 +15,9 @@ namespace STEM_ROBOT_BE.Controllers
     [ApiController]
     public class TournamentController : ControllerBase
     {
-       private readonly TournamentSvc _tournament;
-       
-       public TournamentController(TournamentSvc tournamentSvc) 
+        private readonly TournamentSvc _tournament;
+
+        public TournamentController(TournamentSvc tournamentSvc)
         {
             _tournament = tournamentSvc;
         }
@@ -25,14 +26,14 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet("get-status")]
         public async Task<IActionResult> getStatus(int id)
         {
-            var res =await _tournament.getStatus(id);
+            var res = await _tournament.getStatus(id);
             if (!res.Success) throw new Exception("Please check againt");
             return Ok(res);
         }
         [HttpGet("list-tournament")]
-        public async Task<IActionResult> getListTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
-            var res = await _tournament.GetTournament(name,status,competitionId,page,pageSize);
+            var res = await _tournament.GetTournament(name, provinceCode, status, GenerId, page, pageSize);
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
@@ -46,20 +47,50 @@ namespace STEM_ROBOT_BE.Controllers
             }
 
             int userID = int.Parse(user.Value);
-            MutipleRsp res = await  _tournament.getListTournamentModerator(userID);
+            MutipleRsp res = await _tournament.getListTournamentModerator(userID);
             if (res.Success)
             {
                 return Ok(res.Data);
-            }   
+            }
+            else
+            {
+                return StatusCode(401, res.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> getTournament(int id)
+        {
+            var res = await _tournament.GetById(id);
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
+
+        [HttpGet("per-month")]
+        public IActionResult GetTournamentPerMonth()
+        {
+            var res = _tournament.GetTournamentsPerMonth();
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
+        [HttpPut("viewer")]
+        public async Task<IActionResult> UpdateView(int tournamentId)
+        {
+
+          
+            MutipleRsp res = await _tournament.UpdateViewer(tournamentId);
+            if (res.Success)
+            {
+                return Ok(res.Message);
+            }
             else
             {
                 return StatusCode(401, res.Message);
             }
         }
         [HttpPost]
-        public  async Task<IActionResult> addTournament(TournamentReq request)
+        public async Task<IActionResult> addTournament(TournamentReq request)
         {
-            var user =  User.Claims.FirstOrDefault(x => x.Type == "Id");
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
             {
                 return BadRequest("Please Login!");
@@ -86,20 +117,6 @@ namespace STEM_ROBOT_BE.Controllers
         //    }
         //    return Ok(res.Data);
         //}
-        [HttpGet("{id}")]
-        public  IActionResult getTournament(int id)
-        {
-            var res =  _tournament.GetById(id);
-            if (!res.Success) throw new Exception("Please check again");
-            return Ok(res);
-        }
-
-        [HttpGet("per-month")]
-        public IActionResult GetTournamentPerMonth()
-        {
-            var res = _tournament.GetTournamentsPerMonth();
-            if (!res.Success) throw new Exception("Please check again");
-            return Ok(res);
-        }
+        
     }
 }

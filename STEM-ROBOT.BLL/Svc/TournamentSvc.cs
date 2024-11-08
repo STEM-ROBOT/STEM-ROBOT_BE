@@ -70,27 +70,28 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var tournament = _mapper.Map<Tournament>(request);
                 tournament.AccountId = userID;
+                tournament.ViewTournament = 0;
                 var userName = user.Name;
                 var email = user.Email;
                 var status = request.Status;
                 tournament.CreateDate = DateTime.Now;
 
                 _tournament.Add(tournament);
-                foreach(var competition in request.competition)
+                foreach (var competition in request.competition)
                 {
                     var compettiondata = new Competition
                     {
                         TournamentId = tournament.Id,
                         Mode = status,
-                        Status=status,
+                        Status = status,
                         GenreId = competition.GenreId,
-                        IsActive= false,
+                        IsActive = false,
                     };
                     _competitionRepo.Update(compettiondata);
                     break;
                 }
-                
-                
+
+
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
                         <div>
@@ -126,14 +127,14 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public async Task<MutipleRsp> GetTournament(string? name = null, string? status = null, int? competitionId = null, int page = 1, int pageSize = 10)
+        public async Task<SingleRsp> GetTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
-                var listTournament = await _tournament.GetListTournament(name, status, competitionId, page, pageSize);
+                var listTournament = await _tournament.GetListTournament(name, provinceCode, status, GenerId, page, pageSize);
                 if (listTournament == null) throw new Exception("Please Check Againt");
-                res.SetData("data", listTournament);
+                res.setData("data", listTournament);
             }
             catch (Exception ex)
             {
@@ -150,6 +151,30 @@ namespace STEM_ROBOT.BLL.Svc
                 var listTournament = await _tournament.getTournamentModerator(userID);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.SetData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+        public async Task<MutipleRsp> UpdateViewer(int tournamentId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var tourView = _tournament.GetById(tournamentId);
+                if (tourView.ViewTournament == null)
+                {
+                    tourView.ViewTournament = 1;
+                }
+                else
+                {
+                    tourView.ViewTournament += 1;
+                }
+
+                _tournament.Update(tourView);
+                res.SetMessage("Success");
             }
             catch (Exception ex)
             {
@@ -180,19 +205,20 @@ namespace STEM_ROBOT.BLL.Svc
         //    return res;
         //}
 
-        public SingleRsp GetById(int id)
+        public async Task<SingleRsp> GetById(int id)
         {
             var res = new SingleRsp();
             try
             {
-                var tournament = _tournament.GetById(id);
+                var tournament = await  _tournament.TournamentById(id);
                 if (tournament == null)
                 {
                     res.SetError("404", "No ID");
                 };
                 //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
+  
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
-                int totalTeams = CalculateTotalTeamsInTournament(id);
+                int totalTeams = CalculateTotalTeamsInTournament(tournament); 
                 tourmanetRsp.NumberTeam = totalTeams;
 
                 res.setData("data", tourmanetRsp);
@@ -203,17 +229,13 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public int CalculateTotalTeamsInTournament(int tournamentId)
+        public int CalculateTotalTeamsInTournament(Tournament tournamentId)
         {
             try
             {
-                var competitions = _competitionRepo.All().Where(c => c.TournamentId == tournamentId).ToList();
-                if (competitions == null || !competitions.Any())
-                {
-                    throw new Exception("Không tìm thấy cuộc thi nào thuộc giải đấu.");
-                }
+              
                 int totalTeam = 0;
-                foreach (var competition in competitions)
+                foreach (var competition in tournamentId.Competitions)
                 {
                     if (competition.NumberTeam.HasValue)
                     {
