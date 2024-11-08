@@ -345,7 +345,7 @@ namespace STEM_ROBOT.BLL.Svc
                     CreateTables((int)request.NumberTable, competitionId);
                 }
 
-                res.setData("200", "Success");
+                res.setData("data", "Success");
             }
             catch (Exception ex)
             {
@@ -677,7 +677,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var competition = _competitionRepo.GetById(competitionId);
                 competition.IsTable = true;
                 _competitionRepo.Update(competition);
-                res.setData("200", "Success");
+                res.setData("data", "Success");
             }
             catch (Exception ex)
             {
@@ -804,7 +804,7 @@ namespace STEM_ROBOT.BLL.Svc
                 // In knockout rounds, we need (numberTeamsNextRound - 1) matches to determine a winner
                 int knockoutMatches = numberTeamsNextRound - 1;
                 totalMatches += knockoutMatches;
-                res.setData("200", totalMatches);
+                res.setData("data", totalMatches);
             }
             catch (Exception ex)
             {
@@ -831,7 +831,7 @@ namespace STEM_ROBOT.BLL.Svc
                     _tableGroupRepo.Add(table);
                     createdTables.Add(table);
                 }
-                res.SetData("200", createdTables);
+                res.SetData("data", createdTables);
                 return res;
             }
             catch (Exception ex)
@@ -920,7 +920,7 @@ namespace STEM_ROBOT.BLL.Svc
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
                 teamTableRsp.IsTable = (bool)competitition.IsTable;
-                res.setData("200", teamTableRsp);
+                res.setData("data", teamTableRsp);
             }
             catch (Exception ex)
             {

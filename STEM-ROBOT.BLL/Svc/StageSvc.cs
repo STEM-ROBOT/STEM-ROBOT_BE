@@ -138,7 +138,7 @@ namespace STEM_ROBOT.BLL.Svc
                     _stageRepo.Add(stage);
                     createdStages.Add(stage);
                 }
-                res.SetData("200", createdStages);
+                res.SetData("data", createdStages);
                 return res;
             }
             catch (Exception ex)

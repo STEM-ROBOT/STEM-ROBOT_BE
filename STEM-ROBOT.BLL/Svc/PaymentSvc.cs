@@ -38,7 +38,7 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 var paymentRsp = _mapper.Map<List<PaymentRsp>>(payment);
-                res.setData("200", paymentRsp);
+                res.setData("data", paymentRsp);
             }
             catch (Exception ex)
             {
