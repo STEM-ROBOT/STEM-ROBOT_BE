@@ -31,7 +31,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lst != null)
                 {
                     var lstRes = _mapper.Map<List<PackageRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "data");
                 }
                 else
                 {
@@ -58,7 +58,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var packageRes = _mapper.Map<PackageRsp>(getPackage);
-                    res.setData("200", packageRes);
+                    res.setData("data", packageRes);
                     return res;
                 }
 
@@ -77,7 +77,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newPackage = _mapper.Map<Package>(packageReq);
                 _packageRepo.Add(newPackage);
-                res.setData("200", newPackage);
+                res.setData("data", newPackage);
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 _mapper.Map(packageReq, updPackage);
                 _packageRepo.Update(updPackage);
-                res.setData("200", updPackage);
+                res.setData("data", updPackage);
             }
             catch (Exception ex)
             {

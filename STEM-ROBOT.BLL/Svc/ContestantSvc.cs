@@ -146,7 +146,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<IEnumerable<Contestant>>(contestant);
-                    res.setData("200", mapper);
+                    res.setData("data", mapper);
                 }
             }
             catch (Exception ex)
