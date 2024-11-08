@@ -21,12 +21,12 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
             _mailService = mailService;
         }
-        public async Task<MutipleRsp> ListRefeeCompetition(int competitionID, int userID)
+        public async Task<MutipleRsp> ListRefeeCompetition(int competitionId, int userId)
         {
             var res = new MutipleRsp();
             try
             {
-                var list = await _refereeCompetitionRepo.ListRefereeCompetition(competitionID,userID);
+                var list = await _refereeCompetitionRepo.ListRefereeCompetition(competitionId, userId);
                 if (list == null) throw new Exception("No data");
                 var mapper = _mapper.Map<RefereeCompetitionRsp>(list);
                 res.SetData("data", mapper);
@@ -38,7 +38,32 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
 
         }
-        
-        
+        public async Task<MutipleRsp> RefeeCompetition(int competitionId, int userId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var refereeCompetition = await _refereeCompetitionRepo.RefereeCompetition(competitionId, userId);
+                if (refereeCompetition == null) throw new Exception("No data");
+                var data = new RefereeCompetitioninfoRsp
+                {
+                    email=refereeCompetition.Referee.Email,
+                    avatar = refereeCompetition.Referee.Image,
+                    competitionName=refereeCompetition.Competition.Genre.Name,
+                    name=refereeCompetition.Referee.Name,
+                    roleRefereeCompetition=refereeCompetition.Role.Equals("MRF") ? "TRỌNG TÀI CHÍNH": "TRỌNG TÀI VIÊN"
+                };
+                res.SetData("data", data);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get List Referee Fail");
+            }
+            return res;
+
+        }
+
+
     }
 }

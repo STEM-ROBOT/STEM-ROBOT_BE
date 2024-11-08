@@ -26,6 +26,8 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Image { get; set; }
 
+        public bool? IsSetup { get; set; }
+
         public List<Constestant> member { get; set; }
     }
 

@@ -16,8 +16,6 @@ namespace STEM_ROBOT.BLL.Mapper
         public Map()
         {
 
-
-
             CreateMap<Account, AccountRsp>()
                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src =>
         src.Orders != null && src.Orders.Any()
@@ -26,8 +24,6 @@ namespace STEM_ROBOT.BLL.Mapper
                .ForMember(x => x.CountTournament, op => op.MapFrom(a => a.Tournaments.Count(x => x.AccountId == x.Id)))
                .ForMember(x => x.CountContestant, op => op.MapFrom(x => x.Contestants.Count(x => x.AccountId == x.Id)))
                 .ReverseMap();
-
-
 
             CreateMap<Account, AccountReq>().ReverseMap();
 
