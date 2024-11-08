@@ -117,7 +117,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 await _mailService.SendEmailAsync(mailRequest);
 
-                res.SetMessage("200");
+                res.SetMessage("data");
 
             }
             catch (Exception ex)
