@@ -28,7 +28,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var lst =_locationRepo.All();
+                var lst = _locationRepo.All();
                 if (lst != null)
                 {
                     var locationMapp = _mapper.Map<List<LocationRsp>>(lst);
@@ -145,7 +145,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lstLocation != null)
                 {
                     var locationMapp = _mapper.Map<List<LocationRsp>>(lstLocation);
-                    res.SetData("data",locationMapp);
+                    res.SetData("data", locationMapp);
                 }
                 else
                 {
@@ -187,13 +187,15 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var locationList = new List<Location>();
+                var competition = _competitionRepo.GetById(competitionId);
+                competition.IsLocation = true;
                 foreach (var location in locations)
                 {
                     var locationMapp = _mapper.Map<Location>(location);
-                    locationMapp.CompetitionId = competitionId;
                     locationList.Add(locationMapp);
-                    _locationRepo.Add(locationMapp);
                 }
+                _locationRepo.AddRange(locationList);
+                _competitionRepo.Update(competition);
                 res.SetData("data", locationList);
             }
             catch (Exception ex)

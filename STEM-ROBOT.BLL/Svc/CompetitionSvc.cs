@@ -605,7 +605,7 @@ namespace STEM_ROBOT.BLL.Svc
                     resData.isTable = competition.IsTable;
                     resData.isMatch = competition.IsMacth;
                     resData.isTeamMatch = (bool)competition.IsTeamMacth;
-                    resData.isSchedule = competition.IsContestantTeam;
+                    resData.isSchedule = competition.IsSchedule;
                     resData.formatId = competition.FormatId;
                     res.setData("data", resData);
                 }

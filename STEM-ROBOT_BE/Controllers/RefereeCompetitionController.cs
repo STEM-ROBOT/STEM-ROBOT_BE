@@ -14,14 +14,24 @@ namespace STEM_ROBOT.Web.Controllers
         {
             _refereeCompetitionSvc = refereeCompetitionSvc;
         }
-        [HttpGet("list-referee-competition")]
-        public async Task<IActionResult> ListRefereeCompetition(int competitionID)
+        [HttpGet("schedules-referee-competition")]
+        public async Task<IActionResult> ListRefereeCompetition(int competitionId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return BadRequest("Please Login ");
-            int userID = int.Parse(user.Value);
+            int userId = int.Parse(user.Value);
             
-            var list = await _refereeCompetitionSvc.ListRefeeCompetition(competitionID,userID);
+            var list = await _refereeCompetitionSvc.ListRefeeCompetition(competitionId,userId);
+            return Ok(list.Data);
+        }
+        [HttpGet("")]
+        public async Task<IActionResult> RefereeCompetition(int competitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please Login ");
+            int userId = int.Parse(user.Value);
+
+            var list = await _refereeCompetitionSvc.RefeeCompetition(competitionId, userId);
             return Ok(list.Data);
         }
     }
