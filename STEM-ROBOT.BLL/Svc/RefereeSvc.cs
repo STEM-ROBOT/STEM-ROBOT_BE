@@ -125,9 +125,34 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var refereeList = new List<Referee>();
-
+                var accoutList = new List<Account>();
                 foreach (var item in referees)
                 {
+                  
+                    string email;
+                   
+                   Random random = new Random();
+                   int number = random.Next(10000000, 100000000);
+                   email = $"{item.TournamentId}{item.PhoneNumber}{number}@referee.stem.vn";
+
+                    Random randoms = new Random();
+                    int numberPass = randoms.Next(0, 10000);
+                    string password = $"Referee{item.TournamentId}{numberPass}";
+                    var passwords = BCrypt.Net.BCrypt.HashPassword(password);
+                    var account = new Account
+                    {
+                        Email = email,
+                        Password = passwords,
+                        Role = "RF",
+                        PhoneNumber= item.PhoneNumber,
+                        Image= item.Image,
+                        Name = item.Name,
+                        
+
+
+                    };
+
+                    _accountRepo.Add(account);
                     var referee = new Referee
                     {
                         TournamentId = item.TournamentId,
@@ -136,36 +161,11 @@ namespace STEM_ROBOT.BLL.Svc
                         Status = string.IsNullOrEmpty(item.Status) ? "No data" : item.Status,
                         PhoneNumber = string.IsNullOrEmpty(item.PhoneNumber) ? "No data" : item.PhoneNumber,
                         Image = string.IsNullOrEmpty(item.Image) ? "No data" : item.Image,
+                        AccountId = account.Id,
                     };
 
                     refereeList.Add(referee);
-                    _refereeRepo.Add(referee);
-
-                    for (int i = 0; i < 10; i++)
-                    {
-                        string email;
-                        do
-                        {
-                            Random random = new Random();
-                            int number = random.Next(10000000, 100000000);
-                            email = $"{referee.TournamentId}{number}@referee.stem.vn";
-                        } while (_accountRepo.Find(a => a.Email == email).Any()); // Kiểm tra xem email đã tồn tại chưa
-
-                        Random randoms = new Random();
-                        int numberPass = randoms.Next(0, 10000);
-                        string password = $"Referee{referee.TournamentId}{numberPass}";
-                        var passwords = BCrypt.Net.BCrypt.HashPassword(password);
-                        var account = new Account
-                        {
-                            Email = email,
-                            Password = passwords,
-                            Role = "RF"
-
-                        };
-
-                        _accountRepo.Add(account);
-
-                        var emailbody = $@"
+                    var emailbody = $@"
 <!DOCTYPE html>
 <html>
 <head>
@@ -258,23 +258,20 @@ namespace STEM_ROBOT.BLL.Svc
 
 
 
-                        var mailRequest = new MailReq()
-                        {
-                            ToEmail = referee.Email,
-                            Subject = "[STEM PLATFORM]",
-                            Body = emailbody
-                        };
+                    var mailRequest = new MailReq()
+                    {
+                        ToEmail = referee.Email,
+                        Subject = "[STEM PLATFORM]",
+                        Body = emailbody
+                    };
 
-                        await _mailSerivce.SendEmailAsync(mailRequest);
-                        break;
-                    }
-
-
-
+                    await _mailSerivce.SendEmailAsync(mailRequest);
+                   
+                   
+                   
+                   
                 }
-
-
-
+                _refereeRepo.AddRange(refereeList);
                 res.SetData("data", refereeList);
             }
             catch (Exception ex)
@@ -417,7 +414,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     res.setData("data", availableReferee);
                 }
-                }
+            }
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
