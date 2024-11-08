@@ -214,7 +214,11 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 else
-                if (checkSchedule.OptCode.Contains(code))
+                if (!checkSchedule.OptCode.Contains(code))
+                {
+                    res.SetMessage("Mã không đúng !");
+                }
+                else
                 {
                     res.SetMessage("Success");
                 }
