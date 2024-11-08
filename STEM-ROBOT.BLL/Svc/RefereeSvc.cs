@@ -58,14 +58,14 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> ListRefereeTournament(int userID)
+        public async Task<MutipleRsp> ListRefereeTournament(int userId)
         {
             var res = new MutipleRsp();
             try
             {
-                var list = await _refereeRepo.GetListReferee(userID);
-                if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<RefereeTournament>(list);
+                var data = await _refereeRepo.GetListReferee(userId);
+                if (data == null) throw new Exception("No data");
+                var mapper = _mapper.Map<RefereeTournament>(data);
                 res.SetData("data", mapper);
             }
             catch (Exception ex)

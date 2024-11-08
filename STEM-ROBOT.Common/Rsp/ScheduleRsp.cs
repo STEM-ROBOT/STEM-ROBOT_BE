@@ -67,6 +67,6 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int timeOut { get; set; }
 
-        public string textView { get; set; }
+        public int textView { get; set; }
     }
 }
