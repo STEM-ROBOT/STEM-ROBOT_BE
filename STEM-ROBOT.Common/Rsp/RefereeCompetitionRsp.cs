@@ -21,6 +21,17 @@ namespace STEM_ROBOT.Common.Rsp
         public ICollection<ScheduleReferee> scheduleReferee { get; set; } = new List<ScheduleReferee>();
 
     }
+    public class RefereeCompetitioninfoRsp
+    {
+
+        public string? competitionName { get; set; }
+
+        public string? name { get; set; }
+
+        public string? avatar { get; set; }
+        public string? roleRefereeCompetition { get; set; }
+        public string? email { get; set; }
+    }
     public class ScheduleReferee
     {
         //schedule

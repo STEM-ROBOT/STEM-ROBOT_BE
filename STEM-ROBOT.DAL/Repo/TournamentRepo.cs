@@ -20,7 +20,7 @@ namespace STEM_ROBOT.DAL.Repo
 
             var query = _context.Tournaments.AsQueryable();
 
-            int totalItems = await query.CountAsync();
+            
 
             // Tính tổng số trang
 
@@ -42,7 +42,7 @@ namespace STEM_ROBOT.DAL.Repo
             {
                 query = query.Where(t => t.Account.ProvinceCode == provinceCode);
             }
-
+            int totalItems = await query.CountAsync();
             int skip = (page - 1) * pageSize;
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             var tournament = await query

@@ -63,5 +63,10 @@ namespace STEM_ROBOT.Common.Rsp
 
     }
 
+    public class ScheduleSecurityRsp
+    {
+        public int timeOut { get; set; }
 
+        public int textView { get; set; }
+    }
 }

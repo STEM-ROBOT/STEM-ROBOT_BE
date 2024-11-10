@@ -84,14 +84,22 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
-        [HttpGet("schedule-sendmail")]
+        [HttpPost("schedule-sendmail")]
         public async Task<IActionResult> Sendmail(int scheduleId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return BadRequest("Please login ");
             int userID = int.Parse(user.Value);
             var sendmail = await _scheduleSvc.SendMail(scheduleId, userID);
-            return Ok("Send Success");
+            if(sendmail.TestError != null)
+            {
+                return Ok(sendmail.Data);
+            }
+            else
+            {
+                return Ok(sendmail.TestError);
+            }
+           
         }
         [HttpPost("schedule-sendcode")]
         public async Task<IActionResult> SendCode(int scheduleId,string code)

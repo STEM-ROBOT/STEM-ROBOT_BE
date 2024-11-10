@@ -14,11 +14,10 @@ namespace STEM_ROBOT.DAL.Repo
         public RefereeCompetitionRepo(StemdbContext context) : base(context)
         {
         }
-        public async Task<RefereeCompetition> ListRefereeCompetition(int comeptitionID, int acountID)
+        public async Task<RefereeCompetition> ListRefereeCompetition(int comeptitionId, int acountId)
         {
             return await _context.RefereeCompetitions
     .Include(x => x.Referee)
-    .Include(x => x.Schedules)
     .Include(x => x.Competition)          
     .Include(x=> x.Schedules)
     .ThenInclude(x=> x.Match)
@@ -27,12 +26,19 @@ namespace STEM_ROBOT.DAL.Repo
     .ThenInclude(x => x.Match)
     .ThenInclude(x => x.TeamMatches)
     .ThenInclude(x=> x.Team)
-    .Where(x => x.Referee.Account.Id == acountID && x.Competition.Id == comeptitionID)
-
+    .Where(x => x.Referee.Account.Id == acountId && x.CompetitionId == comeptitionId)
     .FirstOrDefaultAsync();
         }
 
-      
+        public async Task<RefereeCompetition> RefereeCompetition(int comeptitionId, int acountId)
+        {
+            return await _context.RefereeCompetitions
+    .Include(x => x.Referee)
+    .Include(x => x.Competition)
+    .ThenInclude(g=>g.Genre)
+    .Where(x => x.Referee.Account.Id == acountId && x.CompetitionId == comeptitionId)
+    .FirstOrDefaultAsync();
+        }
     }
 
 }
