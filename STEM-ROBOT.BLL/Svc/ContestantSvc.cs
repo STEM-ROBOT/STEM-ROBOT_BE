@@ -107,6 +107,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var contestantLst = _mapper.Map<List<Contestant>>(contestants);
                 _contestantRepo.AddRange(contestantLst);
+                res.SetData("data", contestantLst);
             }
             catch (Exception ex)
             {

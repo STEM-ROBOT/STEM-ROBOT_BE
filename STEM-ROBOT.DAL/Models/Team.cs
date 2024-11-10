@@ -29,5 +29,7 @@ public partial class Team
 
     public virtual ICollection<TeamMatch> TeamMatches { get; set; } = new List<TeamMatch>();
 
+    public virtual ICollection<TeamRegister> TeamRegisters { get; set; } = new List<TeamRegister>();
+
     public virtual ICollection<TeamTable> TeamTables { get; set; } = new List<TeamTable>();
 }
