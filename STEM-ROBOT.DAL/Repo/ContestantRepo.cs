@@ -14,9 +14,9 @@ namespace STEM_ROBOT.DAL.Repo
         public ContestantRepo(StemdbContext context) : base(context)
         {
         }
-        public async Task BulkInsertAsyncSchool(List<Contestant> schoolList)
+        public async Task BulkInsertAsyncSchool(List<Contestant> contestants)
         {
-            await _context.BulkInsertAsync(schoolList);
+            await _context.BulkInsertAsync(contestants);
         }
         //sum contestant 
         public async Task<int> Sumcontestant(int TournamentID)

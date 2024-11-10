@@ -37,5 +37,7 @@ public partial class Account
 
     public virtual School? School { get; set; }
 
+    public virtual ICollection<TeamRegister> TeamRegisters { get; set; } = new List<TeamRegister>();
+
     public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
 }

@@ -65,7 +65,7 @@ namespace STEM_ROBOT.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            var res = _teamSvc.Update(req, id);
+            var res = _teamSvc.UpdateTeam(req, id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
