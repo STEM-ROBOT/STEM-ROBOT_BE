@@ -89,7 +89,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(TeamReq req, int id)
+        public SingleRsp UpdateTeam(TeamReq req, int id)
         {
             var res = new SingleRsp();
             try
@@ -101,13 +101,30 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var contestant = _mapper.Map<List<ContestantTeam>>( req.Contestants);
-                    _contestantTeamRepo.AddRange(contestant);
                     _mapper.Map(req, team);
                     team.IsSetup = true;
                     _teamRepo.Update(team);
-                    res.setData("data", team);
+                    var contestantTeams = _contestantTeamRepo.All(filter: ct => ct.TeamId == id);
+                    if (contestantTeams != null)
+                    {
+                        foreach (var item in contestantTeams)
+                        {
+                            _contestantTeamRepo.Delete(item.Id);
+                        }
+                    }
+
+                    foreach (var item in req.Contestants)
+                    {
+
+                        var contestantTeam = new ContestantTeam
+                        {
+                            ContestantId = item.ContestantId,
+                            TeamId = id
+                        };
+                        _contestantTeamRepo.Add(contestantTeam);
+                    }
                 }
+                res.setData("data", req);
             }
             catch (Exception ex)
             {
@@ -164,8 +181,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var tournaments = _tournamentRepo.GetById(tournamentId);     
-                if(tournaments == null)
+                var tournaments = _tournamentRepo.GetById(tournamentId);
+                if (tournaments == null)
                 {
                     res.SetError("404", "Tournament not found");
                 }
@@ -177,7 +194,7 @@ namespace STEM_ROBOT.BLL.Svc
                         ).ToList();
 
                     var lstTeamRsp = new List<ListTeamRspByTournament>();
-                    foreach(var team in teams)
+                    foreach (var team in teams)
                     {
                         var teamRsp = new ListTeamRspByTournament
                         {
