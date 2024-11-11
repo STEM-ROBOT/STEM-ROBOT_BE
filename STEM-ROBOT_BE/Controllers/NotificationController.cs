@@ -4,7 +4,7 @@ using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[notification]")]
+    [Route("api/notification")]
     [ApiController]
     public class NotificationController : ControllerBase
     {
