@@ -10,7 +10,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
     public int haftMatch { get; set; }
      
-    public ICollection<TeamAcctivity> activity { get; set; } = new List<TeamAcctivity>();
+    public TeamAcctivity activity { get; set; } 
 
 
     }
