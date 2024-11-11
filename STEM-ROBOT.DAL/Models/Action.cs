@@ -19,6 +19,8 @@ public partial class Action
 
     public int? RefereeCompetitionId { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual MatchHalf? MatchHalf { get; set; }
 
     public virtual RefereeCompetition? RefereeCompetition { get; set; }

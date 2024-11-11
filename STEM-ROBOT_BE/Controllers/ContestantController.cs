@@ -45,7 +45,7 @@ namespace STEM_ROBOT.Web.Controllers
             {
                 res.SetError("500", res.Message);
             }
-            return Ok(res.Data);
+            return Ok(res);
         }
         [HttpGet]
         public async Task<IActionResult> GetListContestant()

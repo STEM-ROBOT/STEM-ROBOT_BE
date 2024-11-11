@@ -54,6 +54,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         try
                         {
                             var match = await _matchHaflRepo.ListHaftMatch(matchID);
+
                             await hubContext.Clients.All.SendAsync(matchID.ToString(), match, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)

@@ -27,7 +27,7 @@ namespace STEM_ROBOT.DAL.Repo
                     Halves = m.MatchHalves.Select(h => new
                     {
                         HalfId = h.Id,
-                        Actions = h.Actions.Select(a => new
+                        Actions = h.Actions.Where(x=> x.Status.ToLower() == "accept").Select(a => new
                         {
                             TeamMatchId = a.TeamMatchId,
                             TeamName = a.TeamMatch.NameDefault,
@@ -54,7 +54,7 @@ namespace STEM_ROBOT.DAL.Repo
                 activity = new TeamAcctivity
                 {
                     activityTeam1 = h.Actions
-                        .Where(a => a.TeamMatchId == team1)
+                        .Where(a => a.TeamMatchId == team1 )
                         .Select(a => new TeamActivity1
                         {
                             teamName = a.TeamName,
