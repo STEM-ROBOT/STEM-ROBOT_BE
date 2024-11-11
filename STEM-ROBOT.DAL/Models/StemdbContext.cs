@@ -108,6 +108,8 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Action");
 
+            entity.Property(e => e.Status).HasMaxLength(100);
+
             entity.HasOne(d => d.MatchHalf).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.MatchHalfId)
                 .HasConstraintName("FK__Action__MatchHal__1DB06A4F");
