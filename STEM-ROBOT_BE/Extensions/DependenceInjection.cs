@@ -90,6 +90,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<StemHub>();
            
             services.AddScoped<IStemHub, StemHub>();
+            services.AddScoped<NotificationSvc>();
 
             return services;
         }
