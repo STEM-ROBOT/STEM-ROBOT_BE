@@ -105,29 +105,9 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "Tournament not found");
                     return res;
                 }
-                var contestantList = new List<Contestant>();
-
-                foreach (var item in contestants)
-                {
-                    var contestant = new Contestant
-                    {
-                        TournamentId = tournamentId,
-                        AccountId = accountId,
-                        Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
-                        Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
-                        Status = "active",
-                        Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
-                        Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
-                        Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
-                        StartTime = tournament.CreateDate,
-
-                    };
-
-                    contestantList.Add(contestant);
-                }
-
-                _contestantRepo.BulkInsertAsyncSchool(contestantList);
-                res.SetData("data", contestantList);
+                var contestantLst = _mapper.Map<List<Contestant>>(contestants);
+                _contestantRepo.AddRange(contestantLst);
+                res.SetData("data", contestantLst);
             }
             catch (Exception ex)
             {
@@ -146,7 +126,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<IEnumerable<Contestant>>(contestant);
-                    res.setData("200", mapper);
+                    res.setData("data", mapper);
                 }
             }
             catch (Exception ex)

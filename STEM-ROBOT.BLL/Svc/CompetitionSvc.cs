@@ -279,9 +279,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("No ID");
                 }
-                competition_data.FormatId = request.FormatId;
-                competition_data.IsFormat = true;
-                competition_data.NumberTeam = request.NumberTeam;
+               _mapper.Map(request, competition_data);
+
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
@@ -326,17 +325,17 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.Find(c => c.Id == competitionId).FirstOrDefault();
+                var competition = _competitionRepo.GetById(competitionId);
                 competition.IsFormat = true;
                 if (competition == null)
                 {
                     res.SetError("Competition not found with the provided ID.");
                     return res;
                 }
-                var competitionFormat = _mapper.Map(request, competition);
-                _competitionRepo.Update(competitionFormat);
+              _mapper.Map(request, competition);
+                _competitionRepo.Update(competition);
 
-                if (competitionFormat.FormatId == 2)
+                if (competition.FormatId == 2)
                 {
 
                     // Create teams
@@ -346,7 +345,7 @@ namespace STEM_ROBOT.BLL.Svc
                     CreateTables((int)request.NumberTable, competitionId);
                 }
 
-                res.setData("200", "Success");
+                res.setData("data", "Success");
             }
             catch (Exception ex)
             {
@@ -606,7 +605,7 @@ namespace STEM_ROBOT.BLL.Svc
                     resData.isTable = competition.IsTable;
                     resData.isMatch = competition.IsMacth;
                     resData.isTeamMatch = (bool)competition.IsTeamMacth;
-                    resData.isSchedule = competition.IsContestantTeam;
+                    resData.isSchedule = competition.IsSchedule;
                     resData.formatId = competition.FormatId;
                     res.setData("data", resData);
                 }
@@ -678,7 +677,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var competition = _competitionRepo.GetById(competitionId);
                 competition.IsTable = true;
                 _competitionRepo.Update(competition);
-                res.setData("200", "Success");
+                res.setData("data", "Success");
             }
             catch (Exception ex)
             {
@@ -805,7 +804,7 @@ namespace STEM_ROBOT.BLL.Svc
                 // In knockout rounds, we need (numberTeamsNextRound - 1) matches to determine a winner
                 int knockoutMatches = numberTeamsNextRound - 1;
                 totalMatches += knockoutMatches;
-                res.setData("200", totalMatches);
+                res.setData("data", totalMatches);
             }
             catch (Exception ex)
             {
@@ -832,7 +831,7 @@ namespace STEM_ROBOT.BLL.Svc
                     _tableGroupRepo.Add(table);
                     createdTables.Add(table);
                 }
-                res.SetData("200", createdTables);
+                res.SetData("data", createdTables);
                 return res;
             }
             catch (Exception ex)
@@ -921,7 +920,7 @@ namespace STEM_ROBOT.BLL.Svc
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
                 teamTableRsp.IsTable = (bool)competitition.IsTable;
-                res.setData("200", teamTableRsp);
+                res.setData("data", teamTableRsp);
             }
             catch (Exception ex)
             {

@@ -16,6 +16,10 @@ namespace STEM_ROBOT.Common.Req
         public string? ContactInfo { get; set; }
 
         public string? Image { get; set; }
-
+        public List<ContestantTeamReq> Contestants { get; set; }
+    }
+    public class ContestantTeamReq
+    {
+        public int? ContestantId { get; set; }
     }
 }

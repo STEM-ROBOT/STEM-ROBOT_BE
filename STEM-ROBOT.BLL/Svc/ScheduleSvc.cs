@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Google.Api.Gax;
+using Microsoft.Identity.Client;
 using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.Req;
@@ -39,7 +40,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lst != null)
                 {
                     var lstRes = _mapper.Map<List<ScheduleRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    res.SetSuccess(lstRes, "data");
                 }
                 else
                 {
@@ -53,12 +54,12 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp GetById(int id)
+        public SingleRsp GetById(int Id)
         {
             var res = new SingleRsp();
             try
             {
-                var schedule = _scheduleRepo.GetById(id);
+                var schedule = _scheduleRepo.GetById(Id);
                 if (schedule == null)
                 {
                     res.SetError("404", "Schedule not found");
@@ -66,7 +67,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var scheduleRes = _mapper.Map<ScheduleRsp>(schedule);
-                    res.setData("200", scheduleRes);
+                    res.setData("data", scheduleRes);
                 }
             }
             catch (Exception ex)
@@ -82,7 +83,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newSchedule = _mapper.Map<Schedule>(req);
                 _scheduleRepo.Add(newSchedule);
-                res.setData("200", newSchedule);
+                res.setData("data", newSchedule);
             }
             catch (Exception ex)
             {
@@ -90,12 +91,12 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp Update(ScheduleReq req, int id)
+        public SingleRsp Update(ScheduleReq req, int Id)
         {
             var res = new SingleRsp();
             try
             {
-                var schedule = _scheduleRepo.GetById(id);
+                var schedule = _scheduleRepo.GetById(Id);
                 if (schedule == null)
                 {
                     res.SetError("404", "Schedule not found");
@@ -104,7 +105,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(req, schedule);
                     _scheduleRepo.Update(schedule);
-                    res.setData("200", schedule);
+                    res.setData("data", schedule);
                 }
             }
             catch (Exception ex)
@@ -113,19 +114,19 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public SingleRsp Delete(int id)
+        public SingleRsp Delete(int Id)
         {
             var res = new SingleRsp();
             try
             {
-                var schedule = _scheduleRepo.GetById(id);
+                var schedule = _scheduleRepo.GetById(Id);
                 if (schedule == null)
                 {
                     res.SetError("404", "Schedule not found");
                 }
                 else
                 {
-                    _scheduleRepo.Delete(id);
+                    _scheduleRepo.Delete(Id);
                     res.SetMessage("Delete successfully");
                 }
             }
@@ -135,12 +136,12 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<SingleRsp> SendMail(int ScheduleID, int accountID)
+        public async Task<SingleRsp> SendMail(int ScheduleId, int accountId)
         {
             var res = new SingleRsp();
             try
             {
-                var checkSchedule = await _scheduleRepo.CheckRefereeCompetition(ScheduleID, accountID);
+                var checkSchedule = await _scheduleRepo.CheckRefereeCompetition(ScheduleId, accountId);
                 if (checkSchedule == null) throw new Exception("No data");
                 var email = checkSchedule.RefereeCompetition.Referee.Email;
                 if (email == null) throw new Exception("No email");
@@ -175,45 +176,68 @@ namespace STEM_ROBOT.BLL.Svc
                 _scheduleRepo.Update(checkSchedule);
                 await _mailService.SendEmailAsync(mail);
 
+                var response = new ScheduleSecurityRsp
+                {
+                    timeOut = 120,
+                    textView = checkSchedule.OptCode.Length
+                };
+                res.setData("data", response);
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail to sendmail");
+                res.SetError("Gửi mã thất bại");
             }
             return res;
         }
-        public async Task<SingleRsp> CheckCodeSchedule(int scheduleID, int accountID, string code)
+        public async Task<SingleRsp> CheckCodeSchedule(int scheduleId, int accountId, string code)
         {
             var res = new SingleRsp();
             try
             {
-                var checkSchedule = await _scheduleRepo.CheckTimeoutCodeSchedule(scheduleID, accountID, code);
-                if (checkSchedule == null) throw new Exception("No data");
-                if (checkSchedule.TimeOut < DateTime.Now) res.SetMessage("Time out code");
-                if (checkSchedule.OptCode.Contains(code))
+                var checkSchedule = await _scheduleRepo.CheckTimeoutCodeSchedule(scheduleId, accountId);
+                var checkUser = checkSchedule.RefereeCompetition.Referee.AccountId == accountId;
+                if (!checkUser)
                 {
-                    res.SetMessage("Success");
+                    res.SetMessage("Bạn không phải trọng tài của trận đấu này !");
+                    return res;
+                }
+                else
+                if (checkSchedule == null)
+                {
+                    res.SetMessage("Lịch trình không tồn tại !");
+                    return res;
+                }
+                else
+                if (checkSchedule.TimeOut < DateTime.Now)
+                {
+                    res.SetMessage("Mã hết hạn !");
+                    return res;
+                }
+                else
+                if (!checkSchedule.OptCode.Contains(code))
+                {
+                    res.SetMessage("Mã không đúng !");
                 }
                 else
                 {
-                    res.SetMessage("Code not found");
-                    res.SetError("Code not found");
+                    res.SetMessage("Success");
                 }
+
             }
             catch (Exception ex)
             {
-                throw new Exception("Fail check code");
+                throw new Exception("Fail check code" + ex);
             }
             return res;
         }
 
-        public async Task<SingleRsp> UpdateBusy(int scheduleID, int accountID)
+        public async Task<SingleRsp> UpdateBusy(int scheduleId, int accountId)
         {
             var res = new SingleRsp();
             try
             {
-                var account = await _scheduleRepo.getEmail(scheduleID);
-                var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+                var account = await _scheduleRepo.getEmail(scheduleId);
+                var schedule = await _scheduleRepo.UpdateBusy(scheduleId, accountId);
                 if (schedule == null) throw new Exception("No data");
 
                 var email = schedule.RefereeCompetition?.Referee?.Email ?? "N/A";
@@ -277,17 +301,18 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
 
         }
-        public async Task<SingleRsp> CancelBusy(int scheduleID, int accountID)
+        public async Task<SingleRsp> CancelBusy(int scheduleId, int accountId)
         {
             var res = new SingleRsp();
             try
             {
-                var schedule = await _scheduleRepo.UpdateBusy(scheduleID, accountID);
+                var schedule = await _scheduleRepo.UpdateBusy(scheduleId, accountId);
                 if (schedule == null) throw new Exception("No data");
                 schedule.Status = false;
-                
 
-            } catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
 
                 throw new Exception(ex.Message);
@@ -302,53 +327,53 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var scheduleMatch = await _scheduleRepo.GetRefereeGameAsync(competitionId);
 
-                
 
-                    var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
-                    if (schedule == null)
-                    {
-                        res.SetError("404", "Schedule not found");
-                    }
-                    else
-                    {
 
-                        var data = new ScheduleConfigRsp
+                var schedule = await _scheduleRepo.GetRoundGameAsync(competitionId);
+                if (schedule == null)
+                {
+                    res.SetError("404", "Schedule not found");
+                }
+                else
+                {
+
+                    var data = new ScheduleConfigRsp
+                    {
+                        IsSchedule = schedule.IsSchedule,
+                        MatchReferees = schedule.RefereeCompetitions.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
                         {
-                            IsSchedule = schedule.IsSchedule,
-                            MatchReferees = schedule.RefereeCompetitions.Where(s => s.Role == "SRF").Select(cr => new SchedulSubRefereeRsp
-                            {
-                                Id = cr.Id,
-                                Name = cr.Referee.Name,
-                            }).ToList(),
+                            Id = cr.Id,
+                            Name = cr.Referee.Name,
+                        }).ToList(),
 
-                            Referees = schedule.RefereeCompetitions.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
-                            {
-                                Id = cs.Id,
-                                Name = cs.Referee.Name,
-                            }).ToList(),
+                        Referees = schedule.RefereeCompetitions.Where(s => s.Role == "MRF").Select(cs => new SchedulMainRefereeRsp
+                        {
+                            Id = cs.Id,
+                            Name = cs.Referee.Name,
+                        }).ToList(),
 
-                            Rounds = schedule.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        Rounds = schedule.Stages.Select(s => new SchedulRoundsRefereeRsp
+                        {
+                            RoundId = s.Id,
+                            roundName = s.Name,
+                            Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
                             {
-                                RoundId = s.Id,
-                                roundName = s.Name,
-                                Matches = s.Matches.Select(m => new SchedulRoundsMatchsRefereeRsp
+                                matchId = m.Id,
+                                timeIn = (TimeSpan)m.TimeIn,
+                                date = (DateTime)m.StartDate,
+                                arena = m.Location.Address,
+                                mainReferee = scheduleMatch.Count > 0 ? (int)scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetitionId : 0,
+                                mainRefereeName = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetition.Referee.Name : "",
+                                matchRefereesdata = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "SRF" && sc.MatchId == m.Id).ToList().Select(rs => new SchedulMainMatchRefereeRsp
                                 {
-                                    matchId = m.Id,
-                                    timeIn = (TimeSpan)m.TimeIn,
-                                    date = (DateTime)m.StartDate,
-                                    arena = m.Location.Address,
-                                    mainReferee = scheduleMatch.Count > 0 ? (int)scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetitionId : 0,
-                                    mainRefereeName = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "MRF" && sc.MatchId == m.Id).FirstOrDefault().RefereeCompetition.Referee.Name : "",
-                                    matchRefereesdata = scheduleMatch.Count > 0 ? scheduleMatch.Where(sc => sc.RefereeCompetition.Role == "SRF" && sc.MatchId == m.Id).ToList().Select(rs => new SchedulMainMatchRefereeRsp
-                                    {
-                                        SubRefereeId = rs.RefereeCompetition.Id,
-                                        SubRefereeName = rs.RefereeCompetition.Referee.Name,
-                                    }).ToList() : new List<SchedulMainMatchRefereeRsp>(),
-                                }).ToList(),
+                                    SubRefereeId = rs.RefereeCompetition.Id,
+                                    SubRefereeName = rs.RefereeCompetition.Referee.Name,
+                                }).ToList() : new List<SchedulMainMatchRefereeRsp>(),
                             }).ToList(),
-                        };
-                        res.setData("data", data);
-                    
+                        }).ToList(),
+                    };
+                    res.setData("data", data);
+
                 }
             }
 

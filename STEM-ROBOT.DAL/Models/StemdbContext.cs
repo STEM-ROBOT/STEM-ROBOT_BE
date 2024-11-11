@@ -69,12 +69,13 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<TeamMatch> TeamMatches { get; set; }
 
+    public virtual DbSet<TeamRegister> TeamRegisters { get; set; }
+
     public virtual DbSet<TeamTable> TeamTables { get; set; }
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -89,6 +90,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
+            entity.Property(e => e.ProvinceCode).HasMaxLength(100);
             entity.Property(e => e.Role).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -213,6 +215,10 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.Contestants)
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_Contestant_Account");
+
+            entity.HasOne(d => d.TeamRegister).WithMany(p => p.Contestants)
+                .HasForeignKey(d => d.TeamRegisterId)
+                .HasConstraintName("FK_Contestant_TeamRegister");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
                 .HasForeignKey(d => d.TournamentId)
@@ -563,6 +569,32 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK_TeamMatch_Team");
+        });
+
+        modelBuilder.Entity<TeamRegister>(entity =>
+        {
+            entity.ToTable("TeamRegister");
+
+            entity.Property(e => e.ContactInfo).HasMaxLength(250);
+            entity.Property(e => e.Image).HasColumnType("ntext");
+            entity.Property(e => e.Name).HasMaxLength(250);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20)
+                .IsFixedLength();
+            entity.Property(e => e.RegisterTime).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(250);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.TeamRegisters)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_TeamRegister_Account");
+
+            entity.HasOne(d => d.Competition).WithMany(p => p.TeamRegisters)
+                .HasForeignKey(d => d.CompetitionId)
+                .HasConstraintName("FK_TeamRegister_Competition");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.TeamRegisters)
+                .HasForeignKey(d => d.TeamId)
+                .HasConstraintName("FK_TeamRegister_Team");
         });
 
         modelBuilder.Entity<TeamTable>(entity =>

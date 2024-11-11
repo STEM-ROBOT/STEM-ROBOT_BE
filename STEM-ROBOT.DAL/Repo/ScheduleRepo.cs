@@ -50,11 +50,11 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await _context.Schedules.Where(x => x.Id == scheduleID).Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
         }
-        public async Task<Schedule> CheckTimeoutCodeSchedule(int scheduleID, int accountID, string code)
+        public async Task<Schedule> CheckTimeoutCodeSchedule(int scheduleID, int accountId)
         {
-            return await _context.Schedules.Where(x => x.Id == scheduleID && x.TimeOut > DateTime.Now && x.OptCode == code)
+            return await _context.Schedules.Where(x => x.Id == scheduleID)
                 .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee)
-                .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
+               .FirstOrDefaultAsync();
         }
         public async Task<Schedule> UpdateBusy(int scheduleID, int accountID)
         {

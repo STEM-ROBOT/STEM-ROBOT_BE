@@ -6,9 +6,5 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
-    public class ContestantTeamReq
-    {
-        public int? ContestantId { get; set; }
-
-    }
+   
 }

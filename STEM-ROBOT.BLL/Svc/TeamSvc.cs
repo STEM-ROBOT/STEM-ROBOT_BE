@@ -35,8 +35,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var lst = _teamRepo.All();
                 if (lst != null)
                 {
-                    var lstRes = _mapper.Map<List<Common.Rsp.TeamRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    var lstRes = _mapper.Map<List<TeamRsp>>(lst);
+                    res.SetSuccess(lstRes, "data");
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var teamRes = _mapper.Map<Common.Rsp.TeamRsp>(team);
-                    res.setData("200", teamRes);
+                    res.setData("data", teamRes);
                 }
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newTeam = _mapper.Map<Team>(req);
                 _teamRepo.Add(newTeam);
-                res.setData("200", newTeam);
+                res.setData("data", newTeam);
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp Update(TeamReq req, int id)
+        public SingleRsp UpdateTeam(TeamReq req, int id)
         {
             var res = new SingleRsp();
             try
@@ -102,9 +102,29 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     _mapper.Map(req, team);
+                    team.IsSetup = true;
                     _teamRepo.Update(team);
-                    res.setData("200", team);
+                    var contestantTeams = _contestantTeamRepo.All(filter: ct => ct.TeamId == id);
+                    if (contestantTeams != null)
+                    {
+                        foreach (var item in contestantTeams)
+                        {
+                            _contestantTeamRepo.Delete(item.Id);
+                        }
+                    }
+
+                    foreach (var item in req.Contestants)
+                    {
+
+                        var contestantTeam = new ContestantTeam
+                        {
+                            ContestantId = item.ContestantId,
+                            TeamId = id
+                        };
+                        _contestantTeamRepo.Add(contestantTeam);
+                    }
                 }
+                res.setData("data", req);
             }
             catch (Exception ex)
             {
@@ -145,8 +165,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                 if (teams != null)
                 {
-                    var lstRes = _mapper.Map<List<Common.Rsp.TeamRsp>>(teams);
-                    res.SetSuccess(lstRes, "200");
+                    var lstRes = _mapper.Map<List<TeamRsp>>(teams);
+                    res.SetSuccess(lstRes, "data");
                 }
             }
             catch (Exception ex)
@@ -161,8 +181,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var tournaments = _tournamentRepo.GetById(tournamentId);     
-                if(tournaments == null)
+                var tournaments = _tournamentRepo.GetById(tournamentId);
+                if (tournaments == null)
                 {
                     res.SetError("404", "Tournament not found");
                 }
@@ -174,7 +194,7 @@ namespace STEM_ROBOT.BLL.Svc
                         ).ToList();
 
                     var lstTeamRsp = new List<ListTeamRspByTournament>();
-                    foreach(var team in teams)
+                    foreach (var team in teams)
                     {
                         var teamRsp = new ListTeamRspByTournament
                         {
