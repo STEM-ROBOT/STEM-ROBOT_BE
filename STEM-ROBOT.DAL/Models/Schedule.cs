@@ -21,6 +21,8 @@ public partial class Schedule
 
     public bool? Status { get; set; }
 
+    public bool? IsJoin { get; set; }
+
     public virtual Match? Match { get; set; }
 
     public virtual RefereeCompetition? RefereeCompetition { get; set; }

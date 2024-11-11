@@ -106,8 +106,13 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 var contestantLst = _mapper.Map<List<Contestant>>(contestants);
+                foreach (var contestant in contestantLst)
+                {
+                    contestant.AccountId = accountId;
+                    contestant.TournamentId = tournamentId;
+                }
                 _contestantRepo.AddRange(contestantLst);
-                res.SetData("data", contestantLst);
+                res.SetMessage("Add successfully");
             }
             catch (Exception ex)
             {
