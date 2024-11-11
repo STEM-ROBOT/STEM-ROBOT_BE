@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -23,7 +24,9 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly StageRepo _stageRepo;
         private readonly StageSvc _stageSvc;
-        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc)
+        private readonly StemHub _stemHub;
+        private readonly MatchHaflRepo _matchHaflRepo;
+        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc,StemHub stemHub,MatchHaflRepo matchHaflRepo)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -33,6 +36,8 @@ namespace STEM_ROBOT.BLL.Svc
             _stageRepo = stageRepo;
             _stageSvc = stageSvc;
             _competition = competition;
+            _stemHub = stemHub;
+            _matchHaflRepo = matchHaflRepo;
         }
 
         public MutipleRsp GetListMatch()
@@ -382,5 +387,67 @@ namespace STEM_ROBOT.BLL.Svc
 
             return res;
         }
+
+        //check date
+        public async Task<SingleRsp> CheckMatch(int matchID, DateTime time)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var timePlay = _matchRepo.GetById(matchID);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (time.Date < timePlay.StartDate.Value.Date)
+                {
+                    res.SetMessage("Trận đấu chưa diễn ra");
+                  
+                }
+                else
+                if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+                  var data =   await _stemHub.MatchClient(matchID,time);
+                    res.SetMessage(data.Message);
+                }
+                else
+                {
+                    var list = await _matchHaflRepo.ListHaftMatch(matchID);
+                    res.setData("data", list);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //convert datetime to timespan
+        public TimeSpan ConvertDateTimeToTimeSpan(DateTime dateTime)
+        {
+            // Chọn thời gian gốc là DateTime.MinValue (01/01/0001 00:00:00)
+            DateTime baseTime = DateTime.MinValue;
+
+            // Tính TimeSpan từ thời gian gốc đến dateTime
+            TimeSpan timeSpan = dateTime - baseTime;
+
+            return timeSpan;
+        }
+
     }
 }

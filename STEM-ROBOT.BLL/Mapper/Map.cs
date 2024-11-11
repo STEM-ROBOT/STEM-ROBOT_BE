@@ -210,6 +210,8 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<District, DistrictRsp>().ReverseMap();
             CreateMap<District, DistrictRsp>().ReverseMap();
             CreateMap<School, ListSchoolRsp>().ReverseMap();
+            //notification
+            CreateMap<Notification, NotificationRsp>().ReverseMap();
         }
 
     }

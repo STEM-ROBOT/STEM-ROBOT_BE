@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS;
 using STEM_ROBOT.BLL;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.BLL.Mapper;
 
@@ -74,7 +75,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<ProvinceSvc>();
             services.AddScoped<DistrictRepo>();
             services.AddScoped<DistrictSvc>();
-            services.AddScoped<RealTimeSvc>();
+           
             services.AddSingleton<Random>();
             services.AddScoped<StageTableRepo>();
             services.AddScoped<ContestantTeamRepo>();
@@ -83,6 +84,14 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<RefereeCompetitionSvc>();
             services.AddScoped<AreaRepo>();
             services.AddScoped<AreaSvc>();
+            services.AddScoped<MatchHaflRepo>();
+            services.AddScoped<MatchPointSvc>();
+            services.AddScoped<NotificationRepo>();
+            services.AddScoped<StemHub>();
+           
+            services.AddScoped<IStemHub, StemHub>();
+            services.AddScoped<NotificationSvc>();
+
             return services;
         }
 
