@@ -75,7 +75,10 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-   
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -105,14 +108,12 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Action");
 
-            entity.Property(e => e.EventTime).HasColumnType("datetime");
-
             entity.HasOne(d => d.MatchHalf).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.MatchHalfId)
                 .HasConstraintName("FK__Action__MatchHal__1DB06A4F");
 
-            entity.HasOne(d => d.Referee).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.RefereeId)
+            entity.HasOne(d => d.RefereeCompetition).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.RefereeCompetitionId)
                 .HasConstraintName("FK_Action_RefereeCompetition");
 
             entity.HasOne(d => d.ScoreCategory).WithMany(p => p.Actions)
