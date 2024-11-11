@@ -220,7 +220,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    
+                    checkSchedule.IsJoin = true;
+                    _scheduleRepo.Update(checkSchedule);
                     res.SetMessage("Success");
                 }
 

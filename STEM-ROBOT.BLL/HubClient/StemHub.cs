@@ -73,7 +73,7 @@ namespace STEM_ROBOT.BLL.HubClient
             return res;
         }
 
-        public async Task<SingleRsp> NotificationClient( string key, int userid)
+        public async Task<SingleRsp> NotificationClient( int userid)
         {
             var cancellationToken = new CancellationToken();
             var res = new SingleRsp();
@@ -92,7 +92,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var notifications = await _notificationRepo.listNotifi(userid);
                             var mappedNotifications = _mapper.Map<List<NotificationRsp>>(notifications);
-                            await hubContext.Clients.All.SendAsync(key, mappedNotifications, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync(userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
