@@ -10,10 +10,12 @@ namespace STEM_ROBOT.Web.Controllers
     [ApiController]
     public class MatchController : ControllerBase
     {
+        private readonly MatchPointSvc _matchPointSvc;
         private readonly MatchSvc _matchSvc;
-        public MatchController(MatchSvc matchSvc)
+        public MatchController(MatchSvc matchSvc, MatchPointSvc matchPointSvc)
         {
             _matchSvc = matchSvc;
+            _matchPointSvc = matchPointSvc;
         }
         [HttpGet]
         public IActionResult Get()
@@ -120,6 +122,13 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetMessage(res.Message);
             }
             return Ok(res);
+        }
+        [HttpGet("match-detail-action")]
+        public async Task<IActionResult> MatchDetailAction(int matchID,DateTime date) 
+        {
+            var list = await _matchSvc.CheckMatch(matchID, date);
+            if(list.Data == null) return Ok(list.Message);
+            return Ok(list.Data);
         }
     }
 }

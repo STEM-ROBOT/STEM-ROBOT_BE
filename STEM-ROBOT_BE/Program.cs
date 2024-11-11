@@ -32,9 +32,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("myAppCors", policy =>
     {
-        policy.WithOrigins("*")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:3000")
+                 .AllowAnyHeader()
+                 .AllowAnyMethod()
+                 .AllowCredentials();
     });
 });
 builder.Services.AddHttpContextAccessor();
@@ -57,6 +58,7 @@ app.MapControllers();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<TournamentClient>("/tournamentHub");
+   
 });
+app.MapHub<StemHub>("/stem-hub");
 app.Run();

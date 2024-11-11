@@ -1,24 +1,28 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/realtime")]
     [ApiController]
     public class RealtimeController : ControllerBase
     {
-        private readonly RealTimeSvc _realTimeSvc;
-        public RealtimeController(RealTimeSvc realTimeSvc)
+        private readonly IStemHub _stemHub;
+        public RealtimeController(StemHub realTimeSvc)
         {
-            _realTimeSvc = realTimeSvc;
+            _stemHub = realTimeSvc;
         }
         [HttpGet]
-        [Route("late")]
-        public async Task<IActionResult> getRealTime()
+        public async Task<IActionResult> getRealTime(string key)
         {
-            var realtime =  _realTimeSvc.randomNumber;
-            return Ok(realtime);
+            var userID = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (userID == null) return BadRequest("Please Login");
+            int userId = int.Parse(userID.Value);
+           
+            var res = await _stemHub.NotificationClient( key, userId);
+            return Ok("Ok");
         }
     }
 }
