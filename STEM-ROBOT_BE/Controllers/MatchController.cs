@@ -136,5 +136,11 @@ namespace STEM_ROBOT.Web.Controllers
             var point = await _matchSvc.teamPoint(matchID, date);
             return Ok(point.Data);
         }
+        [HttpGet("list-point")]
+        public async Task<IActionResult> Listpoint(int teamMatchID, DateTime date)
+        {
+            var point = await _matchSvc.ListPoint(teamMatchID, date);
+            return Ok(point.Data);
+        }
     }
 }

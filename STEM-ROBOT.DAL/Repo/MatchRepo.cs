@@ -298,27 +298,67 @@ namespace STEM_ROBOT.DAL.Repo
         {
             var list = await _context.Matches.Where(x => x.Id == matchID).SelectMany(team => team.TeamMatches.Select(tm => new Teampoint
             {
-                teamMatchId = (int)tm.Id,
+                id = (int)tm.Id,
                 teamName = tm.Team.Name,
-                logoTeam = tm.Team.Image,
-                point = tm.TotalScore
+                teamImage = tm.Team.Image,
+                teamMatchResulgPlay = tm.TotalScore
 
             })).ToListAsync();
             return list;
         }
         //
-        public async Task<List<MatchListPoint>> MatchListPoint(int teamMatchID)
+        public async Task<MatchlistPointParent> MatchListPoint(int teamMatchID)
         {
+
             var list = await _context.TeamMatches.Where(x => x.Id == teamMatchID)
-                .SelectMany(x => x.Actions.Select(ac => new MatchListPoint
+                .Select(a => new MatchlistPointParent
                 {
-                    refereeName = ac.RefereeCompetition.Referee.Name,
-                    timeScore = ac.EventTime,
+                    teamMatchId = a.MatchId,
+                    teamMatchResult = (int)a.TotalScore,
+                    teamName = a.Team.Name,
+                    teamImage = a.Team.Image,
+                    halfActionTeam = a.Actions.Select(c => new MatchListPoint
+                    {
+                        id = c.Id,
+                        halfId = c.MatchHalf.Id,
+                        halfName = c.MatchHalf.HalfName,
+                        refereeCompetitionId = c.RefereeCompetition.Referee.Id,
+                        refereeCompetitionName = c.RefereeCompetition.Referee.Name,
+                        scoreTime = CalculateElapsedMinutesAndSeconds(a.Match.TimeIn,c.EventTime),
+                        scoreDescription = c.ScoreCategory.Description,
+                        scorePoint = c.ScoreCategory.Point,
+                        scoreType = c.ScoreCategory.Type,
+                        status = c.Status
 
-
-                })).ToListAsync();
+                    }).ToList()
+                }).FirstOrDefaultAsync();
 
             return list;
         }
+        //hàm tính thời gian trả về action 
+        public static string CalculateElapsedMinutesAndSeconds(TimeSpan? timeIn, TimeSpan? eventTime)
+        {
+            if (timeIn == null || eventTime == null)
+            {
+                throw new ArgumentException("TimeIn and EventTime must not be null.");
+            }
+
+
+            var absoluteEventTime = eventTime - timeIn;
+
+
+            if (eventTime < timeIn)
+            {
+                throw new InvalidOperationException("EventTime is beyond the end of the match.");
+            }
+
+            // Extract minutes and seconds from eventTime relative to timeIn
+            int minutes = eventTime.Value.Minutes;
+            int seconds = eventTime.Value.Seconds;
+
+
+            return $"{minutes:D2}:{seconds:D2}";
+        }
+
     }
 }

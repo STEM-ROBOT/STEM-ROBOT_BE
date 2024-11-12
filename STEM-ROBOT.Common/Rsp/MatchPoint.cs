@@ -39,13 +39,38 @@ namespace STEM_ROBOT.Common.Rsp
     //Match schedule 
     public class Teampoint
     {
-        public int? teamMatchId { get; set; }
+        public int? id { get; set; }
         public string? teamName { get; set; }
-        public string? logoTeam { get; set; }
-
-        public int? point { get; set; }
+        public string? teamImage { get; set; }
+        public int? teamMatchResulgPlay { get; set; }
 
     }
+
+    public class MatchlistPointParent
+    {
+        public int? teamMatchId { get; set; }
+        public int? teamMatchResult {  get; set; }
+        public string? teamName { get; set; }
+        public string? teamImage { get; set; }
+        public ICollection<MatchListPoint > halfActionTeam {  get; set; } = new List<MatchListPoint>();
+    }
+    public class MatchListPoint
+    {
+        public int? halfId { get; set; }
+        public string? halfName { get; set; }
+        
+        public int? id { get; set; } 
+        public int? refereeCompetitionId { get; set; }
+        public string? refereeCompetitionName { get; set; }
+        public string? scoreTime { get; set; }
+        public string? scoreDescription { get; set; }
+        public string? scoreType { get; set; }
+        public int? scorePoint { get; set; }
+        public string? status { get; set; }
+
+    }
+
+
 }
 
 

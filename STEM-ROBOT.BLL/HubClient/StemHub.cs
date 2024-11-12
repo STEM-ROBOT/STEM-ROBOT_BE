@@ -150,6 +150,52 @@ namespace STEM_ROBOT.BLL.HubClient
             res.SetMessage("timeout");
             return res;
         }
+
+        //realtime point 
+        public async Task<SingleRsp> ListPointClient(int teamMatchID,DateTime time)
+        {
+            var cancellationToken = new CancellationToken();
+            var res = new SingleRsp();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
+
+                // Create a CancellationTokenSource with a 30-minute timeout
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                {
+                    var listPoint = await _matchRepo.MatchListPoint(teamMatchID);
+                    var matchID = listPoint.teamMatchId;
+
+                    var match = _matchRepo.GetById(matchID);
+
+                    TimeSpan totalTime = (TimeSpan)(match.TimeOut - time.TimeOfDay);
+
+                    linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
+
+                    while (!linkedCts.Token.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            var listPoints = await _matchRepo.MatchListPoint(teamMatchID);
+
+                            await hubContext.Clients.All.SendAsync("list-point/" + teamMatchID.ToString(), listPoints, linkedCts.IsCancellationRequested);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error sending message: {ex.Message}");
+                        }
+
+                        // Delay to prevent continuous rapid execution, adjust as needed
+                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                    }
+                    res.SetMessage("timeout");
+                }
+            }
+
+            res.SetMessage("timeout");
+            return res;
+
+        }
         public override async Task OnConnectedAsync()
         {
             var connectionId = Context.ConnectionId;
