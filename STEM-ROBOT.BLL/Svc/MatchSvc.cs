@@ -385,7 +385,8 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         var matchHalf = new MatchHalf
                         {
-                            MatchId = match.Id,                            
+                            MatchId = match.Id,
+                            HalfName = i.ToString(),
                         };
                         matchesHalf.Add(matchHalf);
                     }
