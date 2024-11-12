@@ -48,7 +48,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    var lstRes = _mapper.Map<List<ListRefereeRsp>>(lst);
                     res.SetSuccess(lstRes, "data");
                 }
             }
@@ -87,7 +87,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var refereeRes = _mapper.Map<RefereeRsp>(referee);
+                    var refereeRes = _mapper.Map<ListRefereeRsp>(referee);
                     res.setData("data", refereeRes);
                 }
             }
@@ -346,7 +346,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    var lstRes = _mapper.Map<List<ListRefereeRsp>>(lst);
                     res.SetSuccess(lstRes, "success");
                 }
             }
