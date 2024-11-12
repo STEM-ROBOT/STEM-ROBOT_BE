@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -20,15 +21,16 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly ScheduleRepo _scheduleRepo;
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
-
+        private readonly MatchRepo _matchRepo;
 
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition,MatchRepo matchRepo)
         {
             _scheduleRepo = scheduleRepo;
             _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
+            _matchRepo = matchRepo;
         }
 
         public MutipleRsp GetSchedules()
@@ -394,6 +396,56 @@ namespace STEM_ROBOT.BLL.Svc
             var list_schedule = _mapper.Map<List<Schedule>>(reques);
             _competition.Update(competition);
             _scheduleRepo.AddRange(list_schedule);
+            return res;
+        }
+
+
+        //check schedule
+
+        public async Task<SingleRsp> checkTimeSchedule(int scheDuleID, DateTime date)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.checkTimeschedule(scheDuleID);
+                var matchID = schedule.FirstOrDefault().matchId;
+
+                var matchCheck = _matchRepo.GetById(matchID);
+
+                var totalTime = matchCheck.StartDate + matchCheck.TimeIn;
+
+                var checkDate = date < matchCheck.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - date;
+
+                if (date.Date == matchCheck.StartDate.Value.Date && checkTime.TotalMinutes > 15)
+                {
+                   
+                    res.setData("data", "notstarted" );
+
+                }
+                else
+                if (date.Date == matchCheck.StartDate.Value.Date && checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
+                {
+                    var timeAwait = checkTime.TotalMinutes < 0 ? TimeSpan.Zero : checkTime;
+                    var data = new
+                    {
+                        TimeAwait = timeAwait,
+                        TimeInMatch = matchCheck.TimeIn,
+                        scheduleData = schedule
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
             return res;
         }
 
