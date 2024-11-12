@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -403,8 +404,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                 if (time.Date < timePlay.StartDate.Value.Date)
                 {
-                    res.SetMessage("Trận đấu chưa diễn ra");
-                  
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
                 }
                 else
                 if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
@@ -421,7 +422,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
                 {
                   var data =   await _stemHub.MatchClient(matchID,time);
-                    res.SetMessage(data.Message);
+                    res.setData("data", data.Message);
                 }
                 else
                 {

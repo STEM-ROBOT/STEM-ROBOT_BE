@@ -23,7 +23,9 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var data = await _stemHub.NotificationClient(userID);
+
                 res.setData("data", data);
+
             }
             catch (Exception ex)
             {
