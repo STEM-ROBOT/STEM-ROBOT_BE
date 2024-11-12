@@ -75,7 +75,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -154,7 +154,13 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsReferee)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isReferee");
+            entity.Property(e => e.IsRule)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isRule");
             entity.Property(e => e.IsSchedule).HasColumnName("isSchedule");
+            entity.Property(e => e.IsScore)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isScore");
             entity.Property(e => e.IsTable)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isTable");
@@ -288,6 +294,9 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Match");
 
+            entity.Property(e => e.IsPlay)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isPlay");
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
@@ -561,6 +570,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
+            entity.Property(e => e.ResultPlayTable).HasMaxLength(250);
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.MatchId)
