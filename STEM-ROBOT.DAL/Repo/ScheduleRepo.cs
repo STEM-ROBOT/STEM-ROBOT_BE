@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -80,6 +81,15 @@ namespace STEM_ROBOT.DAL.Repo
                          .Any(m => m.Schedules
                              .Any(sch => sch.Id == schdeDuleID))))))
          .FirstOrDefaultAsync();
+        }
+        public async Task<List<CheckTimeSchedule>> checkTimeschedule(int scheduleID)
+        {
+            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID).SelectMany(m => m.Match.TeamMatches.Select(a=> new CheckTimeSchedule
+            {
+                matchId = (int) m.MatchId,
+                teamMatchId = a.Id
+            })).ToListAsync();
+            return timecheck;
         }
     }
 }

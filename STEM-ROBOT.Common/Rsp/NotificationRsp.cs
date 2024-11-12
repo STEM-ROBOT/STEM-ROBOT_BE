@@ -16,4 +16,10 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int? AccountId { get; set; }
     }
+
+    public class CheckTimeSchedule
+    {
+        public int matchId { get; set; }
+        public int teamMatchId { get; set; }
+    }
 }
