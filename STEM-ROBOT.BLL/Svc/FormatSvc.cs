@@ -36,7 +36,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "No data found");
                 }
                 var lstRes = _mapper.Map<List<FormatRsp>>(lst);
-                res.SetSuccess(lstRes, "200");
+                res.SetSuccess(lstRes, "data");
 
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "No data found");
                 }
                 var formatRes = _mapper.Map<FormatRsp>(format);
-                res.setData("200", formatRes);
+                res.setData("data", formatRes);
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var newFormat = _mapper.Map<CompetitionFormat>(tournamentFormat);
                 _formatSvc.Add(newFormat);
-                res.setData("200", newFormat);
+                res.setData("data", newFormat);
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     _mapper.Map(req, updFormat);
                     _formatSvc.Update(updFormat);
-                    res.setData("200", updFormat);
+                    res.setData("data", updFormat);
                 }
             }
             catch (Exception ex)

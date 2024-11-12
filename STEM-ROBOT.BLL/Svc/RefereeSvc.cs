@@ -48,8 +48,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
-                    res.SetSuccess(lstRes, "200");
+                    var lstRes = _mapper.Map<List<ListRefereeRsp>>(lst);
+                    res.SetSuccess(lstRes, "data");
                 }
             }
             catch (Exception ex)
@@ -58,17 +58,17 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<MutipleRsp> ListRefereeTournament(int userID)
+        public async Task<MutipleRsp> ListRefereeTournament(int userId)
         {
             var res = new MutipleRsp();
             try
             {
-                var list = await _refereeRepo.GetListReferee(userID);
-                if (list == null) throw new Exception("No data");
-                var mapper = _mapper.Map<List<RefereeTournament>>(list);
-                res.SetData("200", mapper);
+                var data = await _refereeRepo.GetListReferee(userId);
+                if (data == null) throw new Exception("No data");
+                var mapper = _mapper.Map<RefereeTournament>(data);
+                res.SetData("data", mapper);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception("Get list Fail");
             }
@@ -87,8 +87,8 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var refereeRes = _mapper.Map<RefereeRsp>(referee);
-                    res.setData("200", refereeRes);
+                    var refereeRes = _mapper.Map<ListRefereeRsp>(referee);
+                    res.setData("data", refereeRes);
                 }
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var newReferee = _mapper.Map<Referee>(req);
                 _refereeRepo.Add(newReferee);
-                res.setData("200", newReferee);
+                res.setData("data", newReferee);
             }
             catch (Exception ex)
             {
@@ -125,9 +125,34 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var refereeList = new List<Referee>();
-
+                var accoutList = new List<Account>();
                 foreach (var item in referees)
                 {
+
+                    string email;
+
+                    Random random = new Random();
+                    int number = random.Next(10000000, 100000000);
+                    email = $"{item.TournamentId}{item.PhoneNumber}{number}@referee.stem.vn";
+
+                    Random randoms = new Random();
+                    int numberPass = randoms.Next(0, 10000);
+                    string password = $"Referee{item.TournamentId}{numberPass}";
+                    var passwords = BCrypt.Net.BCrypt.HashPassword(password);
+                    var account = new Account
+                    {
+                        Email = email,
+                        Password = passwords,
+                        Role = "RF",
+                        PhoneNumber = item.PhoneNumber,
+                        Image = item.Image,
+                        Name = item.Name,
+
+
+
+                    };
+
+                    _accountRepo.Add(account);
                     var referee = new Referee
                     {
                         TournamentId = item.TournamentId,
@@ -136,36 +161,11 @@ namespace STEM_ROBOT.BLL.Svc
                         Status = string.IsNullOrEmpty(item.Status) ? "No data" : item.Status,
                         PhoneNumber = string.IsNullOrEmpty(item.PhoneNumber) ? "No data" : item.PhoneNumber,
                         Image = string.IsNullOrEmpty(item.Image) ? "No data" : item.Image,
+                        AccountId = account.Id,
                     };
 
                     refereeList.Add(referee);
-                    _refereeRepo.Add(referee);
-
-                    for (int i = 0; i < 10; i++)
-                    {
-                        string email;
-                        do
-                        {
-                            Random random = new Random();
-                            int number = random.Next(10000000, 100000000);
-                            email = $"{referee.TournamentId}{number}@referee.stem.vn";
-                        } while (_accountRepo.Find(a => a.Email == email).Any()); // Kiểm tra xem email đã tồn tại chưa
-
-                        Random randoms = new Random();
-                        int numberPass = randoms.Next(0, 10000);
-                        string password = $"Referee{referee.TournamentId}{numberPass}";
-                        var passwords = BCrypt.Net.BCrypt.HashPassword(password);
-                        var account = new Account
-                        {
-                            Email = email,
-                            Password = passwords,
-                            Role = "RF"
-
-                        };
-
-                        _accountRepo.Add(account);
-
-                        var emailbody = $@"
+                    var emailbody = $@"
 <!DOCTYPE html>
 <html>
 <head>
@@ -258,24 +258,21 @@ namespace STEM_ROBOT.BLL.Svc
 
 
 
-                        var mailRequest = new MailReq()
-                        {
-                            ToEmail = referee.Email,
-                            Subject = "[STEM PLATFORM]",
-                            Body = emailbody
-                        };
+                    var mailRequest = new MailReq()
+                    {
+                        ToEmail = referee.Email,
+                        Subject = "[STEM PLATFORM]",
+                        Body = emailbody
+                    };
 
-                        await _mailSerivce.SendEmailAsync(mailRequest);
-                        break;
-                    }
+                    await _mailSerivce.SendEmailAsync(mailRequest);
+
 
 
 
                 }
-
-
-
-                res.SetData("200", refereeList);
+                _refereeRepo.AddRange(refereeList);
+                res.SetData("data", "success");
             }
             catch (Exception ex)
             {
@@ -304,7 +301,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     _mapper.Map(req, referee);
                     _refereeRepo.Update(referee);
-                    res.setData("200", referee);
+                    res.setData("data", referee);
                 }
             }
             catch (Exception ex)
@@ -349,7 +346,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var lstRes = _mapper.Map<List<RefereeRsp>>(lst);
+                    var lstRes = _mapper.Map<List<ListRefereeRsp>>(lst);
                     res.SetSuccess(lstRes, "success");
                 }
             }
@@ -360,36 +357,68 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp GetListRefereeAvailable(int tournamentId)
+        public SingleRsp GetListRefereeAvailable(int tournamentId, int competitionId)
         {
             var res = new SingleRsp();
             try
             {
-                var lstReferee = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
-                var availableReferee = new List<RefereeRsp>();
-                foreach (var referee in lstReferee)
+                var competition = _competitionRepo.All(includeProperties: "Locations", filter: x => x.Id == competitionId).FirstOrDefault();
+
+                if (competition == null)
                 {
-                    bool isAvailable = true;
-                    var lstRefereeCompetition = _refereeCompetitionRepo.All(x => x.RefereeId == referee.Id).ToList();
-                    
-                    foreach (var competition in lstRefereeCompetition)
+                    res.SetError("404", "Competition not found");
+                    return res;
+                }
+                if (competition.IsReferee == true)
+                {
+                    var refereeCompetition = _refereeCompetitionRepo.All(
+                        includeProperties: "Referee",
+                        filter: x => x.CompetitionId == competitionId
+                        ).ToList();
+                    var lstReferee = new RefereeRsp();
+                    lstReferee.NumberLocation = competition.Locations.Count;
+                    lstReferee.IsReferee = (bool)competition.IsReferee;
+                    foreach (var item in refereeCompetition)
                     {
-                        var competitionEndTime = _competitionRepo.Find(x => x.Id == competition.CompetitionId).Select(x => x.EndTime).FirstOrDefault();
-                        if (competitionEndTime.HasValue && competitionEndTime.Value > DateTime.Now)
+                        var referee = _refereeRepo.Find(x => x.Id == item.RefereeId).FirstOrDefault();
+                        var refereeRsp = _mapper.Map<ListRefereeRsp>(referee);
+                        refereeRsp.Role = item.Role;
+                        lstReferee.listRefereeRsps.Add(refereeRsp);
+                    }
+                    res.setData("data", lstReferee);
+                    res.SetMessage("True");
+                }
+                else
+                {
+                    var lstReferees = _refereeRepo.All().Where(x => x.TournamentId == tournamentId).ToList();
+
+                    var availableReferee = new RefereeRsp();
+                    availableReferee.NumberLocation = competition.Locations.Count;
+                    availableReferee.IsReferee = (bool)competition.IsReferee;
+                    foreach (var referee in lstReferees)
+                    {
+                        bool isAvailable = true;
+                        var lstRefereeCompetition = _refereeCompetitionRepo.All(x => x.RefereeId == referee.Id).ToList();
+
+                        foreach (var item in lstRefereeCompetition)
                         {
-                            isAvailable = false;
-                            break;
+                            var competitionEndTime = _competitionRepo.Find(x => x.Id == item.CompetitionId).Select(x => x.EndTime).FirstOrDefault();
+                            if (competitionEndTime.HasValue && competitionEndTime.Value > DateTime.Now)
+                            {
+                                isAvailable = false;
+                                break;
+                            }
+                        }
+                        if (isAvailable)
+                        {
+                            var refereeRsp = _mapper.Map<ListRefereeRsp>(referee);
+
+                            availableReferee.listRefereeRsps.Add(refereeRsp);
                         }
                     }
-                    if(isAvailable)
-                    {
-                        var refereeRsp = _mapper.Map<RefereeRsp>(referee);
-                        availableReferee.Add(refereeRsp);
-                    }
+
+                    res.setData("data", availableReferee);
                 }
-
-                res.setData("data", availableReferee);
-
             }
             catch (Exception ex)
             {
@@ -398,11 +427,21 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp AssignRefereeInCompetition(int competitionId,List<AssginRefereeReq> referees)
+        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
         {
             var res = new MutipleRsp();
             try
             {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found");
+                    return res;
+                }
+                competition.IsReferee = true;
+                competition.NumberSubReferee = numberSubReferee;
+                competition.NumberTeamReferee = numberTeamReferee;
+                _competitionRepo.Update(competition);
                 var refereeCompetitionList = new List<RefereeCompetition>();
                 foreach (var referee in referees)
                 {
@@ -415,7 +454,8 @@ namespace STEM_ROBOT.BLL.Svc
                     refereeCompetitionList.Add(refereeCompetition);
                     _refereeCompetitionRepo.Add(refereeCompetition);
                 }
-                res.SetData("200", refereeCompetitionList);
+                var refereeCompetitionListRsp = _mapper.Map<List<RefereeCompetitionRsp>>(refereeCompetitionList);
+                res.SetData("data", refereeCompetitionListRsp);
             }
             catch (Exception ex)
             {

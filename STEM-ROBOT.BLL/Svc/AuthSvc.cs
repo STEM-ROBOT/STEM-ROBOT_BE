@@ -33,8 +33,8 @@ namespace STEM_ROBOT.BLL.Svc
         }
         public async Task<TokenRsp> Login(LoginReq loginReq)
         {
-   
-            var user = _accountRep.Find(x => x.Email == loginReq.Email ).FirstOrDefault();
+
+            var user = _accountRep.Find(x => x.Email == loginReq.Email).FirstOrDefault();
             if (user == null)
             {
                 throw new AggregateException("No user");
@@ -54,6 +54,8 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<TokenRsp> GenarateToken(Account user)
         {
             var school = _schoolRep.Find(x => x.Id == user.SchoolId).FirstOrDefault();
+          
+           
 
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKey = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
@@ -66,8 +68,8 @@ namespace STEM_ROBOT.BLL.Svc
         new Claim(JwtRegisteredClaimNames.Sub, user.Email),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim("Email", user.Email),
-        new Claim("SchoolName", school?.SchoolName),
-        new Claim("Image", user?.Image),
+        new Claim("SchoolName",school!= null ? school.SchoolName : "Trong tai"),
+        new Claim("Image", user.Image),
         new Claim(ClaimTypes.Role, user.Role.ToString())
     };
 

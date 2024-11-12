@@ -28,7 +28,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
-    
+
 
         [HttpGet("{id}")]
         public IActionResult GetTeamById(int id)
@@ -65,7 +65,7 @@ namespace STEM_ROBOT.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            var res = _teamSvc.Update(req, id);
+            var res = _teamSvc.UpdateTeam(req, id);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -85,11 +85,21 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpGet("bycompetition/{competitionId}")]
-         public IActionResult getTeamByCompetiton(int competitionId)
+        public IActionResult getTeamByCompetiton(int competitionId)
         {
             var res = _teamSvc.GetTeamsByCompetition(competitionId);
             return Ok(res);
         }
 
+        [HttpGet("tournamentId")]
+        public IActionResult GetListTeamByTournament(int tournamentId)
+        {
+            var res = _teamSvc.GetListTeamByTournament(tournamentId);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
     }
 }

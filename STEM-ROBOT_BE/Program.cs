@@ -11,7 +11,6 @@ using STEM_ROBOT_BE.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -32,9 +31,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("myAppCors", policy =>
     {
-        policy.WithOrigins("*")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173","*")
+                 .AllowAnyHeader()
+                 .AllowAnyMethod()
+                    .AllowCredentials();
+                
     });
 });
 builder.Services.AddHttpContextAccessor();
@@ -57,6 +58,7 @@ app.MapControllers();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<TournamentClient>("/tournamentHub");
+   
 });
+app.MapHub<StemHub>("/stem-hub");
 app.Run();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -23,7 +25,9 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly StageRepo _stageRepo;
         private readonly StageSvc _stageSvc;
-        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc)
+        private readonly StemHub _stemHub;
+        private readonly MatchHaflRepo _matchHaflRepo;
+        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc,StemHub stemHub,MatchHaflRepo matchHaflRepo)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -33,6 +37,8 @@ namespace STEM_ROBOT.BLL.Svc
             _stageRepo = stageRepo;
             _stageSvc = stageSvc;
             _competition = competition;
+            _stemHub = stemHub;
+            _matchHaflRepo = matchHaflRepo;
         }
 
         public MutipleRsp GetListMatch()
@@ -134,7 +140,7 @@ namespace STEM_ROBOT.BLL.Svc
 
 
         //done
-        public async Task<SingleRsp> getListRound(int competitionId, bool isFormatTable)
+        public async Task<SingleRsp> getListRound(int competitionId)
         {
             var res = new SingleRsp();
 
@@ -215,7 +221,7 @@ namespace STEM_ROBOT.BLL.Svc
             var competition = await _matchRepo.GetRoundKnocoutGameAsync(competitionId);
             var knocout = new GroupRound
             {
-
+                IsTeamMatch = (bool)competition.IsTeamMacth,
                 rounds = competition.Stages.Where(st => st.StageMode != "Vòng bảng").Select(s => new RoundGroupGame
                 {
                     roundId = s.Id,
@@ -354,20 +360,36 @@ namespace STEM_ROBOT.BLL.Svc
 
             List<Match> matches = new List<Match>();
 
-            DateTime endTime = DateTime.Now;
+            List<MatchHalf> matchesHalf = new List<MatchHalf>();
 
+            DateTime endTime = DateTime.Now;
+            //var listMatch = competition_data.Stages.Select(m => new Match
+            //{
+
+            //})
             foreach (var stage in competition_data.Stages)
             {
                 foreach (var match in stage.Matches)
-                {
-
+                {                   
                     var check = reqs.matchs.Where(m => m.id == match.Id).FirstOrDefault();
                     match.LocationId = check.locationId;
                     match.TimeIn = check.TimeIn;
                     match.TimeOut = check.TimeOut;
                     match.StartDate = check.startDate;
+                    match.TimeOfHaft= reqs.TimeOfHaft;
+                    match.NumberHaft= reqs.NumberHaft;
+                    match.BreakTimeHaft= reqs.BreakTimeHaft;
                     endTime = (DateTime)check.startDate;
                     matches.Add(match);
+                    for (int i = 1; i <= reqs.NumberHaft; i++)
+                    {
+                        var matchHalf = new MatchHalf
+                        {
+                            MatchId = match.Id,
+                            HalfName = i.ToString(),
+                        };
+                        matchesHalf.Add(matchHalf);
+                    }
                 }
 
             }
@@ -379,8 +401,70 @@ namespace STEM_ROBOT.BLL.Svc
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
             _competition.Update(competition_data);
             _matchRepo.UpdateRange(matches);
-
+            _matchHaflRepo.AddRange(matchesHalf);
             return res;
         }
+
+        //check date
+        public async Task<SingleRsp> CheckMatch(int matchID, DateTime time)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var timePlay = _matchRepo.GetById(matchID);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (time.Date < timePlay.StartDate.Value.Date)
+                {
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
+                }
+                else
+                if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+                  var data =   await _stemHub.MatchClient(matchID,time);
+                    res.setData("data", data.Message);
+                }
+                else
+                {
+                    var list = await _matchHaflRepo.ListHaftMatch(matchID);
+                    res.setData("data", list);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //convert datetime to timespan
+        public TimeSpan ConvertDateTimeToTimeSpan(DateTime dateTime)
+        {
+            // Chọn thời gian gốc là DateTime.MinValue (01/01/0001 00:00:00)
+            DateTime baseTime = DateTime.MinValue;
+
+            // Tính TimeSpan từ thời gian gốc đến dateTime
+            TimeSpan timeSpan = dateTime - baseTime;
+
+            return timeSpan;
+        }
+
     }
 }

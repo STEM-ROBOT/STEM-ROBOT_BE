@@ -75,6 +75,12 @@ public partial class Competition
 
     public bool? IsContestantTeam { get; set; }
 
+    public bool? IsSchedule { get; set; }
+
+    public bool? IsScore { get; set; }
+
+    public bool? IsRule { get; set; }
+
     public virtual CompetitionFormat? Format { get; set; }
 
     public virtual Genre? Genre { get; set; }
@@ -88,6 +94,8 @@ public partial class Competition
     public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
 
     public virtual ICollection<TableGroup> TableGroups { get; set; } = new List<TableGroup>();
+
+    public virtual ICollection<TeamRegister> TeamRegisters { get; set; } = new List<TeamRegister>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 

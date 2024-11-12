@@ -25,6 +25,8 @@ public partial class Account
 
     public string? Role { get; set; }
 
+    public string? ProvinceCode { get; set; }
+
     public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
@@ -34,6 +36,8 @@ public partial class Account
     public virtual ICollection<Referee> Referees { get; set; } = new List<Referee>();
 
     public virtual School? School { get; set; }
+
+    public virtual ICollection<TeamRegister> TeamRegisters { get; set; } = new List<TeamRegister>();
 
     public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
 }

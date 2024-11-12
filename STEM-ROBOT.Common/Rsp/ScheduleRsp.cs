@@ -19,6 +19,7 @@ namespace STEM_ROBOT.Common.Rsp
 
     public class ScheduleConfigRsp
     {
+        public bool? IsSchedule { get; set; }
         public ICollection<SchedulMainRefereeRsp> Referees { get; set; } = new List<SchedulMainRefereeRsp>();
         public ICollection<SchedulSubRefereeRsp> MatchReferees { get; set; } = new List<SchedulSubRefereeRsp>();
         public ICollection<SchedulRoundsRefereeRsp> Rounds { get; set; } = new List<SchedulRoundsRefereeRsp>();
@@ -48,9 +49,6 @@ namespace STEM_ROBOT.Common.Rsp
     public class SchedulRoundsMatchsRefereeRsp
     {
         public int matchId { get; set; }
-        public string roundName { get; set; }
-        public string teamA { get; set; }
-        public string teamB { get; set; }
         public int mainReferee { get; set; }
         public string mainRefereeName { get; set; }
         public ICollection<SchedulMainMatchRefereeRsp> matchRefereesdata { get; set; } = new List<SchedulMainMatchRefereeRsp>();
@@ -65,5 +63,10 @@ namespace STEM_ROBOT.Common.Rsp
 
     }
 
+    public class ScheduleSecurityRsp
+    {
+        public int timeOut { get; set; }
 
+        public int textView { get; set; }
+    }
 }

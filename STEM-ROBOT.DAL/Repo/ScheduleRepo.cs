@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -14,18 +15,16 @@ namespace STEM_ROBOT.DAL.Repo
         {
 
         }
-        public async Task<List<RefereeCompetition>> GetRoundGameAsync(int competitionId)
+        public async Task<Competition> GetRoundGameAsync(int competitionId)
         {
 
-            var competitionRefeee = await _context.RefereeCompetitions
+            var competitionRefeee = await _context.Competitions
                .Where(s => s.Id == competitionId)
-               .Include(sc => sc.Schedules)
-               .Include(rt => rt.Referee)
-               .Include(l => l.Competition)
-               .ThenInclude(st => st.Stages)
-               .ThenInclude(m => m.Matches)
-               .ThenInclude(l=> l.Location)
-               .ToListAsync();
+               .Include(sc => sc.RefereeCompetitions)
+               .ThenInclude(rcr => rcr.Referee)
+               .Include(s => s.Stages).ThenInclude(m => m.Matches).ThenInclude(l=> l.Location)
+               .FirstOrDefaultAsync();
+
 
             //var roundParent = stages.Select(async comp => new roundParent
             //{
@@ -35,25 +34,62 @@ namespace STEM_ROBOT.DAL.Repo
 
 
             return competitionRefeee;
-        }    
+        }
+        public async Task<List<Schedule>> GetRefereeGameAsync(int competitionId)
+        {
+
+            var competitionRefeee = await _context.Schedules
+               .Where(sr => sr.RefereeCompetition.CompetitionId == competitionId)
+               .Include(s => s.RefereeCompetition)
+               .ThenInclude(r => r.Referee)
+               .ToListAsync();
+           
+
+            return competitionRefeee;
+        }
         public async Task<Schedule> CheckRefereeCompetition(int scheduleID, int accountID)
         {
             return await _context.Schedules.Where(x => x.Id == scheduleID).Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
         }
-        public async Task<Schedule> CheckTimeoutCodeSchedule(int scheduleID, int accountID,string code)
+        public async Task<Schedule> CheckTimeoutCodeSchedule(int scheduleID, int accountId)
         {
-            return await _context.Schedules.Where(x => x.Id == scheduleID && x.TimeOut > DateTime.Now && x.OptCode == code)
+            return await _context.Schedules.Where(x => x.Id == scheduleID)
                 .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee)
-                .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
+               .FirstOrDefaultAsync();
         }
         public async Task<Schedule> UpdateBusy(int scheduleID, int accountID)
         {
             return await _context.Schedules.Where(x => x.Id == scheduleID)
-                .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee)
+                .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).ThenInclude(x=> x.Account)
                 .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID)
                 .Include(x=> x.Match)
-                .FirstOrDefaultAsync();
-        }
+                    .FirstOrDefaultAsync();
+      }
 
+        public async Task<Account> getEmail(int schdeDuleID)
+        {
+            return await _context.Accounts
+         .Include(x => x.Tournaments)
+             .ThenInclude(t => t.Competitions)
+             .ThenInclude(c => c.Stages)
+             .ThenInclude(s => s.Matches)
+             .ThenInclude(m => m.Schedules)
+         .Where(a => a.Tournaments
+             .Any(t => t.Competitions
+                 .Any(c => c.Stages
+                     .Any(s => s.Matches
+                         .Any(m => m.Schedules
+                             .Any(sch => sch.Id == schdeDuleID))))))
+         .FirstOrDefaultAsync();
+        }
+        public async Task<List<CheckTimeSchedule>> checkTimeschedule(int scheduleID)
+        {
+            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID).SelectMany(m => m.Match.TeamMatches.Select(a=> new CheckTimeSchedule
+            {
+                matchId = (int) m.MatchId,
+                teamMatchId = a.Id
+            })).ToListAsync();
+            return timecheck;
+        }
     }
 }

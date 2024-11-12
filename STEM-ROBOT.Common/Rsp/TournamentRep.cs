@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
+    public class TournamentListRep
+    {
+        public int totalPages { get; set; }
+        public ICollection<TournamentRep> tournamentRep { get; set; } = new List<TournamentRep>();
+    }
     public class TournamentRep
     {
         public int Id { get; set; }
@@ -24,8 +29,10 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int competitionActivateNumber { get; set; }
 
-        public List<ImageCompetition> imagesCompetition { get; set; } = new List<ImageCompetition>();
         public int? views { get; set; }
+
+        public List<ImageCompetition> imagesCompetition { get; set; } = new List<ImageCompetition>();
+
     }
     public class ImageCompetition
     {
@@ -37,6 +44,8 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Location { get; set; }
         public string? Image { get; set; }
         public int? NumberTeam { get; set; }
+        public int? Views { get; set; }
+        public string? Status { get; set; }
     }
     public class TournamentModerator
     {
@@ -53,7 +62,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int genre { get; set; }
 
         public int IsActive { get; set; }
-       
+
 
     }
 }

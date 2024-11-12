@@ -13,15 +13,17 @@ public partial class Action
 
     public int? Score { get; set; }
 
-    public DateTime? EventTime { get; set; }
+    public TimeSpan? EventTime { get; set; }
 
     public int? TeamMatchId { get; set; }
 
-    public int? RefereeId { get; set; }
+    public int? RefereeCompetitionId { get; set; }
+
+    public string? Status { get; set; }
 
     public virtual MatchHalf? MatchHalf { get; set; }
 
-    public virtual RefereeCompetition? Referee { get; set; }
+    public virtual RefereeCompetition? RefereeCompetition { get; set; }
 
     public virtual ScoreCategory? ScoreCategory { get; set; }
 

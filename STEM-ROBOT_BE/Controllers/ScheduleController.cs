@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using STEM_ROBOT.DAL.Models;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -11,11 +12,14 @@ namespace STEM_ROBOT.Web.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly ScheduleSvc _scheduleSvc;
+        private readonly NotificationSvc _notificationSvc;
+
         private readonly IMapper _mapper;
-        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper)
+        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper, NotificationSvc notificationSvc)
         {
             _scheduleSvc = scheduleSvc;
             _mapper = mapper;
+            _notificationSvc = notificationSvc;
         }
 
         [HttpGet()]
@@ -39,22 +43,29 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-
-        [HttpPost()]
-        public IActionResult CreateSchedule([FromBody] ScheduleReq req)
+        [HttpGet("main-schedule-match")]
+        public async Task<IActionResult> CheckSchedule(int scheduleID, DateTime time)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var res = _scheduleSvc.Create(req);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
+            var res = await _scheduleSvc.checkTimeSchedule(scheduleID, time);
+            
             return Ok(res.Data);
         }
+
+        //[HttpPost()]
+        //public IActionResult CreateSchedule([FromBody] ScheduleReq req)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    var res = _scheduleSvc.Create(req);
+        //    if (!res.Success)
+        //    {
+        //        return StatusCode(500, res.Message);
+        //    }
+        //    return Ok(res.Data);
+        //}
 
         [HttpPut("{id}")]
         public IActionResult UpdateSchedule([FromBody] ScheduleReq req, int id)
@@ -83,14 +94,22 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
-        [HttpGet("schedule-sendmail")]
+        [HttpPost("schedule-sendmail")]
         public async Task<IActionResult> Sendmail(int scheduleId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return BadRequest("Please login ");
             int userID = int.Parse(user.Value);
             var sendmail = await _scheduleSvc.SendMail(scheduleId, userID);
-            return Ok("Send Success");
+            if(sendmail.TestError != null)
+            {
+                return Ok(sendmail.Data);
+            }
+            else
+            {
+                return Ok(sendmail.TestError);
+            }
+           
         }
         [HttpPost("schedule-sendcode")]
         public async Task<IActionResult> SendCode(int scheduleId,string code)
@@ -103,7 +122,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        [HttpGet("mactch-config-schedule")]
+        [HttpGet("match-config-schedule")]
         public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)
         {
             var res = await _scheduleSvc.ScheduleCompetition(competitionId);
@@ -113,7 +132,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-        [HttpPut("")]
+        [HttpPost("")]
         public async Task<IActionResult> UpdateScheduleConfigCompetition(int competitionId , List<ScheduleReq> reqs)
         {
             var res =  await  _scheduleSvc.updateScheduleConfigCompetition(competitionId, reqs);
@@ -123,6 +142,15 @@ namespace STEM_ROBOT.Web.Controllers
                 return StatusCode(500, res.Message);
             }
             return Ok(res.Data);
+        }
+        [HttpPost("schedule-busy")]
+        public async Task<IActionResult> UpdateBusy(int scheduleID)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.UpdateBusy(scheduleID, userID);
+            return Ok(sendmail);
         }
     }
 }

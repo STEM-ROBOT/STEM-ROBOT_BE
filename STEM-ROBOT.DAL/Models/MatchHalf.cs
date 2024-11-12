@@ -15,6 +15,8 @@ public partial class MatchHalf
 
     public DateTime? TimeOut { get; set; }
 
+    public string? HalfName { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }

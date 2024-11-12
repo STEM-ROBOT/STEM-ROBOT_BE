@@ -105,29 +105,14 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "Tournament not found");
                     return res;
                 }
-                var contestantList = new List<Contestant>();
-
-                foreach (var item in contestants)
+                var contestantLst = _mapper.Map<List<Contestant>>(contestants);
+                foreach (var contestant in contestantLst)
                 {
-                    var contestant = new Contestant
-                    {
-                        TournamentId = tournamentId,
-                        AccountId = accountId,
-                        Name = string.IsNullOrEmpty(item.Name) ? "Không có dữ liệu" : item.Name,
-                        Email = string.IsNullOrEmpty(item.Email) ? "Không có dữ liệu" : item.Email,
-                        Status = "active",
-                        Gender = string.IsNullOrEmpty(item.Gender) ? "Không có dữ liệu" : item.Gender,
-                        Phone = string.IsNullOrEmpty(item.Phone) ? "Không có dữ liệu" : item.Phone,
-                        Image = string.IsNullOrEmpty(item.Image) ? "Không có dữ liệu" : item.Image,
-                        StartTime = tournament.CreateDate,
-
-                    };
-
-                    contestantList.Add(contestant);
+                    contestant.AccountId = accountId;
+                    contestant.TournamentId = tournamentId;
                 }
-
-                _contestantRepo.BulkInsertAsyncSchool(contestantList);
-                res.SetData("data", contestantList);
+                _contestantRepo.AddRange(contestantLst);
+                res.SetMessage("Add successfully");
             }
             catch (Exception ex)
             {
@@ -146,7 +131,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (contestant != null)
                 {
                     var mapper = _mapper.Map<IEnumerable<Contestant>>(contestant);
-                    res.setData("200", mapper);
+                    res.setData("data", mapper);
                 }
             }
             catch (Exception ex)
@@ -476,7 +461,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var competition = _competitionRepo.GetById(competitionId);
-                if(competition == null)
+                if (competition == null)
                 {
                     res.SetError("No competition found");
                 }
@@ -484,7 +469,7 @@ namespace STEM_ROBOT.BLL.Svc
                     filter: x => x.TournamentId == competition.TournamentId,
                     includeProperties: "ContestantTeams"
                 ).ToList();
-                if(contestants.Count == 0)
+                if (contestants.Count == 0)
                 {
                     res.SetError("No contestant found");
                 }
@@ -498,6 +483,38 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var lstContestantRsp = _mapper.Map<List<ContestantRep>>(lstContestant);
                 res.SetData("data", lstContestantRsp);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var tournament = _tournamentRepo.GetById(tournamentId);
+                if (tournament == null)
+                {
+                    res.SetError("404", "Tournament not found");
+                    return res;
+                }
+                if (tournament.Status == "Private")
+                {
+                    res.SetError("404", "You can not access this tournament");
+                    return res;
+                }
+                var account = _accountRepo.GetById(accountId);
+                if (account == null)
+                {
+                    res.SetError("404", "Account not found");
+                    return res;
+                }
+                var contestant = _mapper.Map<Contestant>(request);
+                _contestantRepo.Add(contestant);
             }
             catch (Exception ex)
             {
