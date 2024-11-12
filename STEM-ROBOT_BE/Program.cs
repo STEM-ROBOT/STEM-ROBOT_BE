@@ -32,10 +32,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("myAppCors", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-                 .AllowAnyHeader()
-                 .AllowAnyMethod()
-                 .AllowCredentials();
+        policy.WithOrigins("http://localhost:3001")
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials();
+         
     });
 });
 builder.Services.AddHttpContextAccessor();
