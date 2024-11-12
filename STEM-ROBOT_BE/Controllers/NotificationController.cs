@@ -20,9 +20,8 @@ namespace STEM_ROBOT.Web.Controllers
             var userID = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (userID == null) return BadRequest("Please Login");
             int userId = int.Parse(userID.Value);
-
             var res = await _notificationSvc.NotificationAccount(userId);
-            return Ok("Ok");
+            return Ok(res.Data);
         }
     }
 }
