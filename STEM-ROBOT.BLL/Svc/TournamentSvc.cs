@@ -63,11 +63,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-
-
                 var user = _account.GetById(userID);
-
-
                 var tournament = _mapper.Map<Tournament>(request);
                 tournament.AccountId = userID;
                 tournament.ViewTournament = 0;
@@ -75,8 +71,8 @@ namespace STEM_ROBOT.BLL.Svc
                 var email = user.Email;
                 var status = request.Status;
                 tournament.CreateDate = DateTime.Now;
-
                 _tournament.Add(tournament);
+                var listCompettiondata = new List<Competition>();
                 foreach (var competition in request.competition)
                 {
                     var compettiondata = new Competition
@@ -87,10 +83,9 @@ namespace STEM_ROBOT.BLL.Svc
                         GenreId = competition.GenreId,
                         IsActive = false,
                     };
-                    _competitionRepo.Update(compettiondata);
-                    break;
+                    listCompettiondata.Add(compettiondata);                  
                 }
-
+                _competitionRepo.AddRange(listCompettiondata);
 
                 var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
@@ -116,7 +111,6 @@ namespace STEM_ROBOT.BLL.Svc
                 };
 
                 await _mailService.SendEmailAsync(mailRequest);
-
                 res.SetMessage("data");
 
             }
