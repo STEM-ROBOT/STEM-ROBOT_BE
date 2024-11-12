@@ -127,7 +127,7 @@ namespace STEM_ROBOT.Web.Controllers
         public async Task<IActionResult> MatchDetailAction(int matchID,DateTime date) 
         {
             var list = await _matchSvc.CheckMatch(matchID, date);
-            if(list.Data == null) return Ok(list.Message);
+            //if(list.Data == null) return Ok(list.Message);
             return Ok(list.Data);
         }
     }

@@ -55,7 +55,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var match = await _matchHaflRepo.ListHaftMatch(matchID);
 
-                            await hubContext.Clients.All.SendAsync(matchID.ToString(), match, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync("match-deatail/"+matchID.ToString(), match, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
@@ -63,7 +63,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         }
 
                         // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromMilliseconds(1500));
+                        await Task.Delay(TimeSpan.FromMilliseconds(3000));
                     }
                     res.SetMessage("timeout");
                 }
@@ -92,7 +92,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var notifications = await _notificationRepo.listNotifi(userid);
                             var mappedNotifications = _mapper.Map<List<NotificationRsp>>(notifications);
-                            await hubContext.Clients.All.SendAsync(userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync("notification/"+userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
@@ -100,7 +100,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         }
 
                         // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromSeconds(3));
+                        await Task.Delay(TimeSpan.FromMilliseconds(5000));
                     }
                 }
             }

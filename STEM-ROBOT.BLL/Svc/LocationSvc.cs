@@ -192,6 +192,7 @@ namespace STEM_ROBOT.BLL.Svc
                 foreach (var location in locations)
                 {
                     var locationMapp = _mapper.Map<Location>(location);
+                    locationMapp.CompetitionId = competitionId;
                     locationList.Add(locationMapp);
                 }
                 _locationRepo.AddRange(locationList);
