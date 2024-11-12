@@ -27,7 +27,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly StageSvc _stageSvc;
         private readonly StemHub _stemHub;
         private readonly MatchHaflRepo _matchHaflRepo;
-        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc,StemHub stemHub,MatchHaflRepo matchHaflRepo)
+        private readonly ActionRepo _actionRepo;
+        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc,StemHub stemHub,MatchHaflRepo matchHaflRepo,ActionRepo actionRepo)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -39,6 +40,7 @@ namespace STEM_ROBOT.BLL.Svc
             _competition = competition;
             _stemHub = stemHub;
             _matchHaflRepo = matchHaflRepo;
+            _actionRepo = actionRepo;
         }
 
         public MutipleRsp GetListMatch()
@@ -489,6 +491,24 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var data = await _stemHub.ListPointClient(teamMatchId, date);
                 res.setData("data", data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        //confirm point
+
+        public async Task<SingleRsp> ConfirmPoint(int actionID, string status)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var point = _actionRepo.GetById(actionID);
+                point.Status = status;
+                _actionRepo.Update(point);
+                res.SetMessage("Update success");
             }
             catch (Exception ex)
             {
