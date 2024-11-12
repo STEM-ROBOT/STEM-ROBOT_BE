@@ -12,11 +12,14 @@ namespace STEM_ROBOT.Web.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly ScheduleSvc _scheduleSvc;
+        private readonly NotificationSvc _notificationSvc;
+
         private readonly IMapper _mapper;
-        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper)
+        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper, NotificationSvc notificationSvc)
         {
             _scheduleSvc = scheduleSvc;
             _mapper = mapper;
+            _notificationSvc = notificationSvc;
         }
 
         [HttpGet()]
@@ -38,6 +41,13 @@ namespace STEM_ROBOT.Web.Controllers
             {
                 return StatusCode(404, res.Message);
             }
+            return Ok(res.Data);
+        }
+        [HttpGet("main-schedule-match")]
+        public async Task<IActionResult> CheckSchedule(int scheduleID, DateTime time)
+        {
+            var res = await _scheduleSvc.checkTimeSchedule(scheduleID, time);
+            
             return Ok(res.Data);
         }
 
