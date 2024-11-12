@@ -22,7 +22,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var data = _stemHub.NotificationClient(userID);
+                var data = await _stemHub.NotificationClient(userID);
                 res.setData("data", data);
             }
             catch (Exception ex)
