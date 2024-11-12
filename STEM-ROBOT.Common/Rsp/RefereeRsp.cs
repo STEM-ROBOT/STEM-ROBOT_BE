@@ -9,6 +9,7 @@ namespace STEM_ROBOT.Common.Rsp
     public class RefereeRsp
     {
         public int NumberLocation { get; set; }
+        public bool IsReferee { get; set; }
         public ICollection<ListRefereeRsp> listRefereeRsps { get; set; }  = new List<ListRefereeRsp>();
     }
     public class ListRefereeRsp
@@ -22,7 +23,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int TournamentId { get; set; }
         public string Image { get; set; }
 
-        public bool IsReferee { get; set; }
+       
     }
 
     public class RefereeTournament

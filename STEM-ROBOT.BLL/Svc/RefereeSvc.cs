@@ -376,13 +376,13 @@ namespace STEM_ROBOT.BLL.Svc
                         filter: x => x.CompetitionId == competitionId
                         ).ToList();
                     var lstReferee = new RefereeRsp();
-                    lstReferee.NumberLocation=competition.Locations.Count;
+                    lstReferee.NumberLocation = competition.Locations.Count;
+                    lstReferee.IsReferee = (bool)competition.IsReferee;
                     foreach (var item in refereeCompetition)
                     {
                         var referee = _refereeRepo.Find(x => x.Id == item.RefereeId).FirstOrDefault();
                         var refereeRsp = _mapper.Map<ListRefereeRsp>(referee);
                         refereeRsp.Role = item.Role;
-                        refereeRsp.IsReferee = true;
                         lstReferee.listRefereeRsps.Add(refereeRsp);
                     }
                     res.setData("data", lstReferee);
@@ -394,6 +394,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     var availableReferee = new RefereeRsp();
                     availableReferee.NumberLocation = competition.Locations.Count;
+                    availableReferee.IsReferee = (bool)competition.IsReferee;
                     foreach (var referee in lstReferees)
                     {
                         bool isAvailable = true;
@@ -411,7 +412,7 @@ namespace STEM_ROBOT.BLL.Svc
                         if (isAvailable)
                         {
                             var refereeRsp = _mapper.Map<ListRefereeRsp>(referee);
-                            refereeRsp.IsReferee = false;
+
                             availableReferee.listRefereeRsps.Add(refereeRsp);
                         }
                     }
