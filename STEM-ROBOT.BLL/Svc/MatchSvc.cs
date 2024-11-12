@@ -450,5 +450,21 @@ namespace STEM_ROBOT.BLL.Svc
             return timeSpan;
         }
 
+        //realtime-teampoint 
+        public async Task<SingleRsp> teamPoint(int matchID,DateTime date)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var data = await _stemHub.TeamPointClient(matchID, date);
+                res.setData("data", data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+
     }
 }

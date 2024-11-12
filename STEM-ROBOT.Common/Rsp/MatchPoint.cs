@@ -35,9 +35,17 @@ namespace STEM_ROBOT.Common.Rsp
         public int point { get; set; }
         public string timeScore { get; set; }
     }
-    
-        
-    
+
+    //Match schedule 
+    public class Teampoint
+    {
+        public int? teamMatchId { get; set; }
+        public string? teamName { get; set; }
+        public string? logoTeam { get; set; }
+
+        public int? point { get; set; }
+
+    }
 }
 
 

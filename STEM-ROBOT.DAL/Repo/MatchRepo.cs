@@ -292,6 +292,33 @@ namespace STEM_ROBOT.DAL.Repo
             return lisrounds;
         }
 
+        //realtime point schedule 
 
+        public async Task<List<Teampoint>> TeamPoint(int matchID)
+        {
+            var list = await _context.Matches.Where(x => x.Id == matchID).SelectMany(team => team.TeamMatches.Select(tm => new Teampoint
+            {
+                teamMatchId = (int)tm.Id,
+                teamName = tm.Team.Name,
+                logoTeam = tm.Team.Image,
+                point = tm.TotalScore
+
+            })).ToListAsync();
+            return list;
+        }
+        //
+        public async Task<List<MatchListPoint>> MatchListPoint(int teamMatchID)
+        {
+            var list = await _context.TeamMatches.Where(x => x.Id == teamMatchID)
+                .SelectMany(x => x.Actions.Select(ac => new MatchListPoint
+                {
+                    refereeName = ac.RefereeCompetition.Referee.Name,
+                    timeScore = ac.EventTime,
+
+
+                })).ToListAsync();
+
+            return list;
+        }
     }
 }
