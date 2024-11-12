@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.DAL.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -141,6 +142,12 @@ namespace STEM_ROBOT.Web.Controllers
         {
             var point = await _matchSvc.ListPoint(teamMatchID, date);
             return Ok(point.Data);
+        }
+        [HttpPut("confirm-point")]
+        public async Task<IActionResult> ConfirmPoint(int actionID, string status)
+        {
+            var point = await _matchSvc.ConfirmPoint(actionID,status);
+            return Ok(point.Message);
         }
     }
 }
