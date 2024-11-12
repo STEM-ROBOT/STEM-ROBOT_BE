@@ -8,7 +8,7 @@ namespace STEM_ROBOT.Common.Req
 {
     public class MatchReq
     {
-      
+
         public int? RoundId { get; set; }
 
         public int? TableId { get; set; }
@@ -27,7 +27,11 @@ namespace STEM_ROBOT.Common.Req
 
         public TimeSpan? TimeBreak { get; set; }
 
+        public int? NumberHaft { get; set; }
 
+        public int? BreakTimeHaft { get; set; }
+
+        public TimeSpan? TimeOfHaft { get; set; }
         public TimeSpan? TimeStartPlay { get; set; }
 
         public TimeSpan? TimeEndPlay { get; set; }

@@ -360,20 +360,36 @@ namespace STEM_ROBOT.BLL.Svc
 
             List<Match> matches = new List<Match>();
 
-            DateTime endTime = DateTime.Now;
+            List<MatchHalf> matchesHalf = new List<MatchHalf>();
 
+            DateTime endTime = DateTime.Now;
+            //var listMatch = competition_data.Stages.Select(m => new Match
+            //{
+
+            //})
             foreach (var stage in competition_data.Stages)
             {
                 foreach (var match in stage.Matches)
-                {
-
+                {                   
                     var check = reqs.matchs.Where(m => m.id == match.Id).FirstOrDefault();
                     match.LocationId = check.locationId;
                     match.TimeIn = check.TimeIn;
                     match.TimeOut = check.TimeOut;
                     match.StartDate = check.startDate;
+                    match.TimeOfHaft= reqs.TimeOfHaft;
+                    match.NumberHaft= reqs.NumberHaft;
+                    match.BreakTimeHaft= reqs.BreakTimeHaft;
                     endTime = (DateTime)check.startDate;
                     matches.Add(match);
+                    for (int i = 1; i <= reqs.NumberHaft; i++)
+                    {
+                        var matchHalf = new MatchHalf
+                        {
+                            MatchId = match.Id,
+                            HalfName = i.ToString(),
+                        };
+                        matchesHalf.Add(matchHalf);
+                    }
                 }
 
             }
@@ -385,7 +401,7 @@ namespace STEM_ROBOT.BLL.Svc
             competition_data.TimeStartPlay = reqs.TimeStartPlay;
             _competition.Update(competition_data);
             _matchRepo.UpdateRange(matches);
-
+            _matchHaflRepo.AddRange(matchesHalf);
             return res;
         }
 

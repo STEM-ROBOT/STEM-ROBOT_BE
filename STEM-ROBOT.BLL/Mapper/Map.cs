@@ -61,7 +61,7 @@ namespace STEM_ROBOT.BLL.Mapper
 
             //referee
             CreateMap<Referee, RefereeReq>().ReverseMap();
-            CreateMap<Referee, RefereeRsp>().ReverseMap();
+            CreateMap<Referee, ListRefereeRsp>().ReverseMap();
             CreateMap<Referee, AssginRefereeReq>().ReverseMap();
             CreateMap<Referee, RefereeTournament>()
                 .ForMember(x => x.avatar, op => op.MapFrom(x => x.Image))

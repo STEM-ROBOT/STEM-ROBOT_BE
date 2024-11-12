@@ -77,6 +77,10 @@ public partial class Competition
 
     public bool? IsSchedule { get; set; }
 
+    public bool? IsScore { get; set; }
+
+    public bool? IsRule { get; set; }
+
     public virtual CompetitionFormat? Format { get; set; }
 
     public virtual Genre? Genre { get; set; }
