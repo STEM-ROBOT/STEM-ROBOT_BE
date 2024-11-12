@@ -25,6 +25,14 @@ public partial class Match
 
     public int? TableGroupId { get; set; }
 
+    public int? NumberHaft { get; set; }
+
+    public int? BreakTimeHaft { get; set; }
+
+    public TimeSpan? TimeOfHaft { get; set; }
+
+    public bool? IsPlay { get; set; }
+
     public virtual Location? Location { get; set; }
 
     public virtual ICollection<MatchHalf> MatchHalves { get; set; } = new List<MatchHalf>();
