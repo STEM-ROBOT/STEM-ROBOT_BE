@@ -43,13 +43,15 @@ namespace STEM_ROBOT.Common.Rsp
         public int? id { get; set; }
         public string? teamName { get; set; }
         public string? teamImage { get; set; }
-        public int? teamMatchResulgPlay { get; set; }
+        public string? teamMatchResultPlay { get; set; }
+        public int? tolalScore { get; set; }
 
     }
 
     public class MatchlistPointParent
     {
         public int? teamMatchId { get; set; }
+        public int? MatchId { get; set; }
         public int? teamMatchResult {  get; set; }
         public string? teamName { get; set; }
         public string? teamImage { get; set; }
