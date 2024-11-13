@@ -69,10 +69,19 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-        [HttpGet("available/accountId")]
-        public IActionResult GetListAvailableContestantByAccount(int accountId, DateTime startTime, DateTime endTime)
+       
+        [HttpGet("available-moderater")]
+        public IActionResult GetListAvailableContestantByAccount(DateTime startTime, DateTime endTime)
         {
-            var res = _contestantSvc.GetListAvailableContestantByAccount(accountId, startTime, endTime);
+
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized(new { Message = "Please login" });
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = _contestantSvc.GetListAvailableContestantByAccount(userId, startTime, endTime);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);
