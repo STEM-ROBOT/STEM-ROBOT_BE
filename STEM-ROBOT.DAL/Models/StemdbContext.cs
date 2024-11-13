@@ -589,6 +589,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("TeamRegister");
 
             entity.Property(e => e.ContactInfo).HasMaxLength(250);
+            entity.Property(e => e.Email).HasMaxLength(250);
             entity.Property(e => e.Image).HasColumnType("ntext");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber)
