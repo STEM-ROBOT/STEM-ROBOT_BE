@@ -75,7 +75,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -222,10 +222,6 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_Contestant_Account");
 
-            entity.HasOne(d => d.TeamRegister).WithMany(p => p.Contestants)
-                .HasForeignKey(d => d.TeamRegisterId)
-                .HasConstraintName("FK_Contestant_TeamRegister");
-
             entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
                 .HasForeignKey(d => d.TournamentId)
                 .HasConstraintName("FK_Contestant_Tournament");
@@ -244,6 +240,10 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.ContestantTeams)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK_ContestantCompetition_Team");
+
+            entity.HasOne(d => d.TeamRegister).WithMany(p => p.ContestantTeams)
+                .HasForeignKey(d => d.TeamRegisterId)
+                .HasConstraintName("FK_ContestantTeam_TeamRegister");
         });
 
         modelBuilder.Entity<District>(entity =>
