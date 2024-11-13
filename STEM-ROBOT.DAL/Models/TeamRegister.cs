@@ -25,6 +25,8 @@ public partial class TeamRegister
 
     public DateTime? RegisterTime { get; set; }
 
+    public string? Email { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual Competition? Competition { get; set; }
