@@ -33,7 +33,7 @@ namespace STEM_ROBOT.DAL.Repo
                             TeamName = a.TeamMatch.NameDefault,
                             ScoreCategoryType = a.ScoreCategory.Type,
                             ScoreCategoryDescription = a.ScoreCategory.Description,
-                            Score = a.Score ?? 0,
+                            Score = a.ScoreCategory.Point ?? 0,
                             EventTime = a.EventTime
                         }).ToList()
                     }).ToList()

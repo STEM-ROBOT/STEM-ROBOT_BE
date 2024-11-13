@@ -274,13 +274,13 @@ namespace STEM_ROBOT.BLL.Svc
             {
 
                 var competition_data = _competitionRepo.GetById(competitionId);
-
+                
                 if (competition_data == null)
                 {
                     res.SetError("No ID");
                 }
                _mapper.Map(request, competition_data);
-
+                competition_data.IsFormat = true;
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
