@@ -557,12 +557,12 @@ namespace STEM_ROBOT.BLL.Svc
                 else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
                 {
 
-                    var data = await _stemHub.TeamPointClient(matchID, time);
+                    var data = await _stemHub.ListPointClient(teamMatchId, ConvertToVietnamTime(DateTime.Now));
                     res.setData("data", data.Message);
                 }
                 else
                 {
-                    var match = await _matchRepo.TeamPoint(matchID);
+                    var match = await _matchRepo.MatchListPoint(teamMatchId);
                     res.setData("data", match);
                 }
                 return res;
@@ -572,17 +572,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception(ex.Message);
             }
-            var res = new SingleRsp();
-            try
-            {
-                var data = await _stemHub.ListPointClient(teamMatchId, ConvertToVietnamTime(DateTime.Now));
-                res.setData("data", data);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return res;
+           
         }
         //confirm point
 
