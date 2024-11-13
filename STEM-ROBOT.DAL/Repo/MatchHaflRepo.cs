@@ -27,9 +27,10 @@ namespace STEM_ROBOT.DAL.Repo
                     Halves = m.MatchHalves.Select(h => new
                     {
                         HalfId = h.Id,
+                        Half_Name = h.HalfName,
                         Actions = h.Actions.Where(x=> x.Status.ToLower() == "accept").Select(a => new
                         {
-                            TeamMatchId = a.TeamMatchId,
+                            TeamMatch_Id = a.TeamMatchId,
                             TeamName = a.TeamMatch.NameDefault,
                             ScoreCategoryType = a.ScoreCategory.Type,
                             ScoreCategoryDescription = a.ScoreCategory.Description,
@@ -51,10 +52,11 @@ namespace STEM_ROBOT.DAL.Repo
             var matchPoints = matchData.Halves.Select(h => new MatchPoint
             {
                 haftMatch = h.HalfId,
+                haftName=h.Half_Name,
                 activity = new TeamAcctivity
                 {
                     activityTeam1 = h.Actions
-                        .Where(a => a.TeamMatchId == team1 )
+                        .Where(a => a.TeamMatch_Id == team1 )
                         .Select(a => new TeamActivity1
                         {
                             teamName = a.TeamName,
@@ -65,7 +67,7 @@ namespace STEM_ROBOT.DAL.Repo
                         }).ToList(),
 
                     activityTeam2 = h.Actions
-                        .Where(a => a.TeamMatchId == team2)
+                        .Where(a => a.TeamMatch_Id == team2)
                         .Select(a => new TeamActivity2
                         {
                             teamName = a.TeamName,

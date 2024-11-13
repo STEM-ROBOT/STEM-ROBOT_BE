@@ -9,7 +9,8 @@ namespace STEM_ROBOT.Common.Rsp
    public  class MatchPoint
     {
     public int haftMatch { get; set; }
-     
+    public string haftName { get; set; }
+
     public TeamAcctivity activity { get; set; } 
 
 
