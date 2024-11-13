@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic;
 using OfficeOpenXml;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -159,7 +160,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var lstContestant = new List<ContestantInTournament>();
                 foreach (var contestant in contestants)
                 {
-                    if (contestant.EndTime < DateTime.Now || contestant.EndTime == null)
+                    if (contestant.EndTime < ConvertToVietnamTime(DateTime.Now) || contestant.EndTime == null)
                     {
                         lstContestant.Add(new ContestantInTournament
                         {
@@ -302,7 +303,7 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 var lstContestant = new List<ContestantInTournament>();
-                var nowTime = DateTime.Now;
+                var nowTime = ConvertToVietnamTime(DateTime.Now);
 
                 foreach (var contestant in contestants)
                 {
@@ -491,7 +492,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request)
+        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request,string userSchool)
         {
             var res = new SingleRsp();
             try
@@ -514,6 +515,10 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 var contestant = _mapper.Map<Contestant>(request);
+                contestant.AccountId = accountId;
+                contestant.TournamentId = tournamentId;
+                contestant.SchoolName= userSchool;
+                contestant.StartTime = ConvertToVietnamTime(DateTime.Now);
                 _contestantRepo.Add(contestant);
             }
             catch (Exception ex)
@@ -521,6 +526,31 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
+        }
+        public async Task<SingleRsp> GetContestantRegister(int tournamentId, int userId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var list_contestants = _contestantRepo.All(filter: c => c.TournamentId == tournamentId && c.AccountId == userId);
+                var list_res = _mapper.Map<List<ContestantReq>>(list_contestants);
+                res.setData("data", list_res);
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.Message);
+            }
+            return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
