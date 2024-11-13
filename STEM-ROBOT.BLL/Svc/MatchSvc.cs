@@ -408,8 +408,9 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //check date
-        public async Task<SingleRsp> CheckMatch(int matchID, DateTime time)
+        public async Task<SingleRsp> CheckMatch(int matchID)
         {
+            var time = ConvertToVietnamTime(DateTime.Now);
             var res = new SingleRsp();
             try
             {
@@ -469,13 +470,14 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //realtime-teampoint 
-        public async Task<SingleRsp> teamPoint(int matchID,DateTime date)
+        public async Task<SingleRsp> teamPoint(int matchID)
         {
+
             var res = new SingleRsp();
             try
             {
-                var data = await _stemHub.TeamPointClient(matchID, date);
-                res.setData("data", data);
+                var data = await _stemHub.TeamPointClient(matchID, ConvertToVietnamTime(DateTime.Now));
+                res.setData("data", data.Message);
             }
             catch (Exception ex)
             {
@@ -484,12 +486,12 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //realtime-listpoint
-        public async Task<SingleRsp> ListPoint(int teamMatchId, DateTime date)
+        public async Task<SingleRsp> ListPoint(int teamMatchId)
         {
             var res = new SingleRsp();
             try
             {
-                var data = await _stemHub.ListPointClient(teamMatchId, date);
+                var data = await _stemHub.ListPointClient(teamMatchId, ConvertToVietnamTime(DateTime.Now));
                 res.setData("data", data);
             }
             catch (Exception ex)
@@ -515,6 +517,15 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception(ex.Message);
             }
             return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }

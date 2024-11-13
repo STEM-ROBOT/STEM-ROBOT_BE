@@ -133,7 +133,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var match = await _matchRepo.TeamPoint(matchID);
 
-                            await hubContext.Clients.All.SendAsync("team-point/"+matchID.ToString(), match, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync("team-match-result/"+matchID.ToString(), match, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
@@ -141,7 +141,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         }
 
                         // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                        await Task.Delay(TimeSpan.FromMilliseconds(3000));
                     }
                     res.SetMessage("timeout");
                 }
@@ -186,7 +186,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         }
 
                         // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                        await Task.Delay(TimeSpan.FromMilliseconds(4000));
                     }
                     res.SetMessage("timeout");
                 }
@@ -212,6 +212,16 @@ namespace STEM_ROBOT.BLL.HubClient
 
 
             await base.OnDisconnectedAsync(exception);
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
