@@ -29,8 +29,6 @@ public partial class Contestant
 
     public DateTime? EndTime { get; set; }
 
-    public int? TeamRegisterId { get; set; }
-
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
