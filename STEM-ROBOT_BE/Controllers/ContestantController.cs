@@ -200,7 +200,7 @@ namespace STEM_ROBOT.Web.Controllers
             {
                 res.SetError("500", res.Message);
             }
-            return Ok(res);
+            return Ok(res.Data);
         }
         [HttpGet("public-tournament-moderator")]
         public async Task<IActionResult> GetContestantRegister(int tournamentId)
@@ -217,7 +217,7 @@ namespace STEM_ROBOT.Web.Controllers
             {
                 res.SetError("500", res.Message);
             }
-            return Ok(res);
+            return Ok(res.Data);
         }
     }
 }
