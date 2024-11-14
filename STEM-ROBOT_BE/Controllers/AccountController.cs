@@ -18,16 +18,16 @@ namespace STEM_ROBOT_BE.Controllers
             _accountSvc = accountSvc;
         }
 
-        [HttpGet()]
-        public  IActionResult GetAccounts()
-        {
-            var res =  _accountSvc.GetAccounts();
-            if (res.Success)
-            {
-                return Ok(res.Data);
-            }
-            return StatusCode(500, res.Message);
-        }
+        //[HttpGet()]
+        //public  IActionResult GetAccounts()
+        //{
+        //    var res =  _accountSvc.GetAccounts();
+        //    if (res.Success)
+        //    {
+        //        return Ok(res.Data);
+        //    }
+        //    return StatusCode(500, res.Message);
+        //}
 
         [HttpGet("userId")]
         public IActionResult GetAccountById()
@@ -73,7 +73,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-account")]
         public IActionResult DeleteAccount(int id)
         {
             if (!ModelState.IsValid)

@@ -32,7 +32,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lst != null)
                 {
                     var lstRes = _mapper.Map<List<ActionRsp>>(lst);
-                    res.SetSuccess(lstRes, "data");
+                    res.SetData("data", lstRes);
                 }
                 else
                 {
