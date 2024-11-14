@@ -17,7 +17,7 @@ namespace STEM_ROBOT.Web.Controllers
             _actionSvc = actionSvc;
         }
 
-        [HttpGet()]
+        [HttpGet("list-action")]
         public IActionResult GetActions()
         {
             var res = _actionSvc.GetActions();
@@ -39,7 +39,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPost()]
+        [HttpPost("add-action")]
         public IActionResult CreateAction([FromBody] ActionReq req)
         {
             if (!ModelState.IsValid)
@@ -55,7 +55,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("update-action")]
         public IActionResult UpdateAction([FromBody] ActionReq req, int id)
         {
             if (!ModelState.IsValid)
@@ -71,7 +71,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-action")]
         public IActionResult DeleteAction(int id)
         {
             var res = _actionSvc.Delete(id);
