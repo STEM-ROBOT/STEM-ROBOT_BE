@@ -280,6 +280,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("No ID");
                 }
                _mapper.Map(request, competition_data);
+                competition_data.IsFormat = true;
 
                 _competitionRepo.Update(competition_data);
 
@@ -600,6 +601,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var resData = new ActiveCompetitionRsp();
                     resData.isFormat = competition.IsFormat;
+                    resData.isLocation = competition.IsLocation;
                     resData.isReferee = competition.IsReferee;
                     resData.isTeam = competition.IsTeam;
                     resData.isTable = competition.IsTable;
@@ -947,7 +949,6 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 if (competition.IsFormat == true && competition.IsMacth == true && competition.IsTeamMacth == true
-                    && competition.IsTable == true && competition.IsContestantTeam == true && competition.IsTeam == true
                     && competition.IsReferee == true && competition.IsLocation == true && competition.IsSchedule == true)
                 {
                     competition.IsActive = true;
