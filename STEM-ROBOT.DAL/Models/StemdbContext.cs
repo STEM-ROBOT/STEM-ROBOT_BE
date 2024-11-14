@@ -75,6 +75,9 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -222,10 +225,6 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_Contestant_Account");
 
-            entity.HasOne(d => d.TeamRegister).WithMany(p => p.Contestants)
-                .HasForeignKey(d => d.TeamRegisterId)
-                .HasConstraintName("FK_Contestant_TeamRegister");
-
             entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
                 .HasForeignKey(d => d.TournamentId)
                 .HasConstraintName("FK_Contestant_Tournament");
@@ -244,6 +243,10 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.ContestantTeams)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK_ContestantCompetition_Team");
+
+            entity.HasOne(d => d.TeamRegister).WithMany(p => p.ContestantTeams)
+                .HasForeignKey(d => d.TeamRegisterId)
+                .HasConstraintName("FK_ContestantTeam_TeamRegister");
         });
 
         modelBuilder.Entity<District>(entity =>
@@ -573,7 +576,10 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
             entity.Property(e => e.ResultPlay).HasMaxLength(250);
-            entity.Property(e => e.ResultPlayTable).HasMaxLength(250);
+            entity.Property(e => e.ResultPlayTable)
+                .HasMaxLength(250)
+                .HasDefaultValueSql("((0))");
+            entity.Property(e => e.TotalScore).HasDefaultValueSql("((0))");
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.MatchId)
@@ -589,6 +595,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("TeamRegister");
 
             entity.Property(e => e.ContactInfo).HasMaxLength(250);
+            entity.Property(e => e.Email).HasMaxLength(250);
             entity.Property(e => e.Image).HasColumnType("ntext");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber)

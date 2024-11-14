@@ -253,6 +253,8 @@ namespace STEM_ROBOT.BLL.Svc
                     name = competition.Genre.Name,
                     numberContestantTeam = (int)competition.NumberContestantTeam,
                     registerTime = (DateTime)competition.RegisterTime,
+                    EndTime = (DateTime)competition.EndTime,
+                    StartTime = (DateTime)competition.StartTime,
                     status = competition.Status,
                     FormatId = competition.Format.Id
                 };
@@ -274,7 +276,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
 
                 var competition_data = _competitionRepo.GetById(competitionId);
-
+                
                 if (competition_data == null)
                 {
                     res.SetError("No ID");
