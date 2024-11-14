@@ -301,7 +301,8 @@ namespace STEM_ROBOT.DAL.Repo
                 id = (int)tm.Id,
                 teamName = tm.Team.Name,
                 teamImage = tm.Team.Image,
-                teamMatchResulgPlay = tm.TotalScore
+                teamMatchResultPlay = tm.ResultPlay,
+                tolalScore= tm.TotalScore
 
             })).ToListAsync();
             return list;
@@ -313,7 +314,8 @@ namespace STEM_ROBOT.DAL.Repo
             var list = await _context.TeamMatches.Where(x => x.Id == teamMatchID)
                 .Select(a => new MatchlistPointParent
                 {
-                    teamMatchId = a.MatchId,
+                    teamMatchId=a.Id,
+                    MatchId = a.MatchId,
                     teamMatchResult = (int)a.TotalScore,
                     teamName = a.Team.Name,
                     teamImage = a.Team.Image,

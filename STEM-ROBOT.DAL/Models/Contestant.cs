@@ -35,7 +35,5 @@ public partial class Contestant
 
     public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
 
-    public virtual TeamRegister? TeamRegister { get; set; }
-
     public virtual Tournament? Tournament { get; set; }
 }

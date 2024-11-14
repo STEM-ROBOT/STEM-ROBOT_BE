@@ -38,12 +38,10 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<ScoreCategorySvc>();
             services.AddScoped<ContestantRepo>();
             services.AddScoped<ContestantSvc>();
-
             services.AddScoped<CompetitionRepo>();
             services.AddScoped<CompetitionSvc>();
             services.AddScoped<StageRepo>();
             services.AddScoped<StageSvc>();
-
             services.AddScoped<TeamSvc>();
             services.AddScoped<TeamRepo>();
             services.AddScoped<ScheduleRepo>();
@@ -54,10 +52,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<MatchSvc>();
             services.AddScoped<TableGroupRepo>();
             services.AddScoped<TableGroupSvc>();
-
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<TeamMatchRepo>();
-
 
             services.AddScoped<PackageRepo>();
             services.AddScoped<PackageSvc>();
@@ -88,7 +84,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<MatchPointSvc>();
             services.AddScoped<NotificationRepo>();
             services.AddScoped<StemHub>();
-           
+            services.AddScoped<TeamRegisterRepo>();
+            services.AddScoped<TeamRegisterSvc>();
             services.AddScoped<IStemHub, StemHub>();
             services.AddScoped<NotificationSvc>();
 

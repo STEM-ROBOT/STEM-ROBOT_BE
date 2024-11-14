@@ -33,6 +33,16 @@ namespace STEM_ROBOT.BLL.Svc
             _orderRepo = packageAccountRepo;
             _paymentRepo = paymentRepo;
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
         public async Task<SingleRsp> CreateOrder(OrderReq request)
         {
             var res = new SingleRsp();
@@ -57,7 +67,7 @@ namespace STEM_ROBOT.BLL.Svc
                     AccountId = request.AccountId,
                     PackageId = request.PackageId,
                     Status = "Pending",
-                    OrderDate = DateTime.Now,
+                    OrderDate = ConvertToVietnamTime(DateTime.Now),
                     Amount = package.Price,
                     LinkPayAgain = $"https://localhost:7283/api/payments/cancel/{orderCode}"
 
@@ -104,7 +114,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     OrderId = orderCode,
                     Amount = package.Price,
-                    PurchaseDate = DateTime.Now,
+                    PurchaseDate = ConvertToVietnamTime(DateTime.Now),
                     Status = "Success",
                 };
                 _paymentRepo.Add(payment);

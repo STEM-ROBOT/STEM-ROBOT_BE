@@ -26,7 +26,7 @@ namespace STEM_ROBOT.DAL.Repo
     .ThenInclude(x => x.Match)
     .ThenInclude(x => x.TeamMatches)
     .ThenInclude(x=> x.Team)
-    .Where(x => x.Referee.Account.Id == acountId && x.CompetitionId == comeptitionId)
+    .Where(x => x.Referee.AccountId == acountId && x.CompetitionId == comeptitionId)
     .FirstOrDefaultAsync();
         }
 

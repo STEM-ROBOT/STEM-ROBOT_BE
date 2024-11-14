@@ -22,7 +22,7 @@ namespace STEM_ROBOT.BLL.HubClient
         private readonly IServiceProvider _serviceProvider;
         private readonly MatchHaflRepo _matchHaflRepo;
         private readonly MatchRepo _matchRepo;
-        public StemHub(IMapper mapper, TeamMatchRepo teamMatchRepo, NotificationRepo notificationRepo,IServiceProvider serviceProvider,MatchHaflRepo matchHaflRepo,MatchRepo matchRepo)
+        public StemHub(IMapper mapper, TeamMatchRepo teamMatchRepo, NotificationRepo notificationRepo, IServiceProvider serviceProvider, MatchHaflRepo matchHaflRepo, MatchRepo matchRepo)
         {
             _mapper = mapper;
             _teamMatchRepo = teamMatchRepo;
@@ -32,10 +32,10 @@ namespace STEM_ROBOT.BLL.HubClient
             _matchRepo = matchRepo;
         }
 
-        public async Task<SingleRsp> MatchClient(int matchID,DateTime time)
+        public async Task<SingleRsp> MatchClient(int matchID, DateTime time)
         {
             var cancellationToken = new CancellationToken();
-          
+
             var res = new SingleRsp();
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -55,7 +55,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var match = await _matchHaflRepo.ListHaftMatch(matchID);
 
-                            await hubContext.Clients.All.SendAsync("match-deatail/"+matchID.ToString(), match, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync("match-deatail/" + matchID.ToString(), match, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
@@ -69,11 +69,11 @@ namespace STEM_ROBOT.BLL.HubClient
                 }
 
             }
-           
+
             return res;
         }
 
-        public async Task<SingleRsp> NotificationClient( int userid)
+        public async Task<SingleRsp> NotificationClient(int userid)
         {
             var cancellationToken = new CancellationToken();
             var res = new SingleRsp();
@@ -92,7 +92,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var notifications = await _notificationRepo.listNotifi(userid);
                             var mappedNotifications = _mapper.Map<List<NotificationRsp>>(notifications);
-                            await hubContext.Clients.All.SendAsync("notification/"+userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
+                            await hubContext.Clients.All.SendAsync("notification/" + userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)
                         {
@@ -117,33 +117,36 @@ namespace STEM_ROBOT.BLL.HubClient
             var res = new SingleRsp();
             using (var scope = _serviceProvider.CreateScope())
             {
-                  var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
 
                 // Create a CancellationTokenSource with a 30-minute timeout
                 using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
                     var timeMinute = _matchRepo.GetById(matchID);
                     TimeSpan totalTime = (TimeSpan)(timeMinute.TimeOut - time.TimeOfDay);
-
-                    linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
-
-                    while (!linkedCts.Token.IsCancellationRequested)
+                    if (totalTime.TotalMinutes > 0)
                     {
-                        try
-                        {
-                            var match = await _matchRepo.TeamPoint(matchID);
+                        linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
 
-                            await hubContext.Clients.All.SendAsync("team-point/"+matchID.ToString(), match, linkedCts.IsCancellationRequested);
-                        }
-                        catch (Exception ex)
+                        while (!linkedCts.Token.IsCancellationRequested)
                         {
-                            Console.WriteLine($"Error sending message: {ex.Message}");
+                            try
+                            {
+                                var match = await _matchRepo.TeamPoint(matchID);
+
+                                await hubContext.Clients.All.SendAsync("team-match-result/" + matchID.ToString(), match, linkedCts.IsCancellationRequested);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending message: {ex.Message}");
+                            }
+
+                            // Delay to prevent continuous rapid execution, adjust as needed
+                            await Task.Delay(TimeSpan.FromMilliseconds(3000));
                         }
 
-                        // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
                     }
-                    res.SetMessage("timeout");
+
                 }
             }
 
@@ -152,7 +155,7 @@ namespace STEM_ROBOT.BLL.HubClient
         }
 
         //realtime point 
-        public async Task<SingleRsp> ListPointClient(int teamMatchID,DateTime time)
+        public async Task<SingleRsp> ListPointClient(int teamMatchID, DateTime time)
         {
             var cancellationToken = new CancellationToken();
             var res = new SingleRsp();
@@ -164,31 +167,32 @@ namespace STEM_ROBOT.BLL.HubClient
                 using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
                     var listPoint = await _matchRepo.MatchListPoint(teamMatchID);
-                    var matchID = listPoint.teamMatchId;
-
+                    var matchID = listPoint.MatchId;
                     var match = _matchRepo.GetById(matchID);
 
                     TimeSpan totalTime = (TimeSpan)(match.TimeOut - time.TimeOfDay);
-
-                    linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
-
-                    while (!linkedCts.Token.IsCancellationRequested)
+                  
+                    if (totalTime.TotalMinutes > 0)
                     {
-                        try
+                        linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
+                        while (!linkedCts.Token.IsCancellationRequested)
                         {
-                            var listPoints = await _matchRepo.MatchListPoint(teamMatchID);
+                            try
+                            {
+                                var listPoints = await _matchRepo.MatchListPoint(teamMatchID);
 
-                            await hubContext.Clients.All.SendAsync("list-point/" + teamMatchID.ToString(), listPoints, linkedCts.IsCancellationRequested);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error sending message: {ex.Message}");
-                        }
+                                await hubContext.Clients.All.SendAsync("list-point/" + teamMatchID.ToString(), listPoints, linkedCts.IsCancellationRequested);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending message: {ex.Message}");
+                            }
 
-                        // Delay to prevent continuous rapid execution, adjust as needed
-                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                            // Delay to prevent continuous rapid execution, adjust as needed
+                            await Task.Delay(TimeSpan.FromMilliseconds(4000));
+                        }
                     }
-                    res.SetMessage("timeout");
+
                 }
             }
 
@@ -212,6 +216,16 @@ namespace STEM_ROBOT.BLL.HubClient
 
 
             await base.OnDisconnectedAsync(exception);
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
