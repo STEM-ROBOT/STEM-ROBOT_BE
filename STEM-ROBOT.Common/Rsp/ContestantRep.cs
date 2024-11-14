@@ -41,7 +41,11 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Gender { get; set; }
         public string? Phone { get; set; }
         public int? AccountId { get; set; }
-        public string? GenreName { get; set; }    
+        public string? GenreName { get; set; }
+        public string? SchoolName { get; set; }
+        public DateTime? StartTime { get; set; }
 
     }
+
+
 }

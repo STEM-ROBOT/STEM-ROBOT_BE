@@ -184,16 +184,16 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public MutipleRsp GetListAvailableContestantByAccount(int accountId, DateTime startTime, DateTime endTime)
+        public MutipleRsp GetListAvailableContestantByAccount(int accountId , int tounamentId, int competitionId)
         {
             var res = new MutipleRsp();
             try
             {
                 var contestants = _contestantRepo.All(
-                    filter: x => x.AccountId == accountId,
+                    filter: x => x.AccountId == accountId && x.TournamentId == tounamentId,
                     includeProperties: "Account,ContestantTeams.Team.Competition"
                 ).ToList();
-
+                var competition = _competitionRepo.GetById( competitionId );
                 if (contestants == null || !contestants.Any())
                 {
                     res.SetError("No Data");
@@ -203,12 +203,12 @@ namespace STEM_ROBOT.BLL.Svc
 
                 foreach (var contestant in contestants)
                 {
-                    var competition = contestant.ContestantTeams?
+                    var contestantTeams = contestant.ContestantTeams?
                                                 .ToList()
-                                                .Where(c => c.Team?.Competition != null && c.Team.Competition.StartTime > startTime && c.Team.Competition.EndTime < endTime)
+                                                .Where(c => c.Team?.Competition != null && c.Team.Competition.StartTime > competition.StartTime && c.Team.Competition.EndTime < competition.EndTime)
                                                 .FirstOrDefault()?.Team?.Competition;
 
-                    if (competition != null)
+                    if (contestantTeams != null)
                     {
                         continue;
                     }
@@ -222,6 +222,8 @@ namespace STEM_ROBOT.BLL.Svc
                         Gender = contestant.Gender,
                         Phone = contestant.Phone,
                         Image = contestant.Image,
+                        StartTime = contestant.StartTime,
+                        SchoolName=contestant.SchoolName,
                         GenreName = "Đang không tham gia"
                     });
                 }
