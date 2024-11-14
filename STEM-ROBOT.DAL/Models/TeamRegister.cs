@@ -25,11 +25,13 @@ public partial class TeamRegister
 
     public DateTime? RegisterTime { get; set; }
 
+    public string? Email { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual Competition? Competition { get; set; }
 
-    public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
+    public virtual ICollection<ContestantTeam> ContestantTeams { get; set; } = new List<ContestantTeam>();
 
     public virtual Team? Team { get; set; }
 }

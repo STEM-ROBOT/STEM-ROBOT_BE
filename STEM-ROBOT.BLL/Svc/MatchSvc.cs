@@ -27,7 +27,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly StageSvc _stageSvc;
         private readonly StemHub _stemHub;
         private readonly MatchHaflRepo _matchHaflRepo;
-        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc,StemHub stemHub,MatchHaflRepo matchHaflRepo)
+        private readonly ActionRepo _actionRepo;
+        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc, StemHub stemHub, MatchHaflRepo matchHaflRepo, ActionRepo actionRepo)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -39,6 +40,7 @@ namespace STEM_ROBOT.BLL.Svc
             _competition = competition;
             _stemHub = stemHub;
             _matchHaflRepo = matchHaflRepo;
+            _actionRepo = actionRepo;
         }
 
         public MutipleRsp GetListMatch()
@@ -370,15 +372,15 @@ namespace STEM_ROBOT.BLL.Svc
             foreach (var stage in competition_data.Stages)
             {
                 foreach (var match in stage.Matches)
-                {                   
+                {
                     var check = reqs.matchs.Where(m => m.id == match.Id).FirstOrDefault();
                     match.LocationId = check.locationId;
                     match.TimeIn = check.TimeIn;
                     match.TimeOut = check.TimeOut;
                     match.StartDate = check.startDate;
-                    match.TimeOfHaft= reqs.TimeOfHaft;
-                    match.NumberHaft= reqs.NumberHaft;
-                    match.BreakTimeHaft= reqs.BreakTimeHaft;
+                    match.TimeOfHaft = reqs.TimeOfHaft;
+                    match.NumberHaft = reqs.NumberHaft;
+                    match.BreakTimeHaft = reqs.BreakTimeHaft;
                     endTime = (DateTime)check.startDate;
                     matches.Add(match);
                     for (int i = 1; i <= reqs.NumberHaft; i++)
@@ -406,8 +408,9 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //check date
-        public async Task<SingleRsp> CheckMatch(int matchID, DateTime time)
+        public async Task<SingleRsp> CheckMatch(int matchID)
         {
+            var time = ConvertToVietnamTime(DateTime.Now);
             var res = new SingleRsp();
             try
             {
@@ -437,7 +440,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
                 {
-                  var data =   await _stemHub.MatchClient(matchID,time);
+                    var data = await _stemHub.MatchClient(matchID, time);
                     res.setData("data", data.Message);
                 }
                 else
@@ -466,5 +469,137 @@ namespace STEM_ROBOT.BLL.Svc
             return timeSpan;
         }
 
+        //realtime-teampoint 
+        public async Task<SingleRsp> teamPoint(int matchID)
+        {
+            var time = ConvertToVietnamTime(DateTime.Now);
+            var res = new SingleRsp();
+            try
+            {
+                var timePlay = _matchRepo.GetById(matchID);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (time.Date < timePlay.StartDate.Value.Date)
+                {
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
+                }
+                else
+                if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+
+                    var data = await _stemHub.TeamPointClient(matchID, time);
+                    res.setData("data", data.Message);
+                }
+                else
+                {
+                    var match = await _matchRepo.TeamPoint(matchID);
+                    res.setData("data", match);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+        //realtime-listpoint
+        public async Task<SingleRsp> ListPoint(int teamMatchId)
+        {
+            var time = ConvertToVietnamTime(DateTime.Now);
+            var res = new SingleRsp();
+            try
+            {
+                var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
+                var matchID = listPoint.MatchId;
+
+                var timePlay = _matchRepo.GetById(matchID);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (time.Date < timePlay.StartDate.Value.Date)
+                {
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
+                }
+                else
+                if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+
+                    var data = await _stemHub.ListPointClient(teamMatchId, ConvertToVietnamTime(DateTime.Now));
+                    res.setData("data", data.Message);
+                }
+                else
+                {
+                    var match = await _matchRepo.MatchListPoint(teamMatchId);
+                    res.setData("data", match);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
+        }
+        //confirm point
+
+        public async Task<SingleRsp> ConfirmPoint(int actionID, string status)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var point = _actionRepo.GetById(actionID);
+                point.Status = status;
+                _actionRepo.Update(point);
+                res.SetMessage("Update success");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
     }
 }

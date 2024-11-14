@@ -37,7 +37,16 @@ namespace STEM_ROBOT.BLL.Svc
             _contestantRepo = contestantRepo;
             _competitionRepo = competitionRepo;
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
         public async Task<SingleRsp> getStatus(int id)
         {
 
@@ -70,7 +79,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var userName = user.Name;
                 var email = user.Email;
                 var status = request.Status;
-                tournament.CreateDate = DateTime.Now;
+                tournament.CreateDate = ConvertToVietnamTime(DateTime.Now);
                 _tournament.Add(tournament);
                 var listCompettiondata = new List<Competition>();
                 foreach (var competition in request.competition)

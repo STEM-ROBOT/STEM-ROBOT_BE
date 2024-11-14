@@ -212,6 +212,8 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<School, ListSchoolRsp>().ReverseMap();
             //notification
             CreateMap<Notification, NotificationRsp>().ReverseMap();
+            //teamRegister
+            CreateMap<TeamRegister, TeamRegisterReq>().ReverseMap();
         }
 
     }
