@@ -520,6 +520,7 @@ namespace STEM_ROBOT.BLL.Svc
                 contestant.SchoolName= userSchool;
                 contestant.StartTime = ConvertToVietnamTime(DateTime.Now);
                 _contestantRepo.Add(contestant);
+                res.setData("data", "success");
             }
             catch (Exception ex)
             {
@@ -534,6 +535,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var list_contestants = _contestantRepo.All(filter: c => c.TournamentId == tournamentId && c.AccountId == userId);
                 var list_res = _mapper.Map<List<ContestantReq>>(list_contestants);
+
                 res.setData("data", list_res);
             }
             catch (Exception ex)
