@@ -184,16 +184,16 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public MutipleRsp GetListAvailableContestantByAccount(int accountId , int tounamentId, int competitionId)
+        public MutipleRsp GetListAvailableContestantByAccount(int accountId, int tounamentId, int competitionId)
         {
             var res = new MutipleRsp();
             try
             {
                 var contestants = _contestantRepo.All(
-                    filter: x => x.AccountId == accountId && x.TournamentId == tounamentId,
-                    includeProperties: "Account,ContestantTeams.Team.Competition"
+                    filter: x => x.AccountId == accountId && x.TournamentId == tounamentId ,
+                    includeProperties: "Account,ContestantTeams.TeamRegister.Competition"
                 ).ToList();
-                var competition = _competitionRepo.GetById( competitionId );
+                var competition = _competitionRepo.GetById(competitionId);
                 if (contestants == null || !contestants.Any())
                 {
                     res.SetError("No Data");
@@ -205,9 +205,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var contestantTeams = contestant.ContestantTeams?
                                                 .ToList()
-                                                .Where(c => c.Team?.Competition != null && c.Team.Competition.StartTime > competition.StartTime && c.Team.Competition.EndTime < competition.EndTime)
-                                                .FirstOrDefault()?.Team?.Competition;
-
+                                                .Where(c => c.TeamRegister?.Competition != null && c.TeamRegister.Competition.StartTime < competition.StartTime && c.TeamRegister.Competition.EndTime > competition.EndTime)
+                                                .FirstOrDefault();
                     if (contestantTeams != null)
                     {
                         continue;
@@ -223,7 +222,7 @@ namespace STEM_ROBOT.BLL.Svc
                         Phone = contestant.Phone,
                         Image = contestant.Image,
                         StartTime = contestant.StartTime,
-                        SchoolName=contestant.SchoolName,
+                        SchoolName = contestant.SchoolName,
                         GenreName = "Đang không tham gia"
                     });
                 }
@@ -494,7 +493,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request,string userSchool)
+        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request, string userSchool)
         {
             var res = new SingleRsp();
             try
@@ -519,7 +518,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var contestant = _mapper.Map<Contestant>(request);
                 contestant.AccountId = accountId;
                 contestant.TournamentId = tournamentId;
-                contestant.SchoolName= userSchool;
+                contestant.SchoolName = userSchool;
                 contestant.StartTime = ConvertToVietnamTime(DateTime.Now);
                 _contestantRepo.Add(contestant);
                 res.setData("data", "success");
