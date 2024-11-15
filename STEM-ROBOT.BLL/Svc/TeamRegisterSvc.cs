@@ -44,6 +44,7 @@ namespace STEM_ROBOT.BLL.Svc
                 try {
                     teamRegister.CompetitionId = competition.Id;
                     teamRegister.AccountId = userId;
+                    teamRegister.RegisterTime = ConvertToVietnamTime(DateTime.Now);
                     var newTeamRegister = _mapper.Map<TeamRegister>(teamRegister);
                     _teamRegisterRepo.Add(newTeamRegister);
                     var listContestTants = _mapper.Map<List<ContestantTeam>>(teamRegister.Contestants);
@@ -62,6 +63,16 @@ namespace STEM_ROBOT.BLL.Svc
                
             }
             return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
