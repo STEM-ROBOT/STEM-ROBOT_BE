@@ -25,6 +25,8 @@ public partial class Tournament
 
     public int? ViewTournament { get; set; }
 
+    public string? Introduce { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();

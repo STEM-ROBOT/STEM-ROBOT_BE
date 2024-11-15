@@ -639,6 +639,7 @@ public partial class StemdbContext : DbContext
 
             entity.Property(e => e.CreateDate).HasColumnType("date");
             entity.Property(e => e.Image).HasColumnType("text");
+            entity.Property(e => e.Introduce).HasColumnType("ntext");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
             entity.Property(e => e.Phone)
