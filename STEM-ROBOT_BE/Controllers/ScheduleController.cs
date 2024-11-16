@@ -43,10 +43,13 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-        [HttpGet("main-schedule-match")]
-        public async Task<IActionResult> CheckSchedule(int scheduleID, DateTime time)
+        [HttpGet("schedule-referee-main-match")]
+        public async Task<IActionResult> CheckSchedule(int scheduleID)
         {
-            var res = await _scheduleSvc.checkTimeSchedule(scheduleID, time);
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.checkTimeSchedule(scheduleID, userID);
             
             return Ok(res.Data);
         }

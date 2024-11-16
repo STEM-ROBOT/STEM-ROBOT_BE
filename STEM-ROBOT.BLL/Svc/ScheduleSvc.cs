@@ -24,7 +24,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly MatchRepo _matchRepo;
 
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition,MatchRepo matchRepo)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo)
         {
             _scheduleRepo = scheduleRepo;
             _competition = competition;
@@ -174,7 +174,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 };
                 checkSchedule.OptCode = randomCode.ToString();
-                checkSchedule.TimeOut = DateTime.Now.AddSeconds(120);
+                checkSchedule.TimeOut = ConvertToVietnamTime(DateTime.Now).AddSeconds(120);
                 _scheduleRepo.Update(checkSchedule);
                 await _mailService.SendEmailAsync(mail);
 
@@ -210,21 +210,22 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 else
-                if (checkSchedule.TimeOut < DateTime.Now)
+                if (checkSchedule.TimeOut < ConvertToVietnamTime(DateTime.Now))
                 {
                     res.SetMessage("Mã hết hạn !");
                     return res;
                 }
                 else
-                if (!checkSchedule.OptCode.Contains(code))
-                {
-                    res.SetMessage("Mã không đúng !");
-                }
-                else
+                if (checkSchedule.OptCode.Equals(code))
                 {
                     checkSchedule.IsJoin = true;
                     _scheduleRepo.Update(checkSchedule);
                     res.SetMessage("Success");
+
+                }
+                else
+                {
+                    res.SetMessage("Mã không đúng !");
                 }
 
             }
@@ -402,42 +403,67 @@ namespace STEM_ROBOT.BLL.Svc
 
         //check schedule
 
-        public async Task<SingleRsp> checkTimeSchedule(int scheDuleID, DateTime date)
+        public async Task<SingleRsp> checkTimeSchedule(int scheDuleId, int accountId)
         {
             var res = new SingleRsp();
+            var date = ConvertToVietnamTime(DateTime.Now);
             try
             {
-                var schedule = await _scheduleRepo.checkTimeschedule(scheDuleID);
-                var matchID = schedule.FirstOrDefault().matchId;
-
-                var matchCheck = _matchRepo.GetById(matchID);
-
-                var totalTime = matchCheck.StartDate + matchCheck.TimeIn;
-
-                var checkDate = date < matchCheck.StartDate;
-
-                TimeSpan checkTime = (DateTime)totalTime - date;
-
-                if (date.Date == matchCheck.StartDate.Value.Date && checkTime.TotalMinutes > 15)
+                var scheduledata = await _scheduleRepo.checkTimeschedule(scheDuleId, accountId);
+                if (scheduledata != null)
                 {
-                   
-                    res.setData("data", "notstarted" );
+                    var schedule = scheduledata.Match.TeamMatches.Select(a => new CheckTimeSchedule
+                    {
+                        matchId = (int)scheduledata.MatchId,
+                        teamMatchId = a.Id
+                    }).ToList();
+                    var matchID = scheduledata.MatchId;
 
+                    var matchCheck = _matchRepo.GetById(matchID);
+
+                    var totalTime = matchCheck.StartDate + matchCheck.TimeIn;
+
+                    var checkDate = date < matchCheck.StartDate;
+
+                    TimeSpan checkTime = (DateTime)totalTime - date;
+
+                    if (date.Date != matchCheck.StartDate.Value.Date)
+                    {
+
+                        res.setData("data", "error");
+
+                    }
+                    else if(checkTime.TotalMinutes > 15)
+                    {
+
+                        res.setData("data", "error");
+
+                    }
+                    else
+                    if ( checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
+                    {
+                        var timeAwait = checkTime.TotalMinutes < 0 ? TimeSpan.Zero : checkTime;
+                        var data = new
+                        {
+                            TimeAwait = timeAwait,
+                            TimeInMatch = matchCheck.TimeIn,
+                            TimeOutMatch = matchCheck.TimeOut,
+                            numberHaft = matchCheck.NumberHaft,
+                            breakTimeHaft = matchCheck.BreakTimeHaft,
+                            Isjoin = scheduledata.IsJoin,
+                            matchId=scheduledata.MatchId,
+                            scheduleData = schedule
+                        };
+                        res.setData("data", data);
+                        return res;
+                    }
                 }
                 else
-                if (date.Date == matchCheck.StartDate.Value.Date && checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
                 {
-                    var timeAwait = checkTime.TotalMinutes < 0 ? TimeSpan.Zero : checkTime;
-                    var data = new
-                    {
-                        TimeAwait = timeAwait,
-                        TimeInMatch = matchCheck.TimeIn,
-                        scheduleData = schedule
-                    };
-                    res.setData("data", data);
-                    return res;
+                    res.setData("data", "error");
                 }
-                
+
+
 
 
 
@@ -448,6 +474,15 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
     }
 }

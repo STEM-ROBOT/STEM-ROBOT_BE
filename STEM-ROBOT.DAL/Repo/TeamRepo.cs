@@ -20,7 +20,7 @@ namespace STEM_ROBOT.DAL.Repo
         .Where(x => x.CompetitionId == id)
         .Include(c => c.Competition)
         .Include(c => c.ContestantTeams)
-            .ThenInclude(ct => ct.Contestant) 
+        .ThenInclude(ct => ct.Contestant) 
         .ToList();
         }
 

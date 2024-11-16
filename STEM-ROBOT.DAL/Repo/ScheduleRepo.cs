@@ -82,13 +82,9 @@ namespace STEM_ROBOT.DAL.Repo
                              .Any(sch => sch.Id == schdeDuleID))))))
          .FirstOrDefaultAsync();
         }
-        public async Task<List<CheckTimeSchedule>> checkTimeschedule(int scheduleID)
+        public async Task<Schedule> checkTimeschedule(int scheduleID,int accountId)
         {
-            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID).SelectMany(m => m.Match.TeamMatches.Select(a=> new CheckTimeSchedule
-            {
-                matchId = (int) m.MatchId,
-                teamMatchId = a.Id
-            })).ToListAsync();
+            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountId).Include(m => m.Match).ThenInclude(mt => mt.TeamMatches).FirstOrDefaultAsync();
             return timecheck;
         }
     }
