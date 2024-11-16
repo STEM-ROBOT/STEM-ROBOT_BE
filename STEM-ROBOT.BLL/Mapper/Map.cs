@@ -214,6 +214,9 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Notification, NotificationRsp>().ReverseMap();
             //teamRegister
             CreateMap<TeamRegister, TeamRegisterReq>().ReverseMap();
+            CreateMap<TeamRegister, TeamRegisterRsp>()  
+            .ForMember(dest => dest.Member, opt => opt.MapFrom(src => src.ContestantTeams.Count))   
+            .ReverseMap();
         }
 
     }

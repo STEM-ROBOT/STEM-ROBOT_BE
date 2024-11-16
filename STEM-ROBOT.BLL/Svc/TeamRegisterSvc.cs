@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -18,15 +19,17 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRegisterRepo _teamRegisterRepo;
         private readonly CompetitionRepo _competitionRepo;
         private readonly ContestantTeamRepo _contestantTeamRepo;
+        private readonly TeamRepo _teamRepo;
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
-        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper)
+        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper, TeamRepo teamRepo)
         {
             _teamRegisterRepo = repo;
             _competitionRepo = competitionRepo;
             _contestantTeamRepo = contestantTeamRepo;
             _mapper = mapper;
-            _accountRepo= accountRepo;
+            _accountRepo = accountRepo;
+            _teamRepo = teamRepo;
         }
 
 
@@ -63,5 +66,74 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
+        public async Task<SingleRsp> getListTeamRegister(int competitionId)
+        {
+            var res = new SingleRsp();
+            var competition = _competitionRepo.GetById(competitionId);
+            if (competition == null)
+            {
+                res.SetMessage("Nội dung thi đấu không tồn tại!");
+            }
+            else
+            {
+                try
+                {
+                    var list = await _teamRegisterRepo.getTeamRegister(competitionId);
+      
+                    var newTeamRegister = _mapper.Map<List<TeamRegisterRsp>>(list);
+
+                    res.setData("data", newTeamRegister);
+                }
+                catch (Exception ex)
+                {
+                    res.SetError(ex.ToString());
+                }
+            }
+            return res;
+        }
+
+        public SingleRsp updateStatusTeamRegister(int id,int competitionId,TeamRegisterStatusRsp teamRegisterStatusRsp)
+        {
+            var res = new SingleRsp();
+            var teamRegister =_teamRegisterRepo.GetById(id);
+            if (teamRegister == null)
+            {
+                res.SetMessage("Nội dung thi đấu không tồn tại!");
+            }
+            else
+            {
+                try
+                {
+                    var slot = _teamRepo.All(x => x.CompetitionId == competitionId && x.IsSetup != true).FirstOrDefault();
+                    if(slot == null)
+                    {
+                        res.SetMessage("Hết teams để đăng kí");
+                    }
+                    if(teamRegisterStatusRsp.status == "Chấp nhận")
+                    {
+                        teamRegister.Status = teamRegisterStatusRsp.status;
+                        teamRegister.TeamId = slot.Id;
+                        slot.IsSetup = true;
+                        _teamRegisterRepo.Update(teamRegister);
+                        _teamRepo.Update(slot);
+                        res.SetMessage("Cập nhật thành công");
+                    }
+                    else
+                    {
+                        teamRegister.Status = teamRegisterStatusRsp.status;
+                        _teamRegisterRepo.Update(teamRegister);
+                        res.SetMessage("Cập nhật thành công");
+                    }
+                   
+                }
+                catch (Exception ex)
+                {
+                    res.SetError(ex.ToString());
+                }
+            }
+            return res;
+        }
+
     }
 }

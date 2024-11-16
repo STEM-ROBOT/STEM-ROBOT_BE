@@ -924,6 +924,7 @@ namespace STEM_ROBOT.BLL.Svc
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
                 teamTableRsp.IsTable = (bool)competitition.IsTable;
+                teamTableRsp.NumberTeamNextRound = competitition.NumberTeamNextRound;
                 res.setData("data", teamTableRsp);
             }
             catch (Exception ex)
