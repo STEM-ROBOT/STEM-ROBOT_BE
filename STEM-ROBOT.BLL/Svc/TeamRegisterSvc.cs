@@ -26,7 +26,7 @@ namespace STEM_ROBOT.BLL.Svc
             _competitionRepo = competitionRepo;
             _contestantTeamRepo = contestantTeamRepo;
             _mapper = mapper;
-            _accountRepo= accountRepo;
+            _accountRepo = accountRepo;
         }
 
 
@@ -34,16 +34,19 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var competition = _competitionRepo.GetById(competitionId);
-            var account= _accountRepo.GetById(userId); 
+            var account = _accountRepo.GetById(userId);
             if (competition == null)
             {
                 res.Setmessage("Nội dung thi đấu không tồn tại !");
             }
             else
             {
-                try {
+                try
+                {
                     teamRegister.CompetitionId = competition.Id;
                     teamRegister.AccountId = userId;
+                    teamRegister.Status = "Đang xử lý";
+                    teamRegister.RegisterTime = ConvertToVietnamTime(DateTime.Now);
                     var newTeamRegister = _mapper.Map<TeamRegister>(teamRegister);
                     _teamRegisterRepo.Add(newTeamRegister);
                     var listContestTants = _mapper.Map<List<ContestantTeam>>(teamRegister.Contestants);
@@ -51,17 +54,26 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         contestant.TeamRegisterId = newTeamRegister.Id;
                     }
-                    // Sau đó, bạn có thể lưu listContestants vào database nếu cần
                     _contestantTeamRepo.AddRange(listContestTants);
                     res.SetMessage("success");
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     res.SetError(ex.ToString());
                 }
-               
+
             }
             return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
