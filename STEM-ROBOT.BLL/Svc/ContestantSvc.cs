@@ -190,7 +190,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var contestants = _contestantRepo.All(
-                    filter: x => x.AccountId == accountId && x.TournamentId == tounamentId ,
+                    filter: x => x.AccountId == accountId && x.TournamentId == tounamentId,
                     includeProperties: "Account,ContestantTeams.TeamRegister.Competition"
                 ).ToList();
                 var competition = _competitionRepo.GetById(competitionId);
@@ -203,28 +203,50 @@ namespace STEM_ROBOT.BLL.Svc
 
                 foreach (var contestant in contestants)
                 {
-                    var contestantTeams = contestant.ContestantTeams?
-                                                .ToList()
-                                                .Where(c => c.TeamRegister?.Competition != null && c.TeamRegister.Competition.StartTime < competition.StartTime && c.TeamRegister.Competition.EndTime > competition.EndTime)
-                                                .FirstOrDefault();
-                    if (contestantTeams != null)
+                    if (contestant.ContestantTeams.Count < 1)
                     {
-                        continue;
+                        lstContestant.Add(new ContestantInTournament
+                        {
+                            Id = contestant.Id,
+                            Name = contestant.Name,
+                            Email = contestant.Email,
+                            AccountId = contestant.AccountId,
+                            TournamentId = contestant.TournamentId,
+                            Gender = contestant.Gender,
+                            Phone = contestant.Phone,
+                            Image = contestant.Image,
+                            StartTime = contestant.StartTime,
+                            SchoolName = contestant.SchoolName,
+                            GenreName = "Đang không tham gia"
+                        });
                     }
-                    lstContestant.Add(new ContestantInTournament
+                    else
                     {
-                        Id = contestant.Id,
-                        Name = contestant.Name,
-                        Email = contestant.Email,
-                        AccountId = contestant.AccountId,
-                        TournamentId = contestant.TournamentId,
-                        Gender = contestant.Gender,
-                        Phone = contestant.Phone,
-                        Image = contestant.Image,
-                        StartTime = contestant.StartTime,
-                        SchoolName = contestant.SchoolName,
-                        GenreName = "Đang không tham gia"
-                    });
+                        var contestantTeams = contestant.ContestantTeams?
+                                                   .ToList()
+                                                   .Where(c => c.TeamRegister?.Competition != null && c.TeamRegister.Competition.EndTime < competition.StartTime && c.TeamRegister.Competition.StartTime > competition.EndTime)
+                                                   .FirstOrDefault();
+
+                        if (contestantTeams != null)
+                        {
+                            lstContestant.Add(new ContestantInTournament
+                            {
+                                Id = contestant.Id,
+                                Name = contestant.Name,
+                                Email = contestant.Email,
+                                AccountId = contestant.AccountId,
+                                TournamentId = contestant.TournamentId,
+                                Gender = contestant.Gender,
+                                Phone = contestant.Phone,
+                                Image = contestant.Image,
+                                StartTime = contestant.StartTime,
+                                SchoolName = contestant.SchoolName,
+                                GenreName = "Đang không tham gia"
+                            });
+                        }
+                    }
+
+
                 }
                 res.SetData("data", lstContestant);
             }

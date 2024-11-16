@@ -299,7 +299,7 @@ namespace STEM_ROBOT.DAL.Repo
             var list = await _context.Matches.Where(x => x.Id == matchID).SelectMany(team => team.TeamMatches.Select(tm => new Teampoint
             {
                 id = (int)tm.Id,
-                teamName = tm.Team.Name,
+                teamName = tm.Team.Non,
                 teamImage = tm.Team.Image,
                 teamMatchResultPlay = tm.ResultPlay,
                 tolalScore= tm.TotalScore

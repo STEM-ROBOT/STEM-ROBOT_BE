@@ -75,7 +75,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-
+  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -323,9 +323,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("MatchHalf");
 
-            entity.Property(e => e.HalfName)
-                .HasMaxLength(30)
-                .IsFixedLength();
+            entity.Property(e => e.HalfName).HasColumnType("ntext");
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.TimeIn).HasColumnType("datetime");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
@@ -445,9 +443,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Schedule");
 
             entity.Property(e => e.BackupReferee).HasMaxLength(100);
-            entity.Property(e => e.OptCode)
-                .HasMaxLength(20)
-                .IsFixedLength();
+            entity.Property(e => e.OptCode).HasColumnType("ntext");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");

@@ -81,5 +81,15 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
+        [HttpPut("confirm-action")]
+        public async Task<IActionResult> ConfirmAction(int actionId, string status,int scheduleId)
+        {
+
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userId = int.Parse(user.Value);
+            var point = await _actionSvc.ConfirmAction(actionId, status, scheduleId, userId);
+            return Ok(point.Message);
+        }
     }
 }
