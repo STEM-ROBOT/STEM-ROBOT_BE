@@ -256,7 +256,12 @@ namespace STEM_ROBOT.BLL.Svc
                     EndTime = (DateTime)competition.EndTime,
                     StartTime = (DateTime)competition.StartTime,
                     status = competition.Status,
-                    FormatId = competition.Format.Id
+                    FormatId = competition.Format.Id,
+                    AreaCode= competition.Tournament.AreaCode,
+                    Introduce=competition.Tournament.Introduce,
+                    ProvinceCode=competition.Tournament.ProvinceCode,
+                    TournamentLevel=competition.Tournament.TournamentLevel,
+                    
                 };
 
 
