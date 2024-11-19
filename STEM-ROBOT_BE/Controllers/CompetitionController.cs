@@ -21,16 +21,16 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> GetListCompetition()
-        {
-            var res = await _competionSvc.GetListCompetitions();
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
+        //[HttpGet("list-competition")]
+        //public async Task<IActionResult> GetListCompetition()
+        //{
+        //    var res = await _competionSvc.GetListCompetitions();
+        //    if (!res.Success)
+        //    {
+        //        res.SetError("400", res.Message);
+        //    }
+        //    return Ok(res);
+        //}
         [HttpGet("id")]
         public async Task<IActionResult> GetByIdCompetition(int id)
         {
@@ -149,17 +149,17 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-        [HttpPost]
-        public async Task<IActionResult> AddCompetition(CompetitionReq request)
-        {
-            var res = _competionSvc.AddCompetion(request);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-        [HttpPut("id")]
+        //[HttpPost]
+        //public async Task<IActionResult> AddCompetition(CompetitionReq request)
+        //{
+        //    var res = _competionSvc.AddCompetion(request);
+        //    if (!res.Success)
+        //    {
+        //        res.SetError("400", res.Message);
+        //    }
+        //    return Ok(res);
+        //}
+        [HttpPut("update-competition")]
         public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
         {
             var res = _competionSvc.UpdateCompetition(id, request);
@@ -171,7 +171,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        [HttpDelete("id")]
+        [HttpDelete("delete-competition")]
         public async Task<IActionResult> DeleteCompetition(int id)
         {
             var res = _competionSvc.DeleteCompetition(id);
@@ -184,7 +184,7 @@ namespace STEM_ROBOT.Web.Controllers
 
 
 
-        [HttpGet("Infor")]
+        [HttpGet("information-competition")]
         public async Task<IActionResult> GetInfor(int id)
         {
             var res = await _competionSvc.GetCompetitionInfor(id);
