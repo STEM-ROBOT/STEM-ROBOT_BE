@@ -28,7 +28,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly StemHub _stemHub;
         private readonly MatchHaflRepo _matchHaflRepo;
         private readonly ActionRepo _actionRepo;
-        public MatchSvc(MatchRepo repo, IMapper mapper, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc, StemHub stemHub, MatchHaflRepo matchHaflRepo, ActionRepo actionRepo)
+        private readonly ScheduleRepo _scheduleRepo;
+        public MatchSvc(MatchRepo repo, IMapper mapper, ScheduleRepo scheduleRepo, CompetitionRepo competition, TeamTableRepo teamTableRepo, TableGroupRepo tableGroupRepo, TeamRepo teamRepo, StageRepo stageRepo, StageSvc stageSvc, StemHub stemHub, MatchHaflRepo matchHaflRepo, ActionRepo actionRepo)
         {
             _matchRepo = repo;
             _teamTableRepo = teamTableRepo;
@@ -41,6 +42,7 @@ namespace STEM_ROBOT.BLL.Svc
             _stemHub = stemHub;
             _matchHaflRepo = matchHaflRepo;
             _actionRepo = actionRepo;
+            _scheduleRepo = scheduleRepo;
         }
 
         public MutipleRsp GetListMatch()
@@ -290,18 +292,19 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //done
-        public async Task<SingleRsp> GetRoundParentTable(int CompetitionId)
+        public async Task<SingleRsp> GetRoundParentTable(int competitionId)
         {
 
             var res = new SingleRsp();
             try
             {
-                var list = await _matchRepo.GetRoundParentTable(CompetitionId);
+                var list = await _matchRepo.GetRoundParentTable(competitionId);
+                var table_data = await _matchRepo.GetTableTeam(competitionId);
                 if (list == null) throw new Exception("No data");
-                RoundParentTable round_table = new RoundParentTable
+                var round_table = new RoundParentTable
                 {
                     isTeamMatch = list.IsTeamMacth,
-                    tableGroup = list.TableGroups.Select(tg => new tableGroup
+                    tableGroup = table_data.Select(tg => new tableGroup
                     {
                         team_tableId = tg.Id,
                         team_table = tg.TeamTables.Select(tb => new RoundTableTeam
@@ -521,7 +524,7 @@ namespace STEM_ROBOT.BLL.Svc
 
         }
         //realtime-listpoint
-        public async Task<SingleRsp> ListPoint(int teamMatchId)
+        public async Task<SingleRsp> ListPoint(int teamMatchId, int scheduleId)
         {
             var time = ConvertToVietnamTime(DateTime.Now);
             var res = new SingleRsp();
@@ -529,6 +532,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
                 var matchID = listPoint.MatchId;
+                var schedule = _scheduleRepo.GetById(scheduleId);
 
                 var timePlay = _matchRepo.GetById(matchID);
                 var totalTime = timePlay.StartDate + timePlay.TimeIn;
@@ -537,7 +541,11 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (time.Date < timePlay.StartDate.Value.Date)
+                if (schedule.IsJoin != true) {
+
+                    res.setData("data", "notjoin");
+                }
+                else if (time.Date < timePlay.StartDate.Value.Date)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -572,7 +580,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception(ex.Message);
             }
-           
+
         }
         //confirm point
 
