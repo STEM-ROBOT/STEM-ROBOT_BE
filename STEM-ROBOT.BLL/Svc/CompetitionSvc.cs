@@ -554,6 +554,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var group = await _stageRepo.GetAllGroupStageCompetition(competitionId);
+            var locaions = await _stageRepo.GetAllLocationCompetition(competitionId);
             try
             {
                 var matchGroup = group.Select(tb => new MatchGroupStageCompetition
@@ -573,11 +574,10 @@ namespace STEM_ROBOT.BLL.Svc
                             awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
                             //ti so tran dau
                             homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
-                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
-                            //thoi gian, dia diem   
+                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),         
                             //thoi gian, dia diem   
                             startTime = m.StartDate,
-                            locationName = m.LocationId == null ? "" : m.Location.Address,
+                            locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
                     }).ToList(),
 
