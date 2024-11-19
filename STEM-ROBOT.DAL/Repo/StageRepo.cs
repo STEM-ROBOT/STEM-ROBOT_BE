@@ -35,8 +35,14 @@ namespace STEM_ROBOT.DAL.Repo
                 .ThenInclude(m => m.Matches)
                 .ThenInclude(tm => tm.TeamMatches)
                 .ThenInclude(t => t.Team)
-                .Include(m => m.Matches)
-                .ThenInclude(l => l.Location)
+                //.Include(m => m.Matches)
+                //.ThenInclude(l => l.Location)
+                .ToListAsync();
+            return tables;
+        }
+        public async Task<List<Location>> GetAllLocationCompetition(int competitionId)
+        {
+            var tables = await _context.Locations.Where(l => l.CompetitionId == competitionId)
                 .ToListAsync();
             return tables;
         }
