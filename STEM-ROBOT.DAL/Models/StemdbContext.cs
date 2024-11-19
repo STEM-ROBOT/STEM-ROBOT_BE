@@ -75,7 +75,10 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-  
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -84,13 +87,14 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Account");
 
+            entity.Property(e => e.DistrictCode).HasColumnType("ntext");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.MaxTournatment).HasDefaultValueSql("((3))");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
-            entity.Property(e => e.ProvinceCode).HasMaxLength(100);
+            entity.Property(e => e.ProvinceCode).HasColumnType("ntext");
             entity.Property(e => e.Role).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -633,14 +637,17 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Tournament");
 
+            entity.Property(e => e.AreaCode).HasColumnType("ntext");
             entity.Property(e => e.CreateDate).HasColumnType("date");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Introduce).HasColumnType("ntext");
+            entity.Property(e => e.LevelTournament).HasColumnType("ntext");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
             entity.Property(e => e.Phone)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            entity.Property(e => e.ProvinceCode).HasColumnType("ntext");
             entity.Property(e => e.Status).HasMaxLength(500);
             entity.Property(e => e.TournamentLevel).HasMaxLength(300);
 

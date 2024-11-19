@@ -27,6 +27,12 @@ public partial class Tournament
 
     public string? Introduce { get; set; }
 
+    public string? ProvinceCode { get; set; }
+
+    public string? AreaCode { get; set; }
+
+    public string? LevelTournament { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Competition> Competitions { get; set; } = new List<Competition>();

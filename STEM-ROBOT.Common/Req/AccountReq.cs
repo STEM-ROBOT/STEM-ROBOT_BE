@@ -25,6 +25,8 @@ namespace STEM_ROBOT.Common.Req
         //public int? MaxTournatment { get; set; }
 
         public int? SchoolId { get; set; }
+        public string? ProvinceCode { get; set; }
+        public string? DistrictCode { get; set; }
 
         public string? Role = "MD";
     }
