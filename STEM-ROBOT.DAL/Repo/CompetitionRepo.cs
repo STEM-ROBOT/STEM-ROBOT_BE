@@ -104,7 +104,11 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<Competition> getGenerCompetitionID(int competitionId)
         {
-            var competition = _context.Competitions.Where(c => c.Id == competitionId).Include(c => c.Genre).Include(c => c.Format).FirstOrDefault();
+            var competition = _context.Competitions.Where(c => c.Id == competitionId)
+                .Include(c => c.Genre)
+                .Include(c => c.Format)
+                .Include(t=>t.Tournament)
+                .FirstOrDefault();
 
             return competition;
 
