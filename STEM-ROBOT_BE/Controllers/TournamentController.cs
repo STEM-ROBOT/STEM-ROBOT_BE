@@ -93,7 +93,7 @@ namespace STEM_ROBOT_BE.Controllers
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
             {
-                return BadRequest("Please Login!");
+                return Unauthorized("Please Login!");
             }
 
             int userID = int.Parse(user.Value);
