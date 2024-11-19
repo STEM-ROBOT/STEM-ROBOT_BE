@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Index.HPRtree;
 using Org.BouncyCastle.Ocsp;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
@@ -116,6 +117,12 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         teamRegister.Status = teamRegisterStatusRsp.status;
                         teamRegister.TeamId = slot.Id;
+                        var contestantTeam = _contestantTeamRepo.All(x => x.TeamRegisterId == teamRegister.Id).ToList();
+                        foreach(var item in contestantTeam)
+                        {
+                            item.TeamId = slot.Id;
+                        }
+                        _contestantTeamRepo.UpdateRange(contestantTeam);
                         slot.IsSetup = true;
                         _teamRegisterRepo.Update(teamRegister);
                         _teamRepo.Update(slot);
