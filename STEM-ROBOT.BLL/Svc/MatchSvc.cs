@@ -292,18 +292,19 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
         //done
-        public async Task<SingleRsp> GetRoundParentTable(int CompetitionId)
+        public async Task<SingleRsp> GetRoundParentTable(int competitionId)
         {
 
             var res = new SingleRsp();
             try
             {
-                var list = await _matchRepo.GetRoundParentTable(CompetitionId);
+                var list = await _matchRepo.GetRoundParentTable(competitionId);
+                var table_data = await _matchRepo.GetTableTeam(competitionId);
                 if (list == null) throw new Exception("No data");
-                RoundParentTable round_table = new RoundParentTable
+                var round_table = new RoundParentTable
                 {
                     isTeamMatch = list.IsTeamMacth,
-                    tableGroup = list.TableGroups.Select(tg => new tableGroup
+                    tableGroup = table_data.Select(tg => new tableGroup
                     {
                         team_tableId = tg.Id,
                         team_table = tg.TeamTables.Select(tb => new RoundTableTeam
