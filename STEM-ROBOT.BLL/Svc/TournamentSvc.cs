@@ -73,30 +73,42 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var user = _account.GetById(userID);
-                var tournament = _mapper.Map<Tournament>(request);
-                tournament.AccountId = userID;
-                tournament.ViewTournament = 0;
-                var userName = user.Name;
-                var email = user.Email;
-                var status = request.Status;
-                tournament.CreateDate = ConvertToVietnamTime(DateTime.Now);
-                _tournament.Add(tournament);
-                var listCompettiondata = new List<Competition>();
-                foreach (var competition in request.competition)
+                if (user.Role == "RF")
                 {
-                    var compettiondata = new Competition
-                    {
-                        TournamentId = tournament.Id,
-                        Mode = status,
-                        Status = status,
-                        GenreId = competition.GenreId,
-                        IsActive = false,
-                    };
-                    listCompettiondata.Add(compettiondata);                  
+                    res.setData("data", "Sai phan quyen");
                 }
-                _competitionRepo.AddRange(listCompettiondata);
+                else
+                {
+                    var tournament = _mapper.Map<Tournament>(request);
+                    tournament.AccountId = userID;
+                    tournament.ViewTournament = 0;
+                    if (user.Role == "MD")
+                    {
+                        tournament.TournamentLevel = "Trường";
+                        tournament.ProvinceCode = user.ProvinceCode;
+                        tournament.AreaCode = null;
+                    }
+                    var userName = user.Name;
+                    var email = user.Email;
+                    var status = request.Status;
+                    tournament.CreateDate = ConvertToVietnamTime(DateTime.Now);
+                    _tournament.Add(tournament);
+                    var listCompettiondata = new List<Competition>();
+                    foreach (var competition in request.competition)
+                    {
+                        var compettiondata = new Competition
+                        {
+                            TournamentId = tournament.Id,
+                            Mode = status,
+                            Status = status,
+                            GenreId = competition.GenreId,
+                            IsActive = false,
+                        };
+                        listCompettiondata.Add(compettiondata);
+                    }
+                    _competitionRepo.AddRange(listCompettiondata);
 
-                var emailbody = $@"
+                    var emailbody = $@"
                         <div><h3>THÔNG TIN GIẢI ĐẤU CỦA BẠN</h3> 
                         <div>
                             
@@ -108,19 +120,21 @@ namespace STEM_ROBOT.BLL.Svc
                             <span>Bạn hãy kiểm tra email thường xuyên để nhận thông báo về số lượng team đăng kí giải nhé !!!</strong>
                         </div>
                            
-                        <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+                        <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ !</p>
                     </div>
                     ";
 
-                var mailRequest = new MailReq()
-                {
-                    ToEmail = email,
-                    Subject = "[STEM PLATFORM]",
-                    Body = emailbody
-                };
+                    var mailRequest = new MailReq()
+                    {
+                        ToEmail = email,
+                        Subject = "[STEM SYSTEM]",
+                        Body = emailbody
+                    };
 
-                await _mailService.SendEmailAsync(mailRequest);
-                res.SetMessage("data");
+                    await _mailService.SendEmailAsync(mailRequest);
+                    res.SetMessage("data");
+                }
+
 
             }
             catch (Exception ex)
@@ -213,15 +227,15 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var tournament = await  _tournament.TournamentById(id);
+                var tournament = await _tournament.TournamentById(id);
                 if (tournament == null)
                 {
                     res.SetError("404", "No ID");
                 };
                 //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
-  
+
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
-                int totalTeams = CalculateTotalTeamsInTournament(tournament); 
+                int totalTeams = CalculateTotalTeamsInTournament(tournament);
                 tourmanetRsp.NumberTeam = totalTeams;
 
                 res.setData("data", tourmanetRsp);
@@ -236,7 +250,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             try
             {
-              
+
                 int totalTeam = 0;
                 foreach (var competition in tournamentId.Competitions)
                 {
