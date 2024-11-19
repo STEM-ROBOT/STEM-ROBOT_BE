@@ -23,6 +23,8 @@ namespace STEM_ROBOT.Common.Req
         public string? Status { get; set; }
 
         public string? Phone { get; set; }
+
+        public string? Introduce { get; set; }
         public ICollection<TournamentComeptition> competition {  get; set; } = new List<TournamentComeptition>();
     }
 

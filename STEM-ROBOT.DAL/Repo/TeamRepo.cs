@@ -17,10 +17,10 @@ namespace STEM_ROBOT.DAL.Repo
         public List<Team> GetTeamsByCompetition(int id)
         {
             return _context.Teams
-            .Where(x => x.CompetitionId == id)
-            .Include(c => c.Competition)
-            .Include(c => c.ContestantTeams)
-            .ThenInclude(ct => ct.Contestant)
+        .Where(x => x.CompetitionId == id)
+        .Include(c => c.Competition)
+        .Include(c => c.ContestantTeams)
+        .ThenInclude(ct => ct.Contestant) 
         .ToList();
         }
 

@@ -131,6 +131,30 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> ConfirmAction(int actionId, string status, int scheduleId, int accoutId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var check = _actionRepo.checkRefereeschedule(scheduleId, accoutId);
+                if (check != null)
+                {
+                    var action = _actionRepo.GetById(actionId);
+                    action.Status = status;
+                    _actionRepo.Update(action);
+                    res.SetMessage("Update success");
+                }
+                else
+                {
+                    res.SetMessage("Update fail");
+                }
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
     }
 }

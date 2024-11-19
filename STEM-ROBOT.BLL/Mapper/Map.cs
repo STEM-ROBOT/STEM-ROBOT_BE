@@ -85,6 +85,7 @@ namespace STEM_ROBOT.BLL.Mapper
             //contestant
             CreateMap<Contestant, ContestantRep>().ReverseMap();
             CreateMap<Contestant, ContestantReq>().ReverseMap();
+
             CreateMap<Contestant, ContestantInTournament>().ReverseMap();
 
 
