@@ -20,5 +20,11 @@ namespace STEM_ROBOT.DAL.Repo
             var timecheck = await _context.Schedules.Where(x => x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId).FirstOrDefaultAsync();
             return timecheck;
         }
+        public async Task<Action> checkRefereescheduleScore(int actionId)
+        {
+            var timecheck = await _context.Actions.Where(x => x.Id == actionId).Include(sc=> sc.ScoreCategory) . FirstOrDefaultAsync();
+            return timecheck;
+        }
+
     }
 }
