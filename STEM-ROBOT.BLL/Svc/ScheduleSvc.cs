@@ -542,9 +542,9 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         breakHaftTime = matchData.BreakTimeHaft.ToString(),
                         durationHaft = matchData.TimeOfHaft.ToString(),
-                        endTime = matchData.TimeIn.Value.ToString("HH:mm:ss"),
-                        startTime = matchData.TimeOut.Value.ToString("HH:mm:ss"),
-                        startDate = matchData.StartDate.Value.ToString("yyyy-MM-dd"),
+                        endTime = matchData.TimeIn.Value.ToString(),
+                        startTime = matchData.TimeOut.Value.ToString(),
+                        startDate = matchData.StartDate.Value.ToString(),
                         haftMatch = matchData.MatchHalves.Select(h => new ScheduleMatchHaftRsp
                         {
                             HaftId = h.Id,
