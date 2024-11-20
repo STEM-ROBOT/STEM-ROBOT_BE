@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Identity.Client;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -136,7 +137,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var check = _actionRepo.checkRefereeschedule(scheduleId, accoutId);
+                var check = await _actionRepo.checkRefereeschedule(scheduleId, accoutId);
                 if (check != null)
                 {
                     var action = _actionRepo.GetById(actionId);
@@ -149,6 +150,29 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetMessage("Update fail");
                 }
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> NewAction(ActionReq req, int scheduleId, int userId)
+        {
+            var res = new SingleRsp();
+            var schedule = await _actionRepo.checkRefereeschedule(scheduleId, userId); 
+            try
+            {
+                var data = new Action
+                {
+                    EventTime = req.EventTime,
+                    MatchHalfId = req.MatchHalfId,
+                    RefereeCompetitionId = schedule.RefereeCompetitionId,
+                    Status = "pending",
+                    Score=0,
+                    TeamMatchId = req.TeamMatchId,
+                };
+                res.SetMessage("Update success");
             }
             catch (Exception ex)
             {

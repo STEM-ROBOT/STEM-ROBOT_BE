@@ -190,7 +190,7 @@ namespace STEM_ROBOT.BLL.Mapper
      .ReverseMap();
             CreateMap<Schedule, ScheduleReferee>()
                        .ForMember(x => x.location, op => op.MapFrom(x => x.Match.Location.Address))
-                       .ForMember(x => x.status, op => op.MapFrom(x => x.Status))
+                       .ForMember(x => x.status, op => op.MapFrom(src => CheckMatchStatus(src.Match.StartDate.Value.Add(src.Match.TimeIn.Value), src.Match.StartDate.Value.Add(src.Match.TimeOut.Value))))
                        .ForMember(x => x.matchId, op => op.MapFrom(x => x.MatchId))
             .ForMember(x => x.StartTime,
            op => op.MapFrom(src => src.Match.StartDate.HasValue && src.Match.TimeIn.HasValue
@@ -216,6 +216,26 @@ namespace STEM_ROBOT.BLL.Mapper
             //teamRegister
             CreateMap<TeamRegister, TeamRegisterReq>().ReverseMap();
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
+        public bool CheckMatchStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
