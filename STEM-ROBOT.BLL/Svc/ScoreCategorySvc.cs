@@ -24,21 +24,14 @@ namespace STEM_ROBOT.BLL.Svc
             _competitionRepo = competitionRepo;
         }
 
-        public MutipleRsp GetScoreCategories()
+        public SingleRsp GetScoreCategories(int competitonId)
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
-                var lst = _scoreCategoryRepo.All();
-                if (lst == null || !lst.Any())
-                {
-                    res.SetError("404", "No data found");
-                }
-                else
-                {
+                var lst = _scoreCategoryRepo.All(x=>x.CompetitionId == competitonId);             
                     var lstRes = _mapper.Map<List<ScoreCategoryRsp>>(lst);
-                    res.SetSuccess(lstRes, "data");
-                }
+                    res.setData("data", lstRes);              
             }
             catch (Exception ex)
             {
@@ -143,5 +136,28 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        //public SingleRsp getScoreByCompetition(int competitionId)
+        //{
+        //    var res = new SingleRsp();
+        //    try
+        //    {
+        //        var score = _scoreCategoryRepo.All(x=>x.CompetitionId == competitionId);
+        //        if (score == null)
+        //        {
+        //            res.SetError("404", "Score category not found");
+        //        }
+        //        else
+        //        {
+        //            var lstRes = _mapper.Map<List<ScoreCategoryRsp>>(score);
+        //            res.setData("data", lstRes);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        res.SetError("500", ex.Message);
+        //    }
+        //    return res;
+        //}
+       
     }
 }
