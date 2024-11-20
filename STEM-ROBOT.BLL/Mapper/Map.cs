@@ -48,7 +48,7 @@ namespace STEM_ROBOT.BLL.Mapper
                 .ForMember(x => x.Views, op => op.MapFrom(x => x.ViewTournament))
                 .ReverseMap();
 
-            CreateMap<TournamentComeptition, Competition>();
+            CreateMap<TournamentCompetition, Competition>();
 
 
 
@@ -62,7 +62,7 @@ namespace STEM_ROBOT.BLL.Mapper
             //referee
             CreateMap<Referee, RefereeReq>().ReverseMap();
             CreateMap<Referee, ListRefereeRsp>().ReverseMap();
-            CreateMap<Referee, AssginRefereeReq>().ReverseMap();
+            CreateMap<Referee, AssignRefereeReq>().ReverseMap();
             CreateMap<Referee, RefereeTournament>()
                 .ForMember(x => x.avatar, op => op.MapFrom(x => x.Image))
                 .ForMember(x => x.nameTournament, op => op.MapFrom(x => x.Tournament.Name))
@@ -85,6 +85,7 @@ namespace STEM_ROBOT.BLL.Mapper
             //contestant
             CreateMap<Contestant, ContestantRep>().ReverseMap();
             CreateMap<Contestant, ContestantReq>().ReverseMap();
+
             CreateMap<Contestant, ContestantInTournament>().ReverseMap();
 
 

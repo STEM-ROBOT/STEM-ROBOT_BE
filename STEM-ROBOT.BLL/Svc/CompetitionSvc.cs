@@ -283,6 +283,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                _mapper.Map(request, competition_data);
                 competition_data.IsFormat = true;
+
                 _competitionRepo.Update(competition_data);
 
                 if (request.FormatId == 1)
@@ -553,6 +554,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var group = await _stageRepo.GetAllGroupStageCompetition(competitionId);
+            var locaions = await _stageRepo.GetAllLocationCompetition(competitionId);
             try
             {
                 var matchGroup = group.Select(tb => new MatchGroupStageCompetition
@@ -572,11 +574,10 @@ namespace STEM_ROBOT.BLL.Svc
                             awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
                             //ti so tran dau
                             homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
-                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
-                            //thoi gian, dia diem   
+                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),         
                             //thoi gian, dia diem   
                             startTime = m.StartDate,
-                            locationName = m.LocationId == null ? "" : m.Location.Address,
+                            locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
                     }).ToList(),
 
@@ -602,6 +603,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var resData = new ActiveCompetitionRsp();
                     resData.isFormat = competition.IsFormat;
+                    resData.isLocation = competition.IsLocation;
                     resData.isReferee = competition.IsReferee;
                     resData.isTeam = competition.IsTeam;
                     resData.isTable = competition.IsTable;
@@ -949,7 +951,6 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 if (competition.IsFormat == true && competition.IsMacth == true && competition.IsTeamMacth == true
-                    && competition.IsTable == true && competition.IsContestantTeam == true && competition.IsTeam == true
                     && competition.IsReferee == true && competition.IsLocation == true && competition.IsSchedule == true)
                 {
                     competition.IsActive = true;

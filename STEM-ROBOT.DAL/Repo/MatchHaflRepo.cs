@@ -31,7 +31,7 @@ namespace STEM_ROBOT.DAL.Repo
                         Actions = h.Actions.Where(x=> x.Status.ToLower() == "accept").Select(a => new
                         {
                             TeamMatch_Id = a.TeamMatchId,
-                            TeamName = a.TeamMatch.NameDefault,
+                            TeamName = a.TeamMatch.Team.Name,
                             ScoreCategoryType = a.ScoreCategory.Type,
                             ScoreCategoryDescription = a.ScoreCategory.Description,
                             Score = a.ScoreCategory.Point ?? 0,

@@ -427,7 +427,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
+        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssignRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
         {
             var res = new MutipleRsp();
             try

@@ -46,22 +46,25 @@ namespace STEM_ROBOT.DAL.Repo
             int skip = (page - 1) * pageSize;
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             var tournament = await query
-                .OrderBy(t => t.Id)
-                .Skip(skip)
-                .Take(pageSize)
-                .Select(t => new TournamentRep
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Location = t.Location,
-                    Image = t.Image,
-                    contestant = t.Contestants.Count(),
-                    views = t.ViewTournament,
-                    Status = t.Status,
-                    competitionNumber = t.Competitions.Count(),
-                    competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
-                    imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
-                }).ToListAsync();
+              .OrderByDescending(t => t.CreateDate) // Sắp xếp theo CreateDate giảm dần (mới nhất trước)
+              .Skip(skip)
+              .Take(pageSize)
+              .Select(t => new TournamentRep
+              {
+                  Id = t.Id,
+                  Name = t.Name,
+                  Location = t.Location,
+                  Image = t.Image,
+                  contestant = t.Contestants.Count(),
+                  CreateDate = t.CreateDate,
+                  Introduce = t.Introduce,
+                  views = t.ViewTournament,
+                  Status = t.Status,
+                  competitionNumber = t.Competitions.Count(),
+                  competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
+                  imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
+              }).ToListAsync();
+            ;
             var resData = new TournamentListRep
             {
                 tournamentRep = tournament,

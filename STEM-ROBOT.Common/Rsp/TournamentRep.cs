@@ -29,7 +29,9 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int competitionActivateNumber { get; set; }
 
+        public DateTime? CreateDate { get; set; }
         public int? views { get; set; }
+        public string? Introduce { get; set; }
 
         public List<ImageCompetition> imagesCompetition { get; set; } = new List<ImageCompetition>();
 
