@@ -20,7 +20,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly ScoreCategoryRepo _scoreCategoryRepo;
         private readonly IMapper _mapper;
 
-        public ActionSvc(ActionRepo actionRepo, TeamMatchRepo teamMatchRepo, ScoreCategory scoreCategoryRepo, IMapper mapper)
+        public ActionSvc(ActionRepo actionRepo, TeamMatchRepo teamMatchRepo, ScoreCategoryRepo scoreCategoryRepo, IMapper mapper)
         {
             _actionRepo = actionRepo;
             _mapper = mapper;
