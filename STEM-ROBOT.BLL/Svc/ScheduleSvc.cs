@@ -502,12 +502,13 @@ namespace STEM_ROBOT.BLL.Svc
                             teamMatch = sc.Match.TeamMatches.Select(tm => new TeamMatchReferee
                             {
                                 teamId = tm.Id,
-                                teamLogo = tm.Team.Image,
-                                teamType = tm.Team.Name,
+                                teamLogo = tm.TeamId != null ? tm.Team.Image : null,
+                                teamType = tm.TeamId != null ? tm.Team.Name : null,
                             }).ToList(),
 
                         }).ToList(),
                     };
+                    res.setData("data", dataRes);
                 }
 
             }
@@ -552,9 +553,10 @@ namespace STEM_ROBOT.BLL.Svc
                         }).ToList(),
                         teamMatch = matchData.TeamMatches.Select(tm => new ScheduleMatchTeamMatchRsp
                         {
-                            teamLogo = tm.Team.Image,
+                            teamLogo = tm.TeamId != null ? tm.Team.Image : null,
                             teamMatchId = tm.Id,
-                            teamName = tm.Team.Name
+                            teamName = tm.TeamId != null ? tm.Team.Name : null,
+
                         }).ToList()
                     }
                 };
