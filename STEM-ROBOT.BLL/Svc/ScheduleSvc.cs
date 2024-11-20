@@ -541,7 +541,7 @@ namespace STEM_ROBOT.BLL.Svc
                     matchInfo = new ScheduleMatchInfoRsp
                     {
                         breakHaftTime = matchData.BreakTimeHaft.ToString(),
-                        durationHaft = matchData.TimeOfHaft.ToString(),
+                        durationHaft = matchData.TimeOfHaft.Value.ToString(),
                         endTime = matchData.TimeIn.Value.ToString(),
                         startTime = matchData.TimeOut.Value.ToString(),
                         startDate = matchData.StartDate.Value.ToString(),
