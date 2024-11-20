@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
+using STEM_ROBOT.Common.Rsp;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -33,6 +34,18 @@ namespace STEM_ROBOT.Web.Controllers
              
             int userId = int.Parse(user.Value);
             var res = await _teamRegisterSvc.RegisterTeamCompetion(teamRegister, competitionId, userId);
+            return Ok(res);
+        }
+        [HttpGet("byCompetitionId/{competitionId}")]
+        public async Task<IActionResult> GetTeamRegister(int competitionId)
+        {
+            var res = await _teamRegisterSvc.getListTeamRegister(competitionId);
+            return Ok(res);
+        }
+        [HttpPut("{id}/bycompetitionId/{competitionId}")]
+        public IActionResult UpdateStatusTeamRegister(int id,int competitionId, [FromBody] TeamRegisterStatusRsp teamRegisterStatusRsp)
+        {
+            var res =  _teamRegisterSvc.updateStatusTeamRegister(id, competitionId, teamRegisterStatusRsp);
             return Ok(res);
         }
     }
