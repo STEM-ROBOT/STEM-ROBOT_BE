@@ -74,6 +74,41 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<MutipleRsp> ListSupRefereeTournament(int userId)
+        {
+            var res = new MutipleRsp();
+            try
+            {
+                var refe = await _refereeRepo.GetRefereeInfo(userId);
+                var refeInfo = new SupRefereeTournament
+                {
+                    Image = refe.Image,
+                    Name = refe.Name,
+                    Role = "Trọng tài viên"
+                };
+                var data = await _refereeRepo.GetListSupReferee(refe.Id);
+                List<SupRefereeCompetitionTournament> dateCompe = data.Select(cp => new SupRefereeCompetitionTournament
+                {
+                    Id = cp.Id,                  
+                    Image = cp.Competition.Genre.Image,
+                    ComepetitionName = cp.Competition.Genre.Name,
+                    TournanmentName = refe.Tournament.Name,
+                    Location = refe.Tournament.Location,
+                }).ToList();
+                if (data == null) throw new Exception("No data");
+                var resData = new
+                {
+                    infoReferee = refeInfo,
+                    competitions = dateCompe
+                };
+                res.SetData("data", resData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get list Fail");
+            }
+            return res;
+        }
 
         public SingleRsp GetById(int id)
         {
