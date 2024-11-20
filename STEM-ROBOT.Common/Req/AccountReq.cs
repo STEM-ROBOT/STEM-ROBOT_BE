@@ -27,6 +27,8 @@ namespace STEM_ROBOT.Common.Req
 
         [Required(ErrorMessage = "School ID is required.")]
         public int? SchoolId { get; set; }
+        public string? ProvinceCode { get; set; }
+        public string? DistrictCode { get; set; }
 
         public string? Role  = "MD";
     }

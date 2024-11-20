@@ -27,6 +27,8 @@ public partial class Account
 
     public string? ProvinceCode { get; set; }
 
+    public string? DistrictCode { get; set; }
+
     public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();

@@ -7,7 +7,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/storage")]
     [ApiController]
     public class StorageController : ControllerBase
     {

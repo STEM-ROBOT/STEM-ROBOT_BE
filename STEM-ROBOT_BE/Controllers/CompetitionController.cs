@@ -197,9 +197,9 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpPost("addRegulation/{competitionId}")]
-        public async Task<IActionResult> AddRegulation(string filerule, int competitionId)
+        public async Task<IActionResult> AddRegulation(int competitionId, [FromBody] RuleReq ruleReq)
         {
-            var res = await _competionSvc.AddRule(filerule, competitionId);
+            var res = await _competionSvc.AddRule(ruleReq.file,competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
@@ -243,6 +243,17 @@ namespace STEM_ROBOT.Web.Controllers
         public IActionResult SetActive(int competitionId)
         {
             var res = _competionSvc.SetCompetitionActive(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpGet("get-rule")]
+        public IActionResult GetRule(int competitionId)
+        {
+            var res = _competionSvc.GetRuleCompetition(competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);

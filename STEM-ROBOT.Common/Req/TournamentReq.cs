@@ -29,8 +29,12 @@ namespace STEM_ROBOT.Common.Req
 
         public string? Introduce { get; set; }
 
-    
-        public ICollection<TournamentCompetition> competition { get; set; } = new List<TournamentCompetition>();
+        public string? ProvinceCode { get; set; }
+
+        public string? AreaCode { get; set; }
+
+        public ICollection<TournamentCompetition> competition {  get; set; } = new List<TournamentCompetition>();
+   
     }
 
     public class TournamentCompetition
