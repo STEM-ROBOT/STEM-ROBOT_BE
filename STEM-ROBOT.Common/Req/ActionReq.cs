@@ -9,11 +9,9 @@ namespace STEM_ROBOT.Common.Req
 {
     public class ActionReq
     {
-        [Required(ErrorMessage = "Score is required")]
-        public int Score { get; set; }
 
         [Required(ErrorMessage = "Event time is required")]
-        public DateTime EventTime { get; set; }
+        public TimeSpan EventTime { get; set; }
 
         [Required(ErrorMessage = "MatchHalfId is required")]
         public int MatchHalfId { get; set; }
@@ -22,9 +20,7 @@ namespace STEM_ROBOT.Common.Req
         public int ScoreCategoryId { get; set; }
 
         [Required(ErrorMessage = "TeamId is required")]
-        public int TeamId { get; set; }
+        public int? TeamMatchId { get; set; }
 
-        [Required(ErrorMessage = "RefereeId is required")]
-        public int RefereeId { get; set; }
     }
 }

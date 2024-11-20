@@ -433,14 +433,14 @@ namespace STEM_ROBOT.BLL.Svc
                         res.setData("data", "error");
 
                     }
-                    else if(checkTime.TotalMinutes > 15)
+                    else if (checkTime.TotalMinutes > 15)
                     {
 
                         res.setData("data", "error");
 
                     }
                     else
-                    if ( checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
+                    if (checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
                     {
                         var timeAwait = checkTime.TotalMinutes < 0 ? TimeSpan.Zero : checkTime;
                         var data = new
@@ -451,7 +451,7 @@ namespace STEM_ROBOT.BLL.Svc
                             numberHaft = matchCheck.NumberHaft,
                             breakTimeHaft = matchCheck.BreakTimeHaft,
                             Isjoin = scheduledata.IsJoin,
-                            matchId=scheduledata.MatchId,
+                            matchId = scheduledata.MatchId,
                             scheduleData = schedule
                         };
                         res.setData("data", data);
@@ -474,6 +474,97 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> ScheduleSupReferee(int refereeCompetitionId, int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var refe = await _scheduleRepo.CheckSupRefereeCompetition(refereeCompetitionId, accountId);
+                if (refe == null)
+                {
+                    res.SetError("data", "Ban khong phai trong tai vien cua tran dau");
+                }
+                else
+                {
+                    var data = await _scheduleRepo.ScheduleSupRefereeCompetition(refereeCompetitionId);
+                    int competitionId = (int)data[0].RefereeCompetition.CompetitionId;
+                    var locatons = await _scheduleRepo.CheckLocationCompetition(competitionId);
+                    var dataRes = new
+                    {
+                        scheduleReferee = data.Select(sc => new ScheduleSupReferee
+                        {
+                            Id = sc.Id,
+                            location = locatons.Where(l => l.Id == sc.Match.LocationId).FirstOrDefault().Address,
+                            matchId = (int)sc.MatchId,
+                            StartTime = sc.Match.StartDate.Value.Add(sc.Match.TimeIn.Value).ToString("yyyy-MM-ddTHH:mm:ss"),
+                            EndTime = sc.Match.StartDate.Value.Add(sc.Match.TimeOut.Value).ToString("yyyy-MM-ddTHH:mm:ss"),
+                            status = CheckMatchStatus(sc.Match.StartDate.Value.Add(sc.Match.TimeIn.Value), sc.Match.StartDate.Value.Add(sc.Match.TimeOut.Value)),
+                            teamMatch = sc.Match.TeamMatches.Select(tm => new TeamMatchReferee
+                            {
+                                teamId = tm.Id,
+                                teamLogo = tm.Team.Image,
+                                teamType = tm.Team.Name,
+                            }).ToList(),
+
+                        }).ToList(),
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.setData("data", "error" + ex);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> ScheduleSupRefereeMatchInfo(int scheduleId, int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.SupRefereeCheck(scheduleId);
+                int matchId = (int)schedule.MatchId;
+                int competitionId = (int)schedule.RefereeCompetition.CompetitionId;
+                var matchData = await _scheduleRepo.SupRefereeCompetitionMatchInfo(matchId);
+                var scoreData = await _scheduleRepo.CompetitionScore(competitionId);
+                var dataRes = new
+                {
+                    score = scoreData.Select(sc => new ScheduleMatchScoreRsp
+                    {
+                        Description = sc.Description,
+                        Point = sc.Point.ToString(),
+                        Type = sc.Type,
+                        scoreId = sc.Id
+
+                    }).ToList(),
+                    matchInfo = new ScheduleMatchInfoRsp
+                    {
+                        breakHaftTime = matchData.BreakTimeHaft.ToString(),
+                        durationHaft = matchData.TimeOfHaft.ToString(),
+                        endTime = matchData.TimeIn.Value.ToString("HH:mm:ss"),
+                        startTime = matchData.TimeOut.Value.ToString("HH:mm:ss"),
+                        startDate = matchData.StartDate.Value.ToString("yyyy-MM-dd"),
+                        haftMatch = matchData.MatchHalves.Select(h => new ScheduleMatchHaftRsp
+                        {
+                            HaftId = h.Id,
+                            HaftName = h.HalfName
+
+                        }).ToList(),
+                        teamMatch = matchData.TeamMatches.Select(tm => new ScheduleMatchTeamMatchRsp
+                        {
+                            teamLogo = tm.Team.Image,
+                            teamMatchId = tm.Id,
+                            teamName = tm.Team.Name
+                        }).ToList()
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                res.setData("data", "error" + ex);
+            }
+            return res;
+        }
         public DateTime ConvertToVietnamTime(DateTime serverTime)
         {
             // Lấy thông tin múi giờ Việt Nam (UTC+7)
@@ -483,6 +574,17 @@ namespace STEM_ROBOT.BLL.Svc
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
 
             return vietnamTime;
+        }
+        public bool CheckMatchStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
