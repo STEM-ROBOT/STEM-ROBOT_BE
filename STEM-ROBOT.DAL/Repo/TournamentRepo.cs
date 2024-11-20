@@ -40,7 +40,7 @@ namespace STEM_ROBOT.DAL.Repo
             }
             if (!string.IsNullOrEmpty(provinceCode))
             {
-                query = query.Where(t => t.Account.ProvinceCode == provinceCode);
+                query = query.Where(t => t.ProvinceCode == provinceCode || t.ProvinceCode == null);
             }
             int totalItems = await query.CountAsync();
             int skip = (page - 1) * pageSize;
