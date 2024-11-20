@@ -502,8 +502,8 @@ namespace STEM_ROBOT.BLL.Svc
                             teamMatch = sc.Match.TeamMatches.Select(tm => new TeamMatchReferee
                             {
                                 teamId = tm.Id,
-                                teamLogo = tm.TeamId != null ? tm.Team.Image : null,
-                                teamType = tm.TeamId != null ? tm.Team.Name : null,
+                                teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                                teamType = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
                             }).ToList(),
 
                         }).ToList(),
@@ -553,13 +553,14 @@ namespace STEM_ROBOT.BLL.Svc
                         }).ToList(),
                         teamMatch = matchData.TeamMatches.Select(tm => new ScheduleMatchTeamMatchRsp
                         {
-                            teamLogo = tm.TeamId != null ? tm.Team.Image : null,
+                            teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
                             teamMatchId = tm.Id,
-                            teamName = tm.TeamId != null ? tm.Team.Name : null,
+                            teamName = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
 
                         }).ToList()
                     }
                 };
+                res.setData("data", dataRes);
             }
             catch (Exception ex)
             {
