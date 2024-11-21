@@ -186,12 +186,14 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     EventTime = req.EventTime,
                     MatchHalfId = req.MatchHalfId,
+                    ScoreCategoryId= req.ScoreCategoryId,
                     RefereeCompetitionId = schedule.RefereeCompetitionId,
                     Status = "pending",
                     Score = 0,
                     TeamMatchId = req.TeamMatchId,
                 };
-                res.SetMessage("Update success");
+                _actionRepo.Add(data);
+                res.SetMessage("success");
             }
             catch (Exception ex)
             {
