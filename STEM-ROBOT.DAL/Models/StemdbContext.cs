@@ -314,7 +314,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Stage).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.StageId)
-                .HasConstraintName("FK__Match__RoundId__0B91BA14");
+                .HasConstraintName("FK_Match_Stage");
 
             entity.HasOne(d => d.TableGroup).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.TableGroupId)
@@ -572,7 +572,9 @@ public partial class StemdbContext : DbContext
                 .HasColumnName("isSetup");
             entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
-            entity.Property(e => e.ResultPlay).HasMaxLength(250);
+            entity.Property(e => e.ResultPlay)
+                .HasMaxLength(250)
+                .HasDefaultValueSql("((0))");
             entity.Property(e => e.ResultPlayTable)
                 .HasMaxLength(250)
                 .HasDefaultValueSql("((0))");
