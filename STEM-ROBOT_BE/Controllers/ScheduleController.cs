@@ -142,6 +142,15 @@ namespace STEM_ROBOT.Web.Controllers
             var sendmail = await _scheduleSvc.CheckCodeSchedule(scheduleId, userID,code);
             return Ok(sendmail);
         }
+        [HttpPut("schedule-confirm")]
+        public async Task<IActionResult> ConfirmMatch(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.ConfirmSchedule(scheduleId, userID);
+            return Ok(sendmail);
+        }
 
 
         [HttpGet("match-config-schedule")]
