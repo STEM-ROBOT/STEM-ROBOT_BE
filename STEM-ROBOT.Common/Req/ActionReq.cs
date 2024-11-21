@@ -21,6 +21,7 @@ namespace STEM_ROBOT.Common.Req
 
         [Required(ErrorMessage = "TeamId is required")]
         public int? TeamMatchId { get; set; }
+        public int? ScheduleId { get; set; }
 
     }
 }

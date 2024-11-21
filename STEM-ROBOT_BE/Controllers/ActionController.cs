@@ -82,7 +82,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Message);
         }
         [HttpPut("confirm-action")]
-        public async Task<IActionResult> ConfirmAction(int actionId, string status,int scheduleId)
+        public async Task<IActionResult> ConfirmAction(int actionId, string status, int scheduleId)
         {
 
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
@@ -92,13 +92,13 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(point.Message);
         }
         [HttpPost("send-action")]
-        public async Task<IActionResult> SendAction(ActionReq req, int scheduleId)
+        public async Task<IActionResult> SendAction(ActionReq req)
         {
 
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return BadRequest("Please login ");
             int userId = int.Parse(user.Value);
-            var point = await _actionSvc.NewAction(req, scheduleId, userId);
+            var point = await _actionSvc.NewAction(req, (int)req.ScheduleId, userId);
             return Ok(point.Message);
         }
 
