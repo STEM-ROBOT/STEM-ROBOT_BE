@@ -22,15 +22,19 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
         private readonly MatchRepo _matchRepo;
+        private readonly TeamMatchRepo _teamMatchRepo;
 
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo)
         {
             _scheduleRepo = scheduleRepo;
             _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
             _matchRepo = matchRepo;
+            _teamMatchRepo = teamMatchRepo;
+            
+
         }
 
         public MutipleRsp GetSchedules()
@@ -588,6 +592,45 @@ namespace STEM_ROBOT.BLL.Svc
                 return true;
             }
             return false;
+        }
+
+        //confirm schedule
+        public async Task<SingleRsp> ConfirmSchedule(int scheduleID,int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.confirmSchedule(scheduleID, accountId);
+              
+                if (schedule == null)
+                {
+                    res.Setmessage("lich trinh khong ton tai");
+                }
+                else
+                {
+                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
+                    var team1 = schedule.Match.TeamMatches.FirstOrDefault();
+                    var team2 = schedule.Match.TeamMatches.LastOrDefault();
+                    if (team1.TotalScore > team2.TotalScore)
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    else
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    res.SetMessage("success");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
         }
     }
 }
