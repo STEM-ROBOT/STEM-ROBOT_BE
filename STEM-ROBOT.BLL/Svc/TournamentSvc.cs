@@ -2,6 +2,7 @@
 
 
 using Microsoft.AspNetCore.SignalR;
+using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.Utilities;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.Common.Req;
@@ -24,10 +25,11 @@ namespace STEM_ROBOT.BLL.Svc
         //  public IHubContext<TournamentClient> _hubContext;
         private readonly IMailService _mailService;
         private readonly AccountRepo _account;
+        private readonly AreaRepo _area;
         private readonly ContestantRepo _contestantRepo;
         private readonly CompetitionRepo _competitionRepo;
         private readonly TeamRepo _teamRepo;
-        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account, ContestantRepo contestantRepo, CompetitionRepo competitionRepo, TeamRepo teamRepo)
+        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account, ContestantRepo contestantRepo, CompetitionRepo competitionRepo, TeamRepo teamRepo, AreaRepo areaRepo)
         {
             _teamRepo = teamRepo;
             _mapper = mapper;
@@ -36,6 +38,7 @@ namespace STEM_ROBOT.BLL.Svc
             _account = account;
             _contestantRepo = contestantRepo;
             _competitionRepo = competitionRepo;
+            _area = areaRepo;
         }
         public DateTime ConvertToVietnamTime(DateTime serverTime)
         {
@@ -239,6 +242,62 @@ namespace STEM_ROBOT.BLL.Svc
                 tourmanetRsp.NumberTeam = totalTeams;
 
                 res.setData("data", tourmanetRsp);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fail data");
+            }
+            return res;
+        }
+        public async Task<SingleRsp> CheckRegisterContestant(int tournamentId, int userId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var tournament = _tournament.GetById(tournamentId);
+                var account = _account.GetById(userId);
+                if (tournament.TournamentLevel == "quốc gia")
+                {
+                    res.setData("data", "accept");
+                }
+                else if (tournament.TournamentLevel == "tỉnh")
+                {
+
+                    if (account.ProvinceCode == tournament.ProvinceCode)
+                    {
+                        res.setData("data", "accept");
+                    }
+                    else
+                    {
+                        res.setData("data", "fail");
+                    }
+
+                }
+                else if (tournament.TournamentLevel == "khu vực")
+                {
+
+                    var accoutArea = await _tournament.AreaAccount(int.Parse(account.ProvinceCode));
+                    if (accoutArea.AreaId.ToString() == tournament.AreaCode)
+                    {
+                        res.setData("data", "accept");
+                    }
+                    else
+                    {
+                        res.setData("data", "fail");
+                    }
+                }
+                else
+                {
+                    var DistirtTournament = await _tournament.TournamentCheck(tournamentId);
+                    if (DistirtTournament.Account.DistrictCode == account.DistrictCode)
+                    {
+                        res.setData("data", "accept");
+                    }
+                    else
+                    {
+                        res.setData("data", "fail");
+                    }
+                }
             }
             catch (Exception ex)
             {

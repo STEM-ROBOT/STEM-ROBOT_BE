@@ -87,6 +87,28 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(401, res.Message);
             }
         }
+        [HttpPut("check-register-moderator")]
+        public async Task<IActionResult> CheckRegisterContestant(int tournamentId)
+        {
+
+
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return BadRequest("Please Login!");
+            }
+
+            int userID = int.Parse(user.Value);
+            var res = await _tournament.CheckRegisterContestant(tournamentId, userID);
+            if (res.Success)
+            {
+                return Ok(res.Message);
+            }
+            else
+            {
+                return StatusCode(401, res.Message);
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> addTournament(TournamentReq request)
         {
