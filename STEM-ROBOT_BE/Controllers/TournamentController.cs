@@ -87,7 +87,7 @@ namespace STEM_ROBOT_BE.Controllers
                 return StatusCode(401, res.Message);
             }
         }
-        [HttpPut("check-register-moderator")]
+        [HttpGet("check-register-moderator")]
         public async Task<IActionResult> CheckRegisterContestant(int tournamentId)
         {
 
@@ -102,7 +102,7 @@ namespace STEM_ROBOT_BE.Controllers
             var res = await _tournament.CheckRegisterContestant(tournamentId, userID);
             if (res.Success)
             {
-                return Ok(res.Message);
+                return Ok(res.Data);
             }
             else
             {
