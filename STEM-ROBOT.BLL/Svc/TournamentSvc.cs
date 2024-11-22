@@ -40,16 +40,7 @@ namespace STEM_ROBOT.BLL.Svc
             _competitionRepo = competitionRepo;
             _area = areaRepo;
         }
-        public DateTime ConvertToVietnamTime(DateTime serverTime)
-        {
-            // Lấy thông tin múi giờ Việt Nam (UTC+7)
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
-            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
-            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
-
-            return vietnamTime;
-        }
         public async Task<SingleRsp> getStatus(int id)
         {
 
@@ -87,7 +78,7 @@ namespace STEM_ROBOT.BLL.Svc
                     tournament.ViewTournament = 0;
                     if (user.Role == "MD")
                     {
-                        tournament.TournamentLevel = "Trường";
+                        tournament.TournamentLevel = "trường";
                         tournament.ProvinceCode = user.ProvinceCode;
                         tournament.AreaCode = null;
                     }
@@ -147,12 +138,12 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public async Task<SingleRsp> GetTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
+        public async Task<SingleRsp> GetTournament(string? name = null, string? provinceCode = null, string? level = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
             var res = new SingleRsp();
             try
             {
-                var listTournament = await _tournament.GetListTournament(name, provinceCode, status, GenerId, page, pageSize);
+                var listTournament = await _tournament.GetListTournament(name, provinceCode, level, status, GenerId, page, pageSize);
                 if (listTournament == null) throw new Exception("Please Check Againt");
                 res.setData("data", listTournament);
             }
@@ -238,8 +229,9 @@ namespace STEM_ROBOT.BLL.Svc
                 //var lstCompe = _competitionRepo.All().Where(x => x.TournamentId == id).ToList();
 
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
-                int totalTeams = CalculateTotalTeamsInTournament(tournament);
-                tourmanetRsp.NumberTeam = totalTeams;
+                tourmanetRsp.competitionNumber = tournament.Competitions.Count;
+                tourmanetRsp.competitionActivateNumber= tournament.Competitions.Where(cs=>cs.IsActive==true).Count();
+                tourmanetRsp.contestant = tournament.Contestants.Count;
 
                 res.setData("data", tourmanetRsp);
             }
@@ -305,27 +297,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public int CalculateTotalTeamsInTournament(Tournament tournamentId)
-        {
-            try
-            {
-
-                int totalTeam = 0;
-                foreach (var competition in tournamentId.Competitions)
-                {
-                    if (competition.NumberTeam.HasValue)
-                    {
-                        totalTeam += competition.NumberTeam.Value;
-                    }
-                }
-
-                return totalTeam;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi tính tổng số lượng đội tham gia: {ex.Message}");
-            }
-        }
+     
 
         public MutipleRsp GetTournamentsPerMonth()
         {
@@ -352,6 +324,15 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int competitionNumber { get; set; }
 
         public int competitionActivateNumber { get; set; }
+        public string? TournamentLevel { get; set; }
 
         public DateTime? CreateDate { get; set; }
         public int? views { get; set; }
@@ -45,9 +46,14 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Name { get; set; }
         public string? Location { get; set; }
         public string? Image { get; set; }
-        public int? NumberTeam { get; set; }
+        public int contestant { get; set; }
         public int? Views { get; set; }
         public string? Status { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public string? TournamentLevel { get; set; }
+        public int competitionNumber { get; set; }
+
+        public int competitionActivateNumber { get; set; }
     }
     public class TournamentModerator
     {
