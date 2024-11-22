@@ -253,8 +253,15 @@ namespace STEM_ROBOT.BLL.Svc
                     name = competition.Genre.Name,
                     numberContestantTeam = (int)competition.NumberContestantTeam,
                     registerTime = (DateTime)competition.RegisterTime,
+                    EndTime = (DateTime)competition.EndTime,
+                    StartTime = (DateTime)competition.StartTime,
                     status = competition.Status,
-                    FormatId = competition.Format.Id
+                    FormatId = competition.Format.Id,
+                    AreaCode= competition.Tournament.AreaCode,
+                    Introduce=competition.Tournament.Introduce,
+                    ProvinceCode=competition.Tournament.ProvinceCode,
+                    TournamentLevel=competition.Tournament.TournamentLevel,
+                    
                 };
 
 
@@ -279,7 +286,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     res.SetError("No ID");
                 }
-               _mapper.Map(request, competition_data);
+                _mapper.Map(request, competition_data);
+                competition_data.IsFormat = true;
 
                 _competitionRepo.Update(competition_data);
 
@@ -332,7 +340,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("Competition not found with the provided ID.");
                     return res;
                 }
-              _mapper.Map(request, competition);
+                _mapper.Map(request, competition);
                 _competitionRepo.Update(competition);
 
                 if (competition.FormatId == 2)
@@ -551,6 +559,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             var group = await _stageRepo.GetAllGroupStageCompetition(competitionId);
+            var locaions = await _stageRepo.GetAllLocationCompetition(competitionId);
             try
             {
                 var matchGroup = group.Select(tb => new MatchGroupStageCompetition
@@ -572,9 +581,8 @@ namespace STEM_ROBOT.BLL.Svc
                             homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
                             awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
                             //thoi gian, dia diem   
-                            //thoi gian, dia diem   
                             startTime = m.StartDate,
-                            locationName = m.LocationId == null ? "" : m.Location.Address,
+                            locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
                     }).ToList(),
 
@@ -600,6 +608,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     var resData = new ActiveCompetitionRsp();
                     resData.isFormat = competition.IsFormat;
+                    resData.isLocation = competition.IsLocation;
                     resData.isReferee = competition.IsReferee;
                     resData.isTeam = competition.IsTeam;
                     resData.isTable = competition.IsTable;
@@ -867,7 +876,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     throw new Exception("Không tìm thấy competitionId");
                 }
-
+                competition.IsRule = true;
                 competition.Regulation = file;
                 _competitionRepo.Update(competition);
 
@@ -920,6 +929,7 @@ namespace STEM_ROBOT.BLL.Svc
                 teamTableRsp.Teams = lstTeamRsp;
                 teamTableRsp.Tables = lstTableGroup;
                 teamTableRsp.IsTable = (bool)competitition.IsTable;
+                teamTableRsp.NumberTeamNextRound = competitition.NumberTeamNextRound;
                 res.setData("data", teamTableRsp);
             }
             catch (Exception ex)
@@ -941,13 +951,12 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("404", "Competition not found with the provided ID.");
                     return res;
                 }
-                if(competition.IsActive == true)
+                if (competition.IsActive == true)
                 {
                     res.SetError("400", "Competition is already active.");
                     return res;
                 }
                 if (competition.IsFormat == true && competition.IsMacth == true && competition.IsTeamMacth == true
-                    && competition.IsTable == true && competition.IsContestantTeam == true && competition.IsTeam == true
                     && competition.IsReferee == true && competition.IsLocation == true && competition.IsSchedule == true)
                 {
                     competition.IsActive = true;
@@ -959,6 +968,27 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("400", "Competition is missing some required information.");
                     return res;
                 }
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetRuleCompetition(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
+                if (competition == null)
+                {
+                    res.SetError("404", "Competition not found with the provided ID.");
+                    return res;
+                }
+                res.setData("file", competition.Regulation);
+                
             }
             catch (Exception ex)
             {

@@ -17,15 +17,15 @@ namespace STEM_ROBOT.Web.Controllers
             _scoreCategorySvc = scoreCategorySvc;
         }
 
-        [HttpGet()]
-        public IActionResult GetScoreCategories()
+        [HttpGet("byCompetitionId")]
+        public IActionResult GetScoreCategories(int competitionId)
         {
-            var res = _scoreCategorySvc.GetScoreCategories();
+            var res = _scoreCategorySvc.GetScoreCategories(competitionId);
             if (res.Success)
             {
                 return Ok(res.Data);
             }
-            return StatusCode(500, res.Message);
+            return StatusCode(404, res.Message);
         }
 
         [HttpGet("{id}")]
@@ -81,6 +81,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
+        //[HttpGet("{bycompetitionId/{competitionId}")]
+        //public IActionResult GetScoreByCompetition(int competitionId)
+        //{
+        //    var res = _scoreCategorySvc.GetScoreCategories(competitionId);
+        //    if (!res.Success)
+        //    {
+        //        return StatusCode(500, res.Message);
+        //    }
+        //    return Ok(res.Message);
+        //}
     }
 }
 

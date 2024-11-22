@@ -87,13 +87,14 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Account");
 
+            entity.Property(e => e.DistrictCode).HasColumnType("ntext");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.MaxTournatment).HasDefaultValueSql("((3))");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(100);
-            entity.Property(e => e.ProvinceCode).HasMaxLength(100);
+            entity.Property(e => e.ProvinceCode).HasColumnType("ntext");
             entity.Property(e => e.Role).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(250);
 
@@ -107,6 +108,8 @@ public partial class StemdbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Action__3213E83FDA61AAC8");
 
             entity.ToTable("Action");
+
+            entity.Property(e => e.Status).HasMaxLength(100);
 
             entity.HasOne(d => d.MatchHalf).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.MatchHalfId)
@@ -155,7 +158,13 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.IsReferee)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isReferee");
+            entity.Property(e => e.IsRule)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isRule");
             entity.Property(e => e.IsSchedule).HasColumnName("isSchedule");
+            entity.Property(e => e.IsScore)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isScore");
             entity.Property(e => e.IsTable)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isTable");
@@ -217,10 +226,6 @@ public partial class StemdbContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_Contestant_Account");
 
-            entity.HasOne(d => d.TeamRegister).WithMany(p => p.Contestants)
-                .HasForeignKey(d => d.TeamRegisterId)
-                .HasConstraintName("FK_Contestant_TeamRegister");
-
             entity.HasOne(d => d.Tournament).WithMany(p => p.Contestants)
                 .HasForeignKey(d => d.TournamentId)
                 .HasConstraintName("FK_Contestant_Tournament");
@@ -239,6 +244,10 @@ public partial class StemdbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.ContestantTeams)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK_ContestantCompetition_Team");
+
+            entity.HasOne(d => d.TeamRegister).WithMany(p => p.ContestantTeams)
+                .HasForeignKey(d => d.TeamRegisterId)
+                .HasConstraintName("FK_ContestantTeam_TeamRegister");
         });
 
         modelBuilder.Entity<District>(entity =>
@@ -289,6 +298,9 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Match");
 
+            entity.Property(e => e.IsPlay)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("isPlay");
             entity.Property(e => e.IsSetup)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isSetup");
@@ -302,7 +314,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Stage).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.StageId)
-                .HasConstraintName("FK__Match__RoundId__0B91BA14");
+                .HasConstraintName("FK_Match_Stage");
 
             entity.HasOne(d => d.TableGroup).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.TableGroupId)
@@ -315,6 +327,7 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("MatchHalf");
 
+            entity.Property(e => e.HalfName).HasColumnType("ntext");
             entity.Property(e => e.Status).HasMaxLength(250);
             entity.Property(e => e.TimeIn).HasColumnType("datetime");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
@@ -434,9 +447,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Schedule");
 
             entity.Property(e => e.BackupReferee).HasMaxLength(100);
-            entity.Property(e => e.OptCode)
-                .HasMaxLength(20)
-                .IsFixedLength();
+            entity.Property(e => e.OptCode).HasColumnType("ntext");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             entity.Property(e => e.TimeOut).HasColumnType("datetime");
@@ -561,7 +572,13 @@ public partial class StemdbContext : DbContext
                 .HasColumnName("isSetup");
             entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
-            entity.Property(e => e.ResultPlay).HasMaxLength(250);
+            entity.Property(e => e.ResultPlay)
+                .HasMaxLength(250)
+                .HasDefaultValueSql("((0))");
+            entity.Property(e => e.ResultPlayTable)
+                .HasMaxLength(250)
+                .HasDefaultValueSql("((0))");
+            entity.Property(e => e.TotalScore).HasDefaultValueSql("((0))");
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
                 .HasForeignKey(d => d.MatchId)
@@ -577,6 +594,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("TeamRegister");
 
             entity.Property(e => e.ContactInfo).HasMaxLength(250);
+            entity.Property(e => e.Email).HasMaxLength(250);
             entity.Property(e => e.Image).HasColumnType("ntext");
             entity.Property(e => e.Name).HasMaxLength(250);
             entity.Property(e => e.PhoneNumber)
@@ -621,13 +639,17 @@ public partial class StemdbContext : DbContext
 
             entity.ToTable("Tournament");
 
+            entity.Property(e => e.AreaCode).HasColumnType("ntext");
             entity.Property(e => e.CreateDate).HasColumnType("date");
             entity.Property(e => e.Image).HasColumnType("text");
+            entity.Property(e => e.Introduce).HasColumnType("ntext");
+            entity.Property(e => e.LevelTournament).HasColumnType("ntext");
             entity.Property(e => e.Location).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(500);
             entity.Property(e => e.Phone)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            entity.Property(e => e.ProvinceCode).HasColumnType("ntext");
             entity.Property(e => e.Status).HasMaxLength(500);
             entity.Property(e => e.TournamentLevel).HasMaxLength(300);
 

@@ -30,6 +30,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+
         [HttpPost("list-contestant")]
         public IActionResult AddListContestantInTournament([FromBody] List<ContestantReq> contestants, int tournamentId)
         {
@@ -69,17 +70,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-        [HttpGet("available/accountId")]
-        public IActionResult GetListAvailableContestantByAccount(int accountId, DateTime startTime, DateTime endTime)
-        {
-            var res = _contestantSvc.GetListAvailableContestantByAccount(accountId, startTime, endTime);
-            if (!res.Success)
-            {
-                res.SetError("500", res.Message);
-            }
-            return Ok(res);
 
-        }
         [HttpGet("accountId")]
         public IActionResult GetListContestantByAccount()
         {
@@ -142,16 +133,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-        [HttpPost("contestant-to-team/{teamId}")]
-        public IActionResult AddContestantToTeam(int teamId, [FromBody] List<ContestantTeamReq> req)
-        {
-            var res = _contestantSvc.AddContestantTeam(teamId, req);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
-            return Ok(res);
-        }
+      
 
         [HttpGet("teamId")]
         public IActionResult GetContestantInTeam(int teamId)
@@ -174,22 +156,69 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-        [HttpPost("public-tournament")]
-        public IActionResult AddContestantPublicTournament([FromBody] ContestantReq contestants, int tournamentId)
+        [HttpPost("contestant-to-team/{teamId}")]
+        public IActionResult AddContestantToTeam(int teamId, [FromBody] List<ContestantTeamReq> req)
         {
+            var res = _contestantSvc.AddContestantTeam(teamId, req);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpGet("public-available-moderater")]
+        public IActionResult GetListAvailableContestantByAccount(int tounamentId, int competitionId)
+        {
+
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
             {
-                return BadRequest("Please Login!");
+                return Unauthorized(new { Message = "Please login" }); 
             }
-            var accountId = int.Parse(user.Value);
-            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants);
+
+            int userId = int.Parse(user.Value);
+            var res = _contestantSvc.GetListAvailableContestantByAccount(userId, tounamentId, competitionId);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);
             }
-            return Ok(res);
+            return Ok(res.Data);
+
+        }
+       
+        [HttpPost("public-tournament")]
+        public IActionResult AddContestantPublicTournament(int tournamentId, ContestantReq contestants)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            var userSchool = User.Claims.FirstOrDefault(x => x.Type == "SchoolName");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+            var accountId = int.Parse(user.Value);
+            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants, userSchool.ToString());
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("public-tournament-moderator")]
+        public async Task<IActionResult> GetContestantRegister(int tournamentId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized(new { Message = "Please login" });
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _contestantSvc.GetContestantRegister(tournamentId, userId);
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res.Data);
         }
     }
 }

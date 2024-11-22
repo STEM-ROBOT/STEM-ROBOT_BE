@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.DAL.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.Web.Controllers
 {
@@ -10,10 +11,12 @@ namespace STEM_ROBOT.Web.Controllers
     [ApiController]
     public class MatchController : ControllerBase
     {
+        private readonly MatchPointSvc _matchPointSvc;
         private readonly MatchSvc _matchSvc;
-        public MatchController(MatchSvc matchSvc)
+        public MatchController(MatchSvc matchSvc, MatchPointSvc matchPointSvc)
         {
             _matchSvc = matchSvc;
+            _matchPointSvc = matchPointSvc;
         }
         [HttpGet]
         public IActionResult Get()
@@ -120,6 +123,31 @@ namespace STEM_ROBOT.Web.Controllers
                 res.SetMessage(res.Message);
             }
             return Ok(res);
+        }
+        [HttpGet("match-detail-action")]
+        public async Task<IActionResult> MatchDetailAction(int matchId) 
+        {
+            var list = await _matchSvc.CheckMatch(matchId);
+            //if(list.Data == null) return Ok(list.Message);
+            return Ok(list.Data);
+        }
+        [HttpGet("match-total-point")]
+        public async Task<IActionResult> Teampoint(int matchId)
+        {
+            var point = await _matchSvc.teamPoint(matchId);
+            return Ok(point.Data);
+        }
+        [HttpGet("match-action-referee")]
+        public async Task<IActionResult> Listpoint(int teamMatchId,int scheduleId)
+        {
+            var point = await _matchSvc.ListPoint(teamMatchId, scheduleId);
+            return Ok(point.Data);
+        }
+        [HttpPut("confirm-point")]
+        public async Task<IActionResult> ConfirmPoint(int actionId, string status)
+        {
+            var point = await _matchSvc.ConfirmPoint(actionId, status);
+            return Ok(point.Message);
         }
     }
 }

@@ -8,6 +8,12 @@ namespace STEM_ROBOT.Common.Rsp
 {
     public class RefereeRsp
     {
+        public int NumberLocation { get; set; }
+        public bool IsReferee { get; set; }
+        public ICollection<ListRefereeRsp> listRefereeRsps { get; set; } = new List<ListRefereeRsp>();
+    }
+    public class ListRefereeRsp
+    {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Role { get; set; }
@@ -17,7 +23,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int TournamentId { get; set; }
         public string Image { get; set; }
 
-        public bool IsReferee { get; set; }
+
     }
 
     public class RefereeTournament
@@ -37,9 +43,9 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Location { get; set; }
 
-        public string? ImageTournament { get; set;}
+        public string? ImageTournament { get; set; }
         public string? role { get; } = "TRỌNG TÀI";
-       
+
 
         public ICollection<ListRefereeCompetition> referee { get; set; } = new List<ListRefereeCompetition>();
 
@@ -95,5 +101,21 @@ namespace STEM_ROBOT.Common.Rsp
         public DateTime? TimeOut { get; set; }
 
         public string? BackupReferee { get; set; }
+    }
+    public class SupRefereeTournament
+    {
+        public string? Image { get; set; }
+        public string? Name { get; set; }
+        public string? Role { get; set; }
+
+    }
+    public class SupRefereeCompetitionTournament
+    {
+        public int? Id { get; set; }
+        public string? Image { get; set; }
+        public string? CompetitionName { get; set; }
+        public string? TournamentName { get; set; }
+        public string? Location { get; set; }
+
     }
 }

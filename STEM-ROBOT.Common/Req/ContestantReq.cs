@@ -19,5 +19,6 @@ namespace STEM_ROBOT.Common.Req
         public string? Image { get; set; }
 
         public string? SchoolName { get; set; }
+        public DateTime? StartTime { get; set; }
     }
 }

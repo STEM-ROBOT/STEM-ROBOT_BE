@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Identity.Client;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -15,12 +16,16 @@ namespace STEM_ROBOT.BLL.Svc
     public class ActionSvc
     {
         private readonly ActionRepo _actionRepo;
+        private readonly TeamMatchRepo _teamMatchRepo;
+        private readonly ScoreCategoryRepo _scoreCategoryRepo;
         private readonly IMapper _mapper;
 
-        public ActionSvc(ActionRepo actionRepo, IMapper mapper)
+        public ActionSvc(ActionRepo actionRepo, TeamMatchRepo teamMatchRepo, ScoreCategoryRepo scoreCategoryRepo, IMapper mapper)
         {
             _actionRepo = actionRepo;
             _mapper = mapper;
+            _teamMatchRepo = teamMatchRepo;
+            _scoreCategoryRepo = scoreCategoryRepo;
         }
 
         public MutipleRsp GetActions()
@@ -32,7 +37,7 @@ namespace STEM_ROBOT.BLL.Svc
                 if (lst != null)
                 {
                     var lstRes = _mapper.Map<List<ActionRsp>>(lst);
-                    res.SetSuccess(lstRes, "data");
+                    res.SetData("data", lstRes);
                 }
                 else
                 {
@@ -131,6 +136,70 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> ConfirmAction(int actionId, string status, int scheduleId, int accoutId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var check = await _actionRepo.checkRefereeschedule(scheduleId, accoutId);
 
+                if (check != null)
+                {
+                    var action = _actionRepo.GetById(actionId);
+                    var score = _scoreCategoryRepo.GetById(action.ScoreCategoryId);
+                    var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
+                    if (score.Type.ToLower() == "điểm cộng")
+                    {
+                        teamMatch.TotalScore = teamMatch.TotalScore + score.Point;
+                    }
+                    else
+                    {
+                        teamMatch.TotalScore = teamMatch.TotalScore - score.Point;
+                    }
+
+
+
+                    action.Status = status;
+                    _teamMatchRepo.Update(teamMatch);
+                    _actionRepo.Update(action);
+                    res.SetMessage("Update success");
+                }
+                else
+                {
+                    res.SetMessage("Update fail");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> NewAction(ActionReq req, int scheduleId, int userId)
+        {
+            var res = new SingleRsp();
+            var schedule = await _actionRepo.checkRefereeschedule(scheduleId, userId);
+            try
+            {
+                var data = new Action
+                {
+                    EventTime = req.EventTime,
+                    MatchHalfId = req.MatchHalfId,
+                    ScoreCategoryId= req.ScoreCategoryId,
+                    RefereeCompetitionId = schedule.RefereeCompetitionId,
+                    Status = "pending",
+                    Score = 0,
+                    TeamMatchId = req.TeamMatchId,
+                };
+                _actionRepo.Add(data);
+                res.SetMessage("success");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
     }
 }

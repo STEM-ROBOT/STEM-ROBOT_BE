@@ -186,21 +186,25 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new MutipleRsp();
             try
             {
-                var locationList = new List<Location>();
+              
                 var competition = _competitionRepo.GetById(competitionId);
                 competition.IsLocation = true;
+                _competitionRepo.Update(competition);
+                var locationList = new List<Location>();
                 foreach (var location in locations)
                 {
                     var locationMapp = _mapper.Map<Location>(location);
+                    locationMapp.CompetitionId = competitionId;
+                    locationMapp.Competition=competition;
                     locationList.Add(locationMapp);
                 }
                 _locationRepo.AddRange(locationList);
-                _competitionRepo.Update(competition);
-                res.SetData("data", locationList);
+                
+                res.SetData("data","succes");
             }
             catch (Exception ex)
             {
-                res.SetError("500", ex.Message);
+                res.SetError("Lam dep trai", ex.Message);
             }
             return res;
         }

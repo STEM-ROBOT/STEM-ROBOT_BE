@@ -30,8 +30,16 @@ namespace STEM_ROBOT.Common.Rsp
         public string image { get; set; }
         public string status { get; set; }
         public DateTime? registerTime { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
         public int FormatId { get; set; }
         public int? numberContestantTeam { get; set; }
+        public string? Introduce { get; set; }
+
+        public string? ProvinceCode { get; set; }
+
+        public string? AreaCode { get; set; }
+        public string? TournamentLevel { get; set; }
 
     }
 }

@@ -12,11 +12,14 @@ namespace STEM_ROBOT.Web.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly ScheduleSvc _scheduleSvc;
+        private readonly NotificationSvc _notificationSvc;
+
         private readonly IMapper _mapper;
-        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper)
+        public ScheduleController(ScheduleSvc scheduleSvc, IMapper mapper, NotificationSvc notificationSvc)
         {
             _scheduleSvc = scheduleSvc;
             _mapper = mapper;
+            _notificationSvc = notificationSvc;
         }
 
         [HttpGet()]
@@ -40,7 +43,36 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+        [HttpGet("schedule-referee-main-match")]
+        public async Task<IActionResult> CheckSchedule(int scheduleID)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.checkTimeSchedule(scheduleID, userID);
+            
+            return Ok(res.Data);
+        }
+        [HttpGet("schedule-referee-sup")]
+        public async Task<IActionResult> ScheduleSupReferee(int refereeCompetitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.ScheduleSupReferee(refereeCompetitionId, userID);
 
+            return Ok(res.Data);
+        }
+        [HttpGet("schedule-referee-sup-match-info")]
+        public async Task<IActionResult> ScheduleSupRefereeMatchInfo(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.ScheduleSupRefereeMatchInfo(scheduleId, userID);
+
+            return Ok(res.Data);
+        }
         //[HttpPost()]
         //public IActionResult CreateSchedule([FromBody] ScheduleReq req)
         //{
@@ -108,6 +140,15 @@ namespace STEM_ROBOT.Web.Controllers
             if (user == null) return BadRequest("Please login ");
             int userID = int.Parse(user.Value);
             var sendmail = await _scheduleSvc.CheckCodeSchedule(scheduleId, userID,code);
+            return Ok(sendmail);
+        }
+        [HttpPut("schedule-confirm")]
+        public async Task<IActionResult> ConfirmMatch(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var sendmail = await _scheduleSvc.ConfirmSchedule(scheduleId, userID);
             return Ok(sendmail);
         }
 

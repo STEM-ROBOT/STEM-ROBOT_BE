@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace STEM_ROBOT.BLL.Svc
 {
@@ -20,15 +21,20 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly ScheduleRepo _scheduleRepo;
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
-
+        private readonly MatchRepo _matchRepo;
+        private readonly TeamMatchRepo _teamMatchRepo;
 
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo)
         {
             _scheduleRepo = scheduleRepo;
             _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
+            _matchRepo = matchRepo;
+            _teamMatchRepo = teamMatchRepo;
+            
+
         }
 
         public MutipleRsp GetSchedules()
@@ -172,7 +178,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 };
                 checkSchedule.OptCode = randomCode.ToString();
-                checkSchedule.TimeOut = DateTime.Now.AddSeconds(120);
+                checkSchedule.TimeOut = ConvertToVietnamTime(DateTime.Now).AddSeconds(120);
                 _scheduleRepo.Update(checkSchedule);
                 await _mailService.SendEmailAsync(mail);
 
@@ -208,19 +214,22 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
                 else
-                if (checkSchedule.TimeOut < DateTime.Now)
+                if (checkSchedule.TimeOut < ConvertToVietnamTime(DateTime.Now))
                 {
                     res.SetMessage("Mã hết hạn !");
                     return res;
                 }
                 else
-                if (!checkSchedule.OptCode.Contains(code))
+                if (checkSchedule.OptCode.Equals(code))
                 {
-                    res.SetMessage("Mã không đúng !");
+                    checkSchedule.IsJoin = true;
+                    _scheduleRepo.Update(checkSchedule);
+                    res.SetMessage("Success");
+
                 }
                 else
                 {
-                    res.SetMessage("Success");
+                    res.SetMessage("Mã không đúng !");
                 }
 
             }
@@ -395,5 +404,233 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
+
+        //check schedule
+
+        public async Task<SingleRsp> checkTimeSchedule(int scheDuleId, int accountId)
+        {
+            var res = new SingleRsp();
+            var date = ConvertToVietnamTime(DateTime.Now);
+            try
+            {
+                var scheduledata = await _scheduleRepo.checkTimeschedule(scheDuleId, accountId);
+                if (scheduledata != null)
+                {
+                    var schedule = scheduledata.Match.TeamMatches.Select(a => new CheckTimeSchedule
+                    {
+                        matchId = (int)scheduledata.MatchId,
+                        teamMatchId = a.Id
+                    }).ToList();
+                    var matchID = scheduledata.MatchId;
+
+                    var matchCheck = _matchRepo.GetById(matchID);
+
+                    var totalTime = matchCheck.StartDate + matchCheck.TimeIn;
+
+                    var checkDate = date < matchCheck.StartDate;
+
+                    TimeSpan checkTime = (DateTime)totalTime - date;
+
+                    if (date.Date != matchCheck.StartDate.Value.Date)
+                    {
+
+                        res.setData("data", "error");
+
+                    }
+                    else if (checkTime.TotalMinutes > 15)
+                    {
+
+                        res.setData("data", "error");
+
+                    }
+                    else
+                    if (checkTime.TotalMinutes <= 15 || checkTime.TotalMinutes <= 0 && date.TimeOfDay <= matchCheck.TimeOut)
+                    {
+                        var timeAwait = checkTime.TotalMinutes < 0 ? TimeSpan.Zero : checkTime;
+                        var data = new
+                        {
+                            TimeAwait = timeAwait,
+                            TimeInMatch = matchCheck.TimeIn,
+                            TimeOutMatch = matchCheck.TimeOut,
+                            numberHaft = matchCheck.NumberHaft,
+                            breakTimeHaft = matchCheck.BreakTimeHaft,
+                            Isjoin = scheduledata.IsJoin,
+                            matchId = scheduledata.MatchId,
+                            scheduleData = schedule
+                        };
+                        res.setData("data", data);
+                        return res;
+                    }
+                }
+                else
+                {
+                    res.setData("data", "error");
+                }
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> ScheduleSupReferee(int refereeCompetitionId, int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var refe = await _scheduleRepo.CheckSupRefereeCompetition(refereeCompetitionId, accountId);
+                if (refe == null)
+                {
+                    res.SetError("data", "Ban khong phai trong tai vien cua tran dau");
+                }
+                else
+                {
+                    var data = await _scheduleRepo.ScheduleSupRefereeCompetition(refereeCompetitionId);
+                    int competitionId = (int)data[0].RefereeCompetition.CompetitionId;
+                    var locatons = await _scheduleRepo.CheckLocationCompetition(competitionId);
+                    var dataRes = new
+                    {
+                        scheduleReferee = data.Select(sc => new ScheduleSupReferee
+                        {
+                            Id = sc.Id,
+                            location = locatons.Where(l => l.Id == sc.Match.LocationId).FirstOrDefault().Address,
+                            matchId = (int)sc.MatchId,
+                            StartTime = sc.Match.StartDate.Value.Add(sc.Match.TimeIn.Value).ToString("yyyy-MM-ddTHH:mm:ss"),
+                            EndTime = sc.Match.StartDate.Value.Add(sc.Match.TimeOut.Value).ToString("yyyy-MM-ddTHH:mm:ss"),
+                            status = CheckMatchStatus(sc.Match.StartDate.Value.Add(sc.Match.TimeIn.Value), sc.Match.StartDate.Value.Add(sc.Match.TimeOut.Value)),
+                            teamMatch = sc.Match.TeamMatches.Select(tm => new TeamMatchReferee
+                            {
+                                teamId = tm.Id,
+                                teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                                teamType = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
+                            }).ToList(),
+
+                        }).ToList(),
+                    };
+                    res.setData("data", dataRes);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.setData("data", "error" + ex);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> ScheduleSupRefereeMatchInfo(int scheduleId, int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.SupRefereeCheck(scheduleId);
+                int matchId = (int)schedule.MatchId;
+                int competitionId = (int)schedule.RefereeCompetition.CompetitionId;
+                var matchData = await _scheduleRepo.SupRefereeCompetitionMatchInfo(matchId);
+                var scoreData = await _scheduleRepo.CompetitionScore(competitionId);
+                var dataRes = new
+                {
+                    score = scoreData.Select(sc => new ScheduleMatchScoreRsp
+                    {
+                        Description = sc.Description,
+                        Point = sc.Point.ToString(),
+                        Type = sc.Type,
+                        scoreId = sc.Id
+
+                    }).ToList(),
+                    matchInfo = new ScheduleMatchInfoRsp
+                    {
+                        breakHaftTime = matchData.BreakTimeHaft.ToString(),
+                        durationHaft = matchData.TimeOfHaft.Value.ToString(),
+                        endTime = matchData.TimeIn.Value.ToString(),
+                        startTime = matchData.TimeOut.Value.ToString(),
+                        startDate = matchData.StartDate.Value.ToString(),
+                        haftMatch = matchData.MatchHalves.Select(h => new ScheduleMatchHaftRsp
+                        {
+                            HaftId = h.Id,
+                            HaftName = h.HalfName
+
+                        }).ToList(),
+                        teamMatch = matchData.TeamMatches.Select(tm => new ScheduleMatchTeamMatchRsp
+                        {
+                            teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                            teamMatchId = tm.Id,
+                            teamName = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
+
+                        }).ToList()
+                    }
+                };
+                res.setData("data", dataRes);
+            }
+            catch (Exception ex)
+            {
+                res.setData("data", "error" + ex);
+            }
+            return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
+        public bool CheckMatchStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //confirm schedule
+        public async Task<SingleRsp> ConfirmSchedule(int scheduleID,int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.confirmSchedule(scheduleID, accountId);
+              
+                if (schedule == null)
+                {
+                    res.Setmessage("lich trinh khong ton tai");
+                }
+                else
+                {
+                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
+                    var team1 = schedule.Match.TeamMatches.FirstOrDefault();
+                    var team2 = schedule.Match.TeamMatches.LastOrDefault();
+                    if (team1.TotalScore > team2.TotalScore)
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    else
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    res.SetMessage("success");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace STEM_ROBOT.DAL.Repo
                .Where(s => s.Id == competitionId)
                .Include(sc => sc.RefereeCompetitions)
                .ThenInclude(rcr => rcr.Referee)
-               .Include(s => s.Stages).ThenInclude(m => m.Matches).ThenInclude(l=> l.Location)
+               .Include(s => s.Stages).ThenInclude(m => m.Matches).ThenInclude(l => l.Location)
                .FirstOrDefaultAsync();
 
 
@@ -42,13 +43,50 @@ namespace STEM_ROBOT.DAL.Repo
                .Include(s => s.RefereeCompetition)
                .ThenInclude(r => r.Referee)
                .ToListAsync();
-           
+
 
             return competitionRefeee;
         }
         public async Task<Schedule> CheckRefereeCompetition(int scheduleID, int accountID)
         {
-            return await _context.Schedules.Where(x => x.Id == scheduleID).Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID).FirstOrDefaultAsync();
+            return await _context.Schedules.Where(x => x.Id == scheduleID)
+                .Include(x => x.RefereeCompetition)
+                .ThenInclude(x => x.Referee)
+                .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<RefereeCompetition> CheckSupRefereeCompetition(int refereeCompetitionId, int accountID)
+        {
+            return await _context.RefereeCompetitions.Where(x => x.Id == refereeCompetitionId && x.Referee.AccountId == accountID).FirstOrDefaultAsync();
+        }
+        public async Task<Schedule> SupRefereeCheck(int schedule)
+        {
+            return await _context.Schedules.Where(x => x.Id == schedule && x.IsJoin == true)
+                .Include(m => m.Match)
+                .Include(rc => rc.RefereeCompetition)
+
+                .FirstOrDefaultAsync();
+
+        }
+        public async Task<Match> SupRefereeCompetitionMatchInfo(int matchId)
+        {
+            return await _context.Matches.Where(x => x.Id == matchId).Include(tm => tm.TeamMatches).ThenInclude(t => t.Team).Include(h => h.MatchHalves).FirstOrDefaultAsync();
+        }
+        public async Task<List<ScoreCategory>> CompetitionScore(int competitionId)
+        {
+            return await _context.ScoreCategories.Where(x => x.CompetitionId == competitionId).ToListAsync();
+        }
+        public async Task<List<Location>> CheckLocationCompetition(int competitionId)
+        {
+            return await _context.Locations.Where(x => x.CompetitionId == competitionId).ToListAsync();
+        }
+        public async Task<List<Schedule>> ScheduleSupRefereeCompetition(int refereeCompetitionId)
+        {
+            return await _context.Schedules
+                .Where(x => x.RefereeCompetitionId == refereeCompetitionId)
+                .Include(m => m.Match)
+                .ThenInclude(tm => tm.TeamMatches)
+                .ThenInclude(t => t.Team).ToListAsync();
         }
         public async Task<Schedule> CheckTimeoutCodeSchedule(int scheduleID, int accountId)
         {
@@ -59,11 +97,11 @@ namespace STEM_ROBOT.DAL.Repo
         public async Task<Schedule> UpdateBusy(int scheduleID, int accountID)
         {
             return await _context.Schedules.Where(x => x.Id == scheduleID)
-                .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).ThenInclude(x=> x.Account)
+                .Include(x => x.RefereeCompetition).ThenInclude(x => x.Referee).ThenInclude(x => x.Account)
                 .Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountID)
-                .Include(x=> x.Match)
+                .Include(x => x.Match)
                     .FirstOrDefaultAsync();
-      }
+        }
 
         public async Task<Account> getEmail(int schdeDuleID)
         {
@@ -80,6 +118,20 @@ namespace STEM_ROBOT.DAL.Repo
                          .Any(m => m.Schedules
                              .Any(sch => sch.Id == schdeDuleID))))))
          .FirstOrDefaultAsync();
+        }
+        public async Task<Schedule> checkTimeschedule(int scheduleID, int accountId)
+        {
+            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountId).Include(m => m.Match).ThenInclude(mt => mt.TeamMatches).FirstOrDefaultAsync();
+            return timecheck;
+        }
+
+        public async Task<Schedule> confirmSchedule(int scheduleId,int accoutId)
+        {
+            return await _context.Schedules.Where(x=> x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId).Include(x => x.Match).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
+        }
+        public async Task<TeamMatch> matchWinSchedule(string matchCode)
+        {
+            return await _context.TeamMatches.Where(x => x.MatchWinCode == matchCode).FirstOrDefaultAsync();
         }
     }
 }

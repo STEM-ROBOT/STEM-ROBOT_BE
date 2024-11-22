@@ -135,6 +135,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Image { get; set; }
         public int? NumberTeam { get; set; }
         public string? TournamentName { get; set; }
+        public string? Status { get; set; }
         public bool? isActive { get; set; }
     }
 

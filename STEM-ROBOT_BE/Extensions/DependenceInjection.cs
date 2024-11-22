@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS;
 using STEM_ROBOT.BLL;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.BLL.Mail;
 using STEM_ROBOT.BLL.Mapper;
 
@@ -37,12 +38,10 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<ScoreCategorySvc>();
             services.AddScoped<ContestantRepo>();
             services.AddScoped<ContestantSvc>();
-
             services.AddScoped<CompetitionRepo>();
             services.AddScoped<CompetitionSvc>();
             services.AddScoped<StageRepo>();
             services.AddScoped<StageSvc>();
-
             services.AddScoped<TeamSvc>();
             services.AddScoped<TeamRepo>();
             services.AddScoped<ScheduleRepo>();
@@ -53,10 +52,8 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<MatchSvc>();
             services.AddScoped<TableGroupRepo>();
             services.AddScoped<TableGroupSvc>();
-
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<TeamMatchRepo>();
-
 
             services.AddScoped<PackageRepo>();
             services.AddScoped<PackageSvc>();
@@ -74,7 +71,7 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<ProvinceSvc>();
             services.AddScoped<DistrictRepo>();
             services.AddScoped<DistrictSvc>();
-            services.AddScoped<RealTimeSvc>();
+           
             services.AddSingleton<Random>();
             services.AddScoped<StageTableRepo>();
             services.AddScoped<ContestantTeamRepo>();
@@ -83,6 +80,15 @@ namespace STEM_ROBOT_BE.Extensions
             services.AddScoped<RefereeCompetitionSvc>();
             services.AddScoped<AreaRepo>();
             services.AddScoped<AreaSvc>();
+            services.AddScoped<MatchHaflRepo>();
+            services.AddScoped<MatchPointSvc>();
+            services.AddScoped<NotificationRepo>();
+            services.AddScoped<StemHub>();
+            services.AddScoped<TeamRegisterRepo>();
+            services.AddScoped<TeamRegisterSvc>();
+            services.AddScoped<IStemHub, StemHub>();
+            services.AddScoped<NotificationSvc>();
+
             return services;
         }
 
