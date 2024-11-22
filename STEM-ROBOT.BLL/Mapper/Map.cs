@@ -43,8 +43,7 @@ namespace STEM_ROBOT.BLL.Mapper
 
             CreateMap<Tournament, TournamentReq>().ReverseMap();
 
-            CreateMap<Tournament, TournamentInforRsp>()
-                .ForMember(x => x.NumberTeam, op => op.MapFrom(x => x.Contestants.Count))
+            CreateMap<Tournament, TournamentInforRsp>()               
                 .ForMember(x => x.Views, op => op.MapFrom(x => x.ViewTournament))
                 .ReverseMap();
 
