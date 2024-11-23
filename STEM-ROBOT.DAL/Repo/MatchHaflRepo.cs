@@ -63,7 +63,7 @@ namespace STEM_ROBOT.DAL.Repo
                             type = a.ScoreCategoryType,
                             description = a.ScoreCategoryDescription,
                             point = a.Score,
-                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.EventTime)
+                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.eventTime)
                         }).ToList(),
 
                     activityTeam2 = h.Actions
@@ -74,7 +74,7 @@ namespace STEM_ROBOT.DAL.Repo
                             type = a.ScoreCategoryType,
                             description = a.ScoreCategoryDescription,
                             point = a.Score,
-                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.EventTime)
+                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.eventTime)
                         }).ToList()
                 }
             }).ToList();
