@@ -35,7 +35,7 @@ namespace STEM_ROBOT.DAL.Repo
                             ScoreCategoryType = a.ScoreCategory.Type,
                             ScoreCategoryDescription = a.ScoreCategory.Description,
                             Score = a.ScoreCategory.Point ?? 0,
-                            EventTime = a.EventTime
+                            eventTime = a.EventTime
                         }).ToList()
                     }).ToList()
                 })
