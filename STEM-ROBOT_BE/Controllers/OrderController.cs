@@ -22,8 +22,10 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(OrderReq request)
         {
-            var result = await _orderSvc.CreateOrder(request);
-
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userId = int.Parse(user.Value);
+            var result = await _orderSvc.CreateOrder(userId,request);
             return Ok(result.Data);
             //return Redirect(result.Data.ToString());
         }
