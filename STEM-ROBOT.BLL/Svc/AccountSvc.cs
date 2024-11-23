@@ -92,7 +92,7 @@ namespace STEM_ROBOT.BLL.Svc
                 account.MaxTournatment = 3;
                 account.Password = BCrypt.Net.BCrypt.HashPassword(req.Password);
                 _accountRepo.Add(account);
-                res.SetMessage("Success");
+                res.setData("data","Success");
             }
             catch (Exception ex)
             {

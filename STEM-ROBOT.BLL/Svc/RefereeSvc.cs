@@ -91,8 +91,8 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     Id = cp.Id,                  
                     Image = cp.Competition.Genre.Image,
-                    ComepetitionName = cp.Competition.Genre.Name,
-                    TournanmentName = refe.Tournament.Name,
+                    CompetitionName = cp.Competition.Genre.Name,
+                    TournamentName = refe.Tournament.Name,
                     Location = refe.Tournament.Location,
                 }).ToList();
                 if (data == null) throw new Exception("No data");

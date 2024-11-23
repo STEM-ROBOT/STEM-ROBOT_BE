@@ -75,10 +75,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=157.66.27.69,1440;uid=sa;pwd=Stem@6368;Database=STEMDb;TrustServerCertificate=True");
-
+  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -314,7 +311,7 @@ public partial class StemdbContext : DbContext
 
             entity.HasOne(d => d.Stage).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.StageId)
-                .HasConstraintName("FK__Match__RoundId__0B91BA14");
+                .HasConstraintName("FK_Match_Stage");
 
             entity.HasOne(d => d.TableGroup).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.TableGroupId)
@@ -572,7 +569,9 @@ public partial class StemdbContext : DbContext
                 .HasColumnName("isSetup");
             entity.Property(e => e.MatchWinCode).HasMaxLength(500);
             entity.Property(e => e.NameDefault).HasMaxLength(500);
-            entity.Property(e => e.ResultPlay).HasMaxLength(250);
+            entity.Property(e => e.ResultPlay)
+                .HasMaxLength(250)
+                .HasDefaultValueSql("((0))");
             entity.Property(e => e.ResultPlayTable)
                 .HasMaxLength(250)
                 .HasDefaultValueSql("((0))");
@@ -638,7 +637,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Tournament");
 
             entity.Property(e => e.AreaCode).HasColumnType("ntext");
-            entity.Property(e => e.CreateDate).HasColumnType("date");
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Introduce).HasColumnType("ntext");
             entity.Property(e => e.LevelTournament).HasColumnType("ntext");

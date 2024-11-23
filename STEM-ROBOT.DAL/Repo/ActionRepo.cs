@@ -17,8 +17,10 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<Schedule> checkRefereeschedule(int scheduleId, int accoutId)
         {
-            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId).FirstOrDefaultAsync();
+            var timecheck = await _context.Schedules.Where(x => x.Id == scheduleId ).FirstOrDefaultAsync();
             return timecheck;
         }
+
+
     }
 }
