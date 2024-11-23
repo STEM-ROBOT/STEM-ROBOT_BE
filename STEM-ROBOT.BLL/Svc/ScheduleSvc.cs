@@ -22,15 +22,19 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly CompetitionRepo _competition;
         private readonly IMapper _mapper;
         private readonly MatchRepo _matchRepo;
+        private readonly TeamMatchRepo _teamMatchRepo;
 
         private readonly IMailService _mailService;
-        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo)
+        public ScheduleSvc(ScheduleRepo scheduleRepo, IMapper mapper, IMailService mailService, CompetitionRepo competition, MatchRepo matchRepo, TeamMatchRepo teamMatchRepo)
         {
             _scheduleRepo = scheduleRepo;
             _competition = competition;
             _mapper = mapper;
             _mailService = mailService;
             _matchRepo = matchRepo;
+            _teamMatchRepo = teamMatchRepo;
+            
+
         }
 
         public MutipleRsp GetSchedules()
@@ -502,12 +506,13 @@ namespace STEM_ROBOT.BLL.Svc
                             teamMatch = sc.Match.TeamMatches.Select(tm => new TeamMatchReferee
                             {
                                 teamId = tm.Id,
-                                teamLogo = tm.Team.Image,
-                                teamType = tm.Team.Name,
+                                teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
+                                teamType = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
                             }).ToList(),
 
                         }).ToList(),
                     };
+                    res.setData("data", dataRes);
                 }
 
             }
@@ -540,10 +545,10 @@ namespace STEM_ROBOT.BLL.Svc
                     matchInfo = new ScheduleMatchInfoRsp
                     {
                         breakHaftTime = matchData.BreakTimeHaft.ToString(),
-                        durationHaft = matchData.TimeOfHaft.ToString(),
-                        endTime = matchData.TimeIn.Value.ToString("HH:mm:ss"),
-                        startTime = matchData.TimeOut.Value.ToString("HH:mm:ss"),
-                        startDate = matchData.StartDate.Value.ToString("yyyy-MM-dd"),
+                        durationHaft = matchData.TimeOfHaft.Value.ToString(),
+                        endTime = matchData.TimeIn.Value.ToString(),
+                        startTime = matchData.TimeOut.Value.ToString(),
+                        startDate = matchData.StartDate.Value.ToString(),
                         haftMatch = matchData.MatchHalves.Select(h => new ScheduleMatchHaftRsp
                         {
                             HaftId = h.Id,
@@ -552,12 +557,14 @@ namespace STEM_ROBOT.BLL.Svc
                         }).ToList(),
                         teamMatch = matchData.TeamMatches.Select(tm => new ScheduleMatchTeamMatchRsp
                         {
-                            teamLogo = tm.Team.Image,
+                            teamLogo = tm.TeamId != null ? tm.Team.Image : "https://www.pngmart.com/files/22/Manchester-United-Transparent-Images-PNG.png",
                             teamMatchId = tm.Id,
-                            teamName = tm.Team.Name
+                            teamName = tm.TeamId != null ? tm.Team.Name : tm.NameDefault,
+
                         }).ToList()
                     }
                 };
+                res.setData("data", dataRes);
             }
             catch (Exception ex)
             {
@@ -585,6 +592,45 @@ namespace STEM_ROBOT.BLL.Svc
                 return true;
             }
             return false;
+        }
+
+        //confirm schedule
+        public async Task<SingleRsp> ConfirmSchedule(int scheduleID,int accountId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.confirmSchedule(scheduleID, accountId);
+              
+                if (schedule == null)
+                {
+                    res.Setmessage("lich trinh khong ton tai");
+                }
+                else
+                {
+                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
+                    var team1 = schedule.Match.TeamMatches.FirstOrDefault();
+                    var team2 = schedule.Match.TeamMatches.LastOrDefault();
+                    if (team1.TotalScore > team2.TotalScore)
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    else
+                    {
+                        teamMatchWin.TeamId = 2774;
+                        _teamMatchRepo.Update(teamMatchWin);
+                    }
+                    res.SetMessage("success");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
         }
     }
 }

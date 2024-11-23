@@ -64,9 +64,9 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.Schedules.Where(x => x.Id == schedule && x.IsJoin == true)
                 .Include(m => m.Match)
                 .Include(rc => rc.RefereeCompetition)
-               
+
                 .FirstOrDefaultAsync();
-    
+
         }
         public async Task<Match> SupRefereeCompetitionMatchInfo(int matchId)
         {
@@ -123,6 +123,15 @@ namespace STEM_ROBOT.DAL.Repo
         {
             var timecheck = await _context.Schedules.Where(x => x.Id == scheduleID && x.RefereeCompetition.Referee.AccountId == accountId).Include(m => m.Match).ThenInclude(mt => mt.TeamMatches).FirstOrDefaultAsync();
             return timecheck;
+        }
+
+        public async Task<Schedule> confirmSchedule(int scheduleId,int accoutId)
+        {
+            return await _context.Schedules.Where(x=> x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId).Include(x => x.Match).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
+        }
+        public async Task<TeamMatch> matchWinSchedule(string matchCode)
+        {
+            return await _context.TeamMatches.Where(x => x.MatchWinCode == matchCode).FirstOrDefaultAsync();
         }
     }
 }
