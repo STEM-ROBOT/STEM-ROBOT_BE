@@ -613,12 +613,12 @@ namespace STEM_ROBOT.BLL.Svc
                     var team2 = schedule.Match.TeamMatches.LastOrDefault();
                     if (team1.TotalScore > team2.TotalScore)
                     {
-                        teamMatchWin.TeamId = 2774;
+                        teamMatchWin.TeamId = team1.TeamId;
                         _teamMatchRepo.Update(teamMatchWin);
                     }
                     else
                     {
-                        teamMatchWin.TeamId = 2774;
+                        teamMatchWin.TeamId = team2.TeamId;
                         _teamMatchRepo.Update(teamMatchWin);
                     }
                     res.SetMessage("success");

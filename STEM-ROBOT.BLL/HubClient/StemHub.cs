@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Threading;
+using Google.Api.Gax;
 
 
 namespace STEM_ROBOT.BLL.HubClient
@@ -22,7 +23,8 @@ namespace STEM_ROBOT.BLL.HubClient
         private readonly IServiceProvider _serviceProvider;
         private readonly MatchHaflRepo _matchHaflRepo;
         private readonly MatchRepo _matchRepo;
-        public StemHub(IMapper mapper, TeamMatchRepo teamMatchRepo, NotificationRepo notificationRepo, IServiceProvider serviceProvider, MatchHaflRepo matchHaflRepo, MatchRepo matchRepo)
+        private readonly ActionRepo _actionRepo;
+        public StemHub(IMapper mapper, TeamMatchRepo teamMatchRepo, NotificationRepo notificationRepo, IServiceProvider serviceProvider, MatchHaflRepo matchHaflRepo, MatchRepo matchRepo, ActionRepo actionRepo)
         {
             _mapper = mapper;
             _teamMatchRepo = teamMatchRepo;
@@ -30,6 +32,7 @@ namespace STEM_ROBOT.BLL.HubClient
             _serviceProvider = serviceProvider;
             _matchHaflRepo = matchHaflRepo;
             _matchRepo = matchRepo;
+            _actionRepo = actionRepo;
         }
 
         public async Task<SingleRsp> MatchClient(int matchID, DateTime time)
@@ -182,6 +185,50 @@ namespace STEM_ROBOT.BLL.HubClient
                                 var listPoints = await _matchRepo.MatchListPoint(teamMatchID);
 
                                 await hubContext.Clients.All.SendAsync("list-point/" + teamMatchID.ToString(), listPoints, linkedCts.IsCancellationRequested);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending message: {ex.Message}");
+                            }
+
+                            // Delay to prevent continuous rapid execution, adjust as needed
+                            await Task.Delay(TimeSpan.FromMilliseconds(4000));
+                        }
+                    }
+
+                }
+            }
+
+            res.SetMessage("timeout");
+            return res;
+
+        }
+        //realtime action refereeCompetitions
+        public async Task<SingleRsp> ActionByRefereeSupClient(int matchId, int refereeCompetitionId,int schduleId, DateTime time)
+        {
+            var cancellationToken = new CancellationToken();
+            var res = new SingleRsp();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
+
+                // Create a CancellationTokenSource with a 30-minute timeout
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                {
+
+                    var timeMinute = _matchRepo.GetById(matchId);
+                    TimeSpan totalTime = (TimeSpan)(timeMinute.TimeOut - time.TimeOfDay);
+
+                    if (totalTime.TotalMinutes > 0)
+                    {
+                        linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
+                        while (!linkedCts.Token.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                var listAction = await _actionRepo.ActionByRefereeSup(matchId, refereeCompetitionId);
+
+                                await hubContext.Clients.All.SendAsync("list-action-refere-sub/" + schduleId.ToString(), listAction, linkedCts.IsCancellationRequested);
                             }
                             catch (Exception ex)
                             {
