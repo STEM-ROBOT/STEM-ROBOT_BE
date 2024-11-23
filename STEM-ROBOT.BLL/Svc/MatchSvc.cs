@@ -530,11 +530,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
-                var matchID = listPoint.MatchId;
+                //var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
+                //var matchID = listPoint.MatchId;
                 var schedule = _scheduleRepo.GetById(scheduleId);
 
-                var timePlay = _matchRepo.GetById(matchID);
+                var timePlay = _matchRepo.GetById(schedule.MatchId);
                 var totalTime = timePlay.StartDate + timePlay.TimeIn;
 
                 var checkDate = time < timePlay.StartDate;
@@ -580,7 +580,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception(ex.Message);
             }
-
+            
         }
         //confirm point
 

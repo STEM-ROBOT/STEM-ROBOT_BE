@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Identity.Client;
+using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.Common.Req;
 using STEM_ROBOT.Common.Rsp;
 using STEM_ROBOT.DAL.Models;
@@ -18,124 +19,23 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly ActionRepo _actionRepo;
         private readonly TeamMatchRepo _teamMatchRepo;
         private readonly ScoreCategoryRepo _scoreCategoryRepo;
+        private readonly ScheduleRepo _scheduleRepo;
+        private readonly MatchRepo _matchRepo;  
+        private readonly StemHub _stemHub;
         private readonly IMapper _mapper;
 
-        public ActionSvc(ActionRepo actionRepo, TeamMatchRepo teamMatchRepo, ScoreCategoryRepo scoreCategoryRepo, IMapper mapper)
+        public ActionSvc(ActionRepo actionRepo, TeamMatchRepo teamMatchRepo, ScoreCategoryRepo scoreCategoryRepo, IMapper mapper, StemHub stemHub, ScheduleRepo scheduleRepo, MatchRepo matchRepo)
         {
             _actionRepo = actionRepo;
             _mapper = mapper;
             _teamMatchRepo = teamMatchRepo;
             _scoreCategoryRepo = scoreCategoryRepo;
+            _stemHub = stemHub;
+            _scheduleRepo = scheduleRepo;
+            _matchRepo = matchRepo;
         }
 
-        public MutipleRsp GetActions()
-        {
-            var res = new MutipleRsp();
-            try
-            {
-                var lst = _actionRepo.All();
-                if (lst != null)
-                {
-                    var lstRes = _mapper.Map<List<ActionRsp>>(lst);
-                    res.SetData("data", lstRes);
-                }
-                else
-                {
-                    res.SetError("404", "No data found");
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
 
-        public SingleRsp GetById(int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var action = _actionRepo.GetById(id);
-                if (action == null)
-                {
-                    res.SetError("404", "Action not found");
-                }
-                else
-                {
-                    var actionRes = _mapper.Map<ActionRsp>(action);
-                    res.setData("data", actionRes);
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Create(ActionReq req)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var newAction = _mapper.Map<Action>(req);
-                _actionRepo.Add(newAction);
-                res.setData("data", newAction);
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Update(ActionReq req, int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var action = _actionRepo.GetById(id);
-                if (action == null)
-                {
-                    res.SetError("404", "Action not found");
-                }
-                else
-                {
-                    _mapper.Map(req, action);
-                    _actionRepo.Update(action);
-                    res.setData("data", action);
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
-
-        public SingleRsp Delete(int id)
-        {
-            var res = new SingleRsp();
-            try
-            {
-                var action = _actionRepo.GetById(id);
-                if (action == null)
-                {
-                    res.SetError("404", "Action not found");
-                }
-                else
-                {
-                    _actionRepo.Delete(id);
-                    res.SetMessage("Delete successfully");
-                }
-            }
-            catch (Exception ex)
-            {
-                res.SetError("500", ex.Message);
-            }
-            return res;
-        }
         public async Task<SingleRsp> ConfirmAction(int actionId, string status, int scheduleId, int accoutId)
         {
             var res = new SingleRsp();
@@ -150,11 +50,11 @@ namespace STEM_ROBOT.BLL.Svc
                     var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
                     if (score.Type.ToLower() == "điểm cộng")
                     {
-                        teamMatch.TotalScore = teamMatch.TotalScore + score.Point;
+                        teamMatch.TotalScore += score.Point;
                     }
                     else
                     {
-                        teamMatch.TotalScore = teamMatch.TotalScore - score.Point;
+                        teamMatch.TotalScore -= score.Point;
                     }
 
 
@@ -186,7 +86,7 @@ namespace STEM_ROBOT.BLL.Svc
                 {
                     EventTime = req.EventTime,
                     MatchHalfId = req.MatchHalfId,
-                    ScoreCategoryId= req.ScoreCategoryId,
+                    ScoreCategoryId = req.ScoreCategoryId,
                     RefereeCompetitionId = schedule.RefereeCompetitionId,
                     Status = "pending",
                     Score = 0,
@@ -200,6 +100,74 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception(ex.Message);
             }
             return res;
+        }
+        public async Task<SingleRsp> GetActionSchedule(int scheduleId, int accountId)
+        {
+            var time = ConvertToVietnamTime(DateTime.Now);
+            var res = new SingleRsp();
+            try
+            {
+            ;
+              
+                var schedule =await _actionRepo.checkRefereeschedule(scheduleId, accountId);
+
+                var timePlay = _matchRepo.GetById(schedule.MatchId);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (schedule.IsJoin != true)
+                {
+
+                    res.setData("data", "notjoin");
+                }
+                else if (time.Date < timePlay.StartDate.Value.Date)
+                {
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
+                }
+                else
+                if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+
+                    var data = await _stemHub.ActionByRefereeSupClient((int)schedule.MatchId,(int)schedule.RefereeCompetitionId,scheduleId,ConvertToVietnamTime(DateTime.Now));
+                    res.setData("data", data.Message);
+                }
+                else
+                {
+                    var listAction = await _actionRepo.ActionByRefereeSup((int)schedule.MatchId , (int ) schedule.RefereeCompetitionId);
+                    res.setData("data", listAction);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
         }
     }
 }
