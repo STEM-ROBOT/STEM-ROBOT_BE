@@ -10,8 +10,8 @@ namespace STEM_ROBOT.Common.Req
     public class ActionReq
     {
 
-        [Required(ErrorMessage = "Event time is required")]
-        public TimeSpan EventTime { get; set; }
+     
+        public TimeSpan? EventTime { get; set; }
 
         [Required(ErrorMessage = "MatchHalfId is required")]
         public int MatchHalfId { get; set; }

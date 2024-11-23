@@ -487,6 +487,10 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var data = await _scheduleRepo.ScheduleSupRefereeCompetition(refereeCompetitionId);
+                    if(data == null)
+                    {
+                        throw new Exception("Not found");
+                    }
                     int competitionId = (int)data[0].RefereeCompetition.CompetitionId;
                     var locatons = await _scheduleRepo.CheckLocationCompetition(competitionId);
                     var dataRes = new
@@ -541,9 +545,9 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         breakHaftTime = matchData.BreakTimeHaft.ToString(),
                         durationHaft = matchData.TimeOfHaft.ToString(),
-                        endTime = matchData.TimeIn.Value.ToString("HH:mm:ss"),
-                        startTime = matchData.TimeOut.Value.ToString("HH:mm:ss"),
-                        startDate = matchData.StartDate.Value.ToString("yyyy-MM-dd"),
+                        //endTime = matchData.TimeIn.Value.ToString("HH:mm:ss"),
+                        //startTime = matchData.TimeOut.Value.ToString("HH:mm:ss"),
+                        //startDate = matchData.StartDate.Value.ToString("yyyy-MM-dd"),
                         haftMatch = matchData.MatchHalves.Select(h => new ScheduleMatchHaftRsp
                         {
                             HaftId = h.Id,

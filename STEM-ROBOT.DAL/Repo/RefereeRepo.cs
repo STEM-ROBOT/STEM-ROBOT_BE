@@ -22,7 +22,7 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<List<RefereeCompetition>> GetListSupReferee(int refeId)
         {
-            return await _context.RefereeCompetitions.Where(rc => rc.RefereeId == refeId && rc.Role == "MRF")
+            return await _context.RefereeCompetitions.Where(rc => rc.RefereeId == refeId && rc.Role == "SRF")
                 .Include(x => x.Competition).ThenInclude(x => x.Genre).ToListAsync();
         }
     }
