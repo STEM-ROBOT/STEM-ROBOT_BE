@@ -61,6 +61,7 @@ namespace STEM_ROBOT.DAL.Repo
                   CreateDate = t.CreateDate,
                   Introduce = t.Introduce,
                   views = t.ViewTournament,
+                  TournamentLevel=t.TournamentLevel,
                   Status = t.Status,
                   competitionNumber = t.Competitions.Count(),
                   competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
