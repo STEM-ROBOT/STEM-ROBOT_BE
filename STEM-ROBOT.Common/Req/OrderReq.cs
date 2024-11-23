@@ -9,9 +9,6 @@ namespace STEM_ROBOT.Common.Req
 {
     public class OrderReq
     {
-        [Required(ErrorMessage = "AccountId is required")]
-        public int AccountId { get; set; }
-
         [Required(ErrorMessage = "PackageId is required")]
         public int PackageId { get; set; }
     }
