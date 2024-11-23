@@ -535,8 +535,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                         homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
                         awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
-                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
-                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                        homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
+                        awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).LastOrDefault(),
                         //ti so tran dau
                         homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
                         awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
@@ -577,8 +577,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                             homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
                             awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
-                            homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).FirstOrDefault(),
-                            awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://antimatter.vn/wp-content/uploads/2022/10/hinh-nen-logo-mu-soc-den.jpg" : tm.Team.Image).LastOrDefault(),
+                            homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
+                            awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).LastOrDefault(),
                             //ti so tran dau
                             homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
                             awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
