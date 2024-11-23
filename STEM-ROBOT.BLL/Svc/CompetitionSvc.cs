@@ -252,7 +252,7 @@ namespace STEM_ROBOT.BLL.Svc
                     image = competition.Genre.Image,
                     name = competition.Genre.Name,
                     numberContestantTeam = (int)competition.NumberContestantTeam,
-                    registerTime = competition.Format.Id == 2 ?(DateTime)competition.RegisterTime:null,
+                    registerTime = competition.Status == "Public" ? (DateTime)competition.RegisterTime : null,
                     EndTime = (DateTime)competition.EndTime,
                     StartTime = (DateTime)competition.StartTime,
                     status = competition.Status,

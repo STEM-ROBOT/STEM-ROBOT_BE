@@ -200,6 +200,7 @@ namespace STEM_ROBOT.BLL.HubClient
             return res;
 
         }
+
         public override async Task OnConnectedAsync()
         {
             var connectionId = Context.ConnectionId;

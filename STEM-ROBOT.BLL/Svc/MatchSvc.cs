@@ -367,7 +367,7 @@ namespace STEM_ROBOT.BLL.Svc
 
             List<MatchHalf> matchesHalf = new List<MatchHalf>();
 
-            DateTime endTime = DateTime.Now;
+            var endTime = new DateTime();
             //var listMatch = competition_data.Stages.Select(m => new Match
             //{
 
