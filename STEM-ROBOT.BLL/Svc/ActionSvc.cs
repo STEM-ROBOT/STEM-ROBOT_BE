@@ -107,8 +107,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-            ;
-              
+             
                 var schedule =await _actionRepo.checkRefereeschedule(scheduleId, accountId);
 
                 var timePlay = _matchRepo.GetById(schedule.MatchId);
@@ -123,7 +122,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     res.setData("data", "notjoin");
                 }
-                else if (time.Date < timePlay.StartDate.Value.Date)
+                else if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");

@@ -542,7 +542,7 @@ namespace STEM_ROBOT.BLL.Svc
                         awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
                         //thoi gian, dia diem   
                         //thoi gian, dia diem   
-                        startTime = m.StartDate,
+                        startTime = m.StartDate + m.TimeIn,
                         locationName = m.LocationId == null ? "" : m.Location.Address,
                     }).ToList()
 
@@ -583,7 +583,7 @@ namespace STEM_ROBOT.BLL.Svc
                             homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
                             awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
                             //thoi gian, dia diem   
-                            startTime = m.StartDate,
+                            startTime = m.StartDate + m.TimeIn,
                             locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
                     }).ToList(),
@@ -742,7 +742,7 @@ namespace STEM_ROBOT.BLL.Svc
                     TeamMatch team = new TeamMatch
                     {
                         NameDefault = $"Top#{i + 1} B#{assignment.TableGroupName}",
-                        TotalScore = 0 ,
+                        TotalScore = 0,
 
                     };
                     winningTeamsFromExtraRound.Add(team);

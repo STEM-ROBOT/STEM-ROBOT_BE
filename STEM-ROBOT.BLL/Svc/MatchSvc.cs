@@ -424,7 +424,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (time.Date < timePlay.StartDate.Value.Date)
+                if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -486,7 +486,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (time.Date < timePlay.StartDate.Value.Date)
+                if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -545,7 +545,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     res.setData("data", "notjoin");
                 }
-                else if (time.Date < timePlay.StartDate.Value.Date)
+                else if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");

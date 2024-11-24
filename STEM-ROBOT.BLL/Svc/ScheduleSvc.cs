@@ -431,7 +431,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     TimeSpan checkTime = (DateTime)totalTime - date;
 
-                    if (date.Date != matchCheck.StartDate.Value.Date)
+                    if (date.Date != matchCheck.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                     {
 
                         res.setData("data", "error");
@@ -548,6 +548,7 @@ namespace STEM_ROBOT.BLL.Svc
                     }).ToList(),
                     matchInfo = new ScheduleMatchInfoRsp
                     {
+                        matchId = matchData.Id,
                         breakHaftTime = matchData.BreakTimeHaft.ToString(),
                         durationHaft = matchData.TimeOfHaft.Value.ToString(),
                         endTime = matchData.TimeOut.Value.ToString(),
