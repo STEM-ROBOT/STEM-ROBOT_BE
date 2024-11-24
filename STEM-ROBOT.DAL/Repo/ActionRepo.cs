@@ -51,6 +51,7 @@ namespace STEM_ROBOT.DAL.Repo
                  Status = a.Status,
                  TeamMatchId = a.TeamMatchId,
                  TeamName = a.TeamMatch?.Team?.Name,
+                 TeamLogo= a.TeamMatch?.Team?.Image,
              }).ToList()
          })
          .ToList();

@@ -43,6 +43,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? ScoreCategoryType { get; set; }
 
         public string? EventTime { get; set; }
+        public string? TeamLogo { get; set; }
 
         public int? TeamMatchId { get; set; }
 

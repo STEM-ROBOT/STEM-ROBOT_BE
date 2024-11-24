@@ -28,4 +28,22 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int ? Member { get; set; }
     }
+    public class TeamRegisterTournamentRsp
+    {
+        public int Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? contactPhone { get; set; }
+
+        public string? contactPerson { get; set; }
+
+        public string? competition { get; set; }
+
+        public string? Status { get; set; }
+
+        public DateTime? RegisterTime { get; set; }
+
+        public int? Members { get; set; }
+    }
 }
