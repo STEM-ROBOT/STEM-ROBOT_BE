@@ -21,40 +21,35 @@ namespace STEM_ROBOT.DAL.Repo
             var timecheck = await _context.Schedules.Where(x => x.Id == scheduleId).FirstOrDefaultAsync();
             return timecheck;
         }
-      
-        public async Task<List<HaftAction>> ActionByRefereeSup(int matchId, int refereeCompetitionId)
+
+        public async Task<List<ActionsRefereeSupRsp>> ActionByRefereeSup(int matchId, int refereeCompetitionId)
         {
             var data = await _context.Actions.Where(ac => ac.RefereeCompetitionId == refereeCompetitionId && ac.MatchHalf.MatchId == matchId)
-        .Include(ac => ac.ScoreCategory) 
-        .Include(ac => ac.TeamMatch) 
-        .ThenInclude(tm => tm.Team) 
-        .Include(ac => ac.MatchHalf) 
+        .Include(ac => ac.ScoreCategory)
+        .Include(ac => ac.TeamMatch)
+        .ThenInclude(tm => tm.Team)
+        .Include(ac => ac.MatchHalf)
         .ToListAsync();
 
 
 
-          var groupedActions = data
-         .GroupBy(ac => ac.MatchHalf)
-         .Select(group => new HaftAction
-         {
-             Id = group.Key?.Id ?? 0, 
-             Name = group.Key?.HalfName ?? "Unknown Half", 
-             Actions = group.Select(a => new ActionsRefereeSupRsp
-             {
-                 Id = a.Id,
-                 EventTime =CalculateElapsedMinutesAndSeconds(a.EventTime),
-                 RefereeCompetitionId = a.RefereeCompetitionId,
-                 ScoreCategoryDescription = a.ScoreCategory?.Description,
-                 ScoreCategoryId = a.ScoreCategoryId,
-                 ScoreCategoryPoint = a.ScoreCategory?.Point,
-                 ScoreCategoryType = a.ScoreCategory?.Type,
-                 Status = a.Status,
-                 TeamMatchId = a.TeamMatchId,
-                 TeamName = a.TeamMatch?.Team?.Name,
-                 TeamLogo= a.TeamMatch?.Team?.Image,
-             }).ToList()
-         })
-         .ToList();
+            var groupedActions = data.Select(a => new ActionsRefereeSupRsp
+            {
+                Id = a.Id,
+                EventTime = CalculateElapsedMinutesAndSeconds(a.EventTime),
+                RefereeCompetitionId = a.RefereeCompetitionId,
+                ScoreCategoryDescription = a.ScoreCategory?.Description,
+                ScoreCategoryId = a.ScoreCategoryId,
+                ScoreCategoryPoint = a.ScoreCategory?.Point,
+                ScoreCategoryType = a.ScoreCategory?.Type,
+                Status = a.Status,
+                HaftName = a.MatchHalf.HalfName,
+                TeamMatchId = a.TeamMatchId,
+                TeamName = a.TeamMatch?.Team?.Name,
+                TeamLogo = a.TeamMatch?.Team?.Image,
+            }).ToList();
+
+
 
             return groupedActions;
         }
