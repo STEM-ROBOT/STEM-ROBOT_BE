@@ -24,34 +24,23 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<List<ActionsRefereeSupRsp>> ActionByRefereeSup(int matchId, int refereeCompetitionId)
         {
-            var data = await _context.Actions.Where(ac => ac.RefereeCompetitionId == refereeCompetitionId && ac.MatchHalf.MatchId == matchId)
-        .Include(ac => ac.ScoreCategory)
-        .Include(ac => ac.TeamMatch)
-        .ThenInclude(tm => tm.Team)
-        .Include(ac => ac.MatchHalf)
-        .ToListAsync();
-
-
-
-            var groupedActions = data.Select(a => new ActionsRefereeSupRsp
+            var data = await _context.Actions.Where(ac => ac.RefereeCompetitionId == refereeCompetitionId).Select(a => new ActionsRefereeSupRsp
             {
                 Id = a.Id,
                 EventTime = CalculateElapsedMinutesAndSeconds(a.EventTime),
                 RefereeCompetitionId = a.RefereeCompetitionId,
-                ScoreCategoryDescription = a.ScoreCategory?.Description,
+                ScoreCategoryDescription = a.ScoreCategory.Description,
                 ScoreCategoryId = a.ScoreCategoryId,
-                ScoreCategoryPoint = a.ScoreCategory?.Point,
-                ScoreCategoryType = a.ScoreCategory?.Type,
+                ScoreCategoryPoint = a.ScoreCategory.Point,
+                ScoreCategoryType = a.ScoreCategory.Type,
                 Status = a.Status,
                 HaftName = a.MatchHalf.HalfName,
                 TeamMatchId = a.TeamMatchId,
-                TeamName = a.TeamMatch?.Team?.Name,
-                TeamLogo = a.TeamMatch?.Team?.Image,
-            }).ToList();
+                TeamName = a.TeamMatch.Team.Name,
+                TeamLogo = a.TeamMatch.Team.Image,
+            }).ToListAsync();
 
-
-
-            return groupedActions;
+            return data;
         }
         public static string CalculateElapsedMinutesAndSeconds(TimeSpan? eventTime)
         {
