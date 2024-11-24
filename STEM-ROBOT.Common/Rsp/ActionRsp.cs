@@ -28,7 +28,7 @@ namespace STEM_ROBOT.Common.Rsp
     public class HaftAction
     {
         public int? Id { get; set; }
-        public string? Name { get; set; }
+        
         public ICollection<ActionsRefereeSupRsp> Actions { get; set; } = new List<ActionsRefereeSupRsp>();
     }
     public class ActionsRefereeSupRsp
@@ -48,6 +48,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int? TeamMatchId { get; set; }
 
         public string? TeamName { get; set; }
+        public string? HaftName { get; set; }
         public int? RefereeCompetitionId { get; set; }
 
         public string? Status { get; set; }
