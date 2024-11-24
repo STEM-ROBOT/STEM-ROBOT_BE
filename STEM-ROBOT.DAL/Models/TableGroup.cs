@@ -11,6 +11,8 @@ public partial class TableGroup
 
     public bool? IsAsign { get; set; }
 
+    public int? TeamNextRoud { get; set; }
+
     public int? CompetitionId { get; set; }
 
     public virtual Competition? Competition { get; set; }
