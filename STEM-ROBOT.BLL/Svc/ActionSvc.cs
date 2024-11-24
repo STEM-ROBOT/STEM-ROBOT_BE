@@ -20,7 +20,7 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamMatchRepo _teamMatchRepo;
         private readonly ScoreCategoryRepo _scoreCategoryRepo;
         private readonly ScheduleRepo _scheduleRepo;
-        private readonly MatchRepo _matchRepo;  
+        private readonly MatchRepo _matchRepo;
         private readonly StemHub _stemHub;
         private readonly IMapper _mapper;
 
@@ -48,17 +48,17 @@ namespace STEM_ROBOT.BLL.Svc
                     var action = _actionRepo.GetById(actionId);
                     var score = _scoreCategoryRepo.GetById(action.ScoreCategoryId);
                     var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
-                    if (score.Type.ToLower() == "điểm cộng")
+                    if (status == "accept")
                     {
-                        teamMatch.TotalScore += score.Point;
+                        if (score.Type.ToLower() == "điểm trừ" && teamMatch.TotalScore >= 0)
+                        {
+                            teamMatch.TotalScore -= score.Point;
+                        }
+                        else if(score.Type.ToLower() == "điểm cộng")
+                        {
+                            teamMatch.TotalScore += score.Point;
+                        }
                     }
-                    else
-                    {
-                        teamMatch.TotalScore -= score.Point;
-                    }
-
-
-
                     action.Status = status;
                     _teamMatchRepo.Update(teamMatch);
                     _actionRepo.Update(action);
@@ -107,8 +107,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-             
-                var schedule =await _actionRepo.checkRefereeschedule(scheduleId, accountId);
+
+                var schedule = await _actionRepo.checkRefereeschedule(scheduleId, accountId);
 
                 var timePlay = _matchRepo.GetById(schedule.MatchId);
                 var totalTime = timePlay.StartDate + timePlay.TimeIn;
@@ -142,12 +142,12 @@ namespace STEM_ROBOT.BLL.Svc
                 else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
                 {
 
-                    var data = await _stemHub.ActionByRefereeSupClient((int)schedule.MatchId,(int)schedule.RefereeCompetitionId,scheduleId,ConvertToVietnamTime(DateTime.Now));
+                    var data = await _stemHub.ActionByRefereeSupClient((int)schedule.MatchId, (int)schedule.RefereeCompetitionId, scheduleId, ConvertToVietnamTime(DateTime.Now));
                     res.setData("data", data.Message);
                 }
                 else
                 {
-                    var listAction = await _actionRepo.ActionByRefereeSup((int)schedule.MatchId , (int ) schedule.RefereeCompetitionId);
+                    var listAction = await _actionRepo.ActionByRefereeSup((int)schedule.MatchId, (int)schedule.RefereeCompetitionId);
                     res.setData("data", listAction);
                 }
                 return res;

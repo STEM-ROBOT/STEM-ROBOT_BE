@@ -647,8 +647,13 @@ namespace STEM_ROBOT.BLL.Svc
                 int totalStage = 0;
                 // Iterate through each table assignment provided by the frontend
                 //2
+                var tableGruoups = new List<TableGroup>();
+                var teamTables = new List<TeamTable>();
                 foreach (var assignment in tableAssignments.tableAssign)
                 {
+                    var tableGruoup = _tableGroupRepo.GetById(assignment.TableGroupId);
+                    tableGruoup.TeamNextRoud = assignment.TeamNextRound;
+                    tableGruoups.Add(tableGruoup);
                     //tổng trận trong bảng
                     var numMatchInTable = (assignment.Teams.Count * (assignment.Teams.Count - 1)) / 2;
                     // số trận trong vòng
@@ -674,10 +679,11 @@ namespace STEM_ROBOT.BLL.Svc
                             TableGroupId = assignment.TableGroupId,
                             IsSetup = true // Assuming this should be true when teams are assigned
                         };
-                        _teamTableRepo.Add(teamTable);
+                        teamTables.Add(teamTable);
                     }
                 }
-
+                _teamTableRepo.AddRange(teamTables);
+                _tableGroupRepo.UpdateRange(tableGruoups);
                 var checksetup = await SetupStageTable(totalStage, competitionId, tableAssignments);
 
                 var checkBool = await StateSetup((int)checksetup.Count, competitionId, checksetup);
@@ -743,7 +749,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         NameDefault = $"Top#{i + 1} B#{assignment.TableGroupName}",
                         TotalScore = 0,
-
+                        MatchWinCode= $"T#{i + 1}B#{assignment.TableGroupName}"
                     };
                     winningTeamsFromExtraRound.Add(team);
                 }
