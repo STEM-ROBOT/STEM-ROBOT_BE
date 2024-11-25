@@ -50,7 +50,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
                     if (status == "accept")
                     {
-                        if (score.Type.ToLower() == "điểm trừ" && teamMatch.TotalScore >= 0)
+                        if (score.Type.ToLower() == "điểm trừ" && teamMatch.TotalScore > 0)
                         {
                             teamMatch.TotalScore -= score.Point;
                         }
