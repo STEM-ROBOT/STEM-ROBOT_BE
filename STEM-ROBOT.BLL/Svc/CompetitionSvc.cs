@@ -438,8 +438,13 @@ namespace STEM_ROBOT.BLL.Svc
                     _matchRepo.Add(match);
 
                     // Thêm các đội vào trận đấu
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                    TeamMatch teamM = new TeamMatch
+                    {
+                        MatchId = match.Id,
+                        TotalScore = 0
+                    };
+                    _teamMatchRepo.Add(teamM);
+                    _teamMatchRepo.Add(teamM);
 
                     // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
 
@@ -538,8 +543,8 @@ namespace STEM_ROBOT.BLL.Svc
                         homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
                         awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).LastOrDefault(),
                         //ti so tran dau
-                        homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
-                        awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                        homeScore = m.TeamMatches.Select(tm => tm.TotalScore).FirstOrDefault(),
+                        awayScore = m.TeamMatches.Select(tm => tm.TotalScore).LastOrDefault(),
                         //thoi gian, dia diem   
                         //thoi gian, dia diem   
                         startTime = m.StartDate + m.TimeIn,
@@ -580,8 +585,8 @@ namespace STEM_ROBOT.BLL.Svc
                             homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
                             awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).LastOrDefault(),
                             //ti so tran dau
-                            homeScore = m.TeamMatches.Select(tm => tm.ResultPlay).FirstOrDefault(),
-                            awayScore = m.TeamMatches.Select(tm => tm.ResultPlay).LastOrDefault(),
+                            homeScore = m.TeamMatches.Select(tm => tm.TotalScore).FirstOrDefault(),
+                            awayScore = m.TeamMatches.Select(tm => tm.TotalScore).LastOrDefault(),
                             //thoi gian, dia diem   
                             startTime = m.StartDate + m.TimeIn,
                             locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
@@ -749,7 +754,7 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         NameDefault = $"Top#{i + 1} B#{assignment.TableGroupName}",
                         TotalScore = 0,
-                        MatchWinCode= $"T#{i + 1}B#{assignment.TableGroupName}"
+                        MatchWinCode = $"T#{i + 1}B#{assignment.TableGroupName}"
                     };
                     winningTeamsFromExtraRound.Add(team);
                 }
@@ -777,8 +782,14 @@ namespace STEM_ROBOT.BLL.Svc
 
                                 };
                                 _matchRepo.Add(match);
-                                teamMatchs.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
-                                teamMatchs.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                                TeamMatch teammatch = new TeamMatch
+                                {
+                                    MatchId = match.Id,
+                                    TotalScore = 0
+                                };
+
+                                teamMatchs.Add(teammatch);
+                                teamMatchs.Add(teammatch);
                                 mactch_stage++;
                             }
 
@@ -985,18 +996,24 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp GetRuleCompetition(int competitionId)
+        public async Task<SingleRsp> GetRuleCompetition(int competitionId)
         {
             var res = new SingleRsp();
             try
             {
-                var competition = _competitionRepo.GetById(competitionId);
+                var competition =await _competitionRepo.Rulecompetion(competitionId);
+            
                 if (competition == null)
                 {
                     res.SetError("404", "Competition not found with the provided ID.");
                     return res;
                 }
-                res.setData("file", competition.Regulation);
+                var data = new
+                {
+                    regulation = competition.Regulation,
+                    regulationExample = competition.Genre.HintRule
+                };
+                res.setData("file", data);
 
             }
             catch (Exception ex)

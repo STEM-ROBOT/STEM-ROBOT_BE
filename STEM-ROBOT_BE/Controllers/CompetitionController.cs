@@ -251,9 +251,9 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpGet("get-rule")]
-        public IActionResult GetRule(int competitionId)
+        public async Task<IActionResult> GetRule(int competitionId)
         {
-            var res = _competionSvc.GetRuleCompetition(competitionId);
+            var res =await _competionSvc.GetRuleCompetition(competitionId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);

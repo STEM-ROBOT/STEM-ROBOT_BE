@@ -168,8 +168,8 @@ namespace STEM_ROBOT.Common.Rsp
         public string? awayTeamLogo { get; set; }
         public string? awayTeam { get; set; }
         //ti so tran dau
-        public string? homeScore { get; set; }
-        public string? awayScore { get; set; }
+        public int? homeScore { get; set; }
+        public int? awayScore { get; set; }
         //thoi gian, dia diem   
         public DateTime? startTime { get; set; }
         public string? locationName { get; set; }

@@ -87,12 +87,16 @@ namespace STEM_ROBOT.BLL.Svc
                List<TeamMatch> teamMatches = new List<TeamMatch>();
                 foreach (var teamMatch in request)
                 {
-                    var team_match = new TeamMatch
+                    TeamMatch team_match = new TeamMatch
                     {
                         Id = teamMatch.teamMatchId,
                         TeamId = teamMatch.teamId,
                         NameDefault = teamMatch.teamName,
                         MatchId= teamMatch.matchId, 
+                        TotalScore=0,
+                        ResultPlayTable=0,
+                        ResultPlay="0",
+                        
                     };
                     teamMatches.Add(team_match);
                 }

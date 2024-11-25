@@ -136,15 +136,16 @@ namespace STEM_ROBOT.BLL.Svc
         public SingleRsp updateStatusTeamRegister(int id, int competitionId, TeamRegisterStatusRsp teamRegisterStatusRsp)
         {
             var res = new SingleRsp();
-            var teamRegister = _teamRegisterRepo.GetById(id);
-            if (teamRegister == null)
+            try
             {
-                res.SetMessage("Nội dung thi đấu không tồn tại!");
-            }
-            else
-            {
-                try
+                var teamRegister = _teamRegisterRepo.GetById(id);
+                if (teamRegister == null)
                 {
+                    res.SetMessage("Nội dung thi đấu không tồn tại!");
+                }
+                else
+                {
+
                     var slot = _teamRepo.All(x => x.CompetitionId == competitionId && x.IsSetup != true).FirstOrDefault();
                     if (slot == null)
                     {
@@ -158,9 +159,14 @@ namespace STEM_ROBOT.BLL.Svc
                         foreach (var item in contestantTeam)
                         {
                             item.TeamId = slot.Id;
+
                         }
                         _contestantTeamRepo.UpdateRange(contestantTeam);
                         slot.IsSetup = true;
+                        slot.ContactInfo = teamRegister.ContactInfo;
+                        slot.Image = teamRegister.Image;
+                        slot.Name= teamRegister.Name;
+                        slot.PhoneNumber = teamRegister.PhoneNumber;                      
                         _teamRegisterRepo.Update(teamRegister);
                         _teamRepo.Update(slot);
                         res.SetMessage("Cập nhật thành công");
@@ -172,11 +178,12 @@ namespace STEM_ROBOT.BLL.Svc
                         res.SetMessage("Cập nhật thành công");
                     }
 
+
                 }
-                catch (Exception ex)
-                {
-                    res.SetError(ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.ToString());
             }
             return res;
         }
