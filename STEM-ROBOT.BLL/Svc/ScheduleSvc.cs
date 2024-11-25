@@ -651,42 +651,48 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamMatchRepo.UpdateRange(listTeam);
                     }
 
-                    var matchLast = await _scheduleRepo.checkMatchLast((int)schedule.MatchId, (int)schedule.Match.TableGroupId);
-
-                    if (matchLast != null)
+                    var matchLast = await _scheduleRepo.checkMatchLast((int)schedule.Match.TableGroupId);
+                    var matchLastcheck = matchLast.LastOrDefault();
+                    if ((int)schedule.MatchId == matchLastcheck.Id)
                     {
-                        int teamNextRound = (int)matchLast.TeamNextRoud;
-                        var listTeamReult = new List<TeamResult>();
-                        foreach (var team in matchLast.TeamTables)
+                        var matchtable = await _scheduleRepo.checkTableMatch((int)schedule.MatchId);
+                        if (matchLast != null)
                         {
-                            int toltalScore = 0;
-                            var teamResult = new TeamResult();
-
-                            foreach (var teamMatch in team.Team.TeamMatches)
+                            int teamNextRound = (int)matchtable.TeamNextRoud;
+                            var listTeamReult = new List<TeamResult>();
+                            foreach (var team in matchtable.TeamTables)
                             {
-                                toltalScore += (int)teamMatch.ResultPlayTable;
+                                int toltalScore = 0;
+                                var teamResult = new TeamResult();
 
+                                foreach (var teamMatch in team.Team.TeamMatches)
+                                {
+                                    toltalScore += (int)teamMatch.ResultPlayTable;
+
+                                }
+                                teamResult.TeamId = (int)team.TeamId;
+                                teamResult.Score = toltalScore;
+                                teamResult.TableName = matchtable.Name;
+                                listTeamReult.Add(teamResult);
                             }
-                            teamResult.TeamId = (int)team.TeamId;
-                            teamResult.Score = toltalScore;
-                            teamResult.TableName = matchLast.Name;
-                            listTeamReult.Add(teamResult);
+                            var topTeams = listTeamReult
+                            .OrderByDescending(t => t.Score)
+                            .Take(teamNextRound)
+                            .ToList();
+                            int top = 0;
+                            foreach (var team in topTeams)
+                            {
+                                top += 1;
+                                var MatchCode = $"T#{top}B#{team.TableName}";
+                                var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
+                                teamMatchWin.TeamId = team.TeamId;
+                                _teamMatchRepo.Update(teamMatchWin);
+                            }
                         }
-                        var topTeams = listTeamReult
-                        .OrderByDescending(t => t.Score)
-                        .Take(teamNextRound)
-                        .ToList();
-                        int top = 0;
-                        foreach (var team in topTeams)
-                        {
-                            top += 1;
-                            var MatchCode = $"T#{top}B#{team.TableName}";
-                            var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
-                            teamMatchWin.TeamId = team.TeamId;
-                            _teamMatchRepo.Update(teamMatchWin);
-                        }
+                       
                     }
                     res.SetMessage("success");
+
                 }
                 else if (schedule.Match.Stage.StageMode == "Knockout")
                 {
