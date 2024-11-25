@@ -115,6 +115,16 @@ namespace STEM_ROBOT.DAL.Repo
 
 
         }
+        public async Task<Competition> Rulecompetion(int competitionId)
+        {
+            var competition = _context.Competitions.Where(c => c.Id == competitionId)
+                .Include(c => c.Genre)              
+                .FirstOrDefault();
 
+            return competition;
+
+
+
+        }
     }
 }
