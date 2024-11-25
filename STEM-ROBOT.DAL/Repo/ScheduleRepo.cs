@@ -135,14 +135,15 @@ namespace STEM_ROBOT.DAL.Repo
                .ThenInclude(s => s.Stage)
                 .FirstOrDefaultAsync();
         }
-        public async Task<TableGroup> checkMatchLast(int matchId,int tableGroupId)
+        public async Task<List<Match>> checkMatchLast(int tableGroupId)
         {
-            var matchLast = await _context.Matches.Where(x => x.TableGroupId == tableGroupId).LastOrDefaultAsync();
-            if(matchLast.Id == matchId)
-            {
-                return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb=>tb.TeamTables).ThenInclude(t=>t.Team).ThenInclude(tm=>tm.TeamMatches).FirstOrDefaultAsync();
-            }
-           return null; 
+            var matchLast = await _context.Matches.Where(x => x.TableGroupId == tableGroupId).ToListAsync();
+
+            return matchLast;
+        }
+        public async Task<TableGroup> checkTableMatch( int tableGroupId)
+        {
+            return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb => tb.TeamTables).ThenInclude(t => t.Team).ThenInclude(tm => tm.TeamMatches).FirstOrDefaultAsync();
         }
         public async Task<TeamMatch> matchWinSchedule(string matchCode)
         {
