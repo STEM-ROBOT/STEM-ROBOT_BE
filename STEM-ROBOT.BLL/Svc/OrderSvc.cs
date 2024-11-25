@@ -43,13 +43,13 @@ namespace STEM_ROBOT.BLL.Svc
 
             return vietnamTime;
         }
-        public async Task<SingleRsp> CreateOrder(OrderReq request)
+        public async Task<SingleRsp> CreateOrder(int userId,OrderReq request)
         {
             var res = new SingleRsp();
             try
             {
                 long orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-                var account = _accountRepo.GetById(request.AccountId);
+                var account = _accountRepo.GetById(userId);
                 if (account == null)
                 {
                     res.SetError("Account not found");
@@ -64,7 +64,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var order = new Order
                 {
                     Id = (int)orderCode,
-                    AccountId = request.AccountId,
+                    AccountId = userId,
                     PackageId = request.PackageId,
                     Status = "Pending",
                     OrderDate = ConvertToVietnamTime(DateTime.Now),

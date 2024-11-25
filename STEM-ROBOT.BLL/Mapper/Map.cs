@@ -43,8 +43,7 @@ namespace STEM_ROBOT.BLL.Mapper
 
             CreateMap<Tournament, TournamentReq>().ReverseMap();
 
-            CreateMap<Tournament, TournamentInforRsp>()
-                .ForMember(x => x.NumberTeam, op => op.MapFrom(x => x.Contestants.Count))
+            CreateMap<Tournament, TournamentInforRsp>()               
                 .ForMember(x => x.Views, op => op.MapFrom(x => x.ViewTournament))
                 .ReverseMap();
 
@@ -201,7 +200,7 @@ namespace STEM_ROBOT.BLL.Mapper
                        .ReverseMap();
             CreateMap<TeamMatch, TeamMatchReferee>()
                 .ForMember(x => x.teamId, op => op.MapFrom(x => x.TeamId))
-                .ForMember(x => x.teamLogo, op => op.MapFrom(x => x.Team.Image))
+                .ForMember(x => x.teamLogo, op => op.MapFrom(x => x.TeamId!= null ? x.Team.Image : "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf"))
                .ReverseMap();
 
 

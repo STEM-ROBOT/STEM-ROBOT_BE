@@ -575,9 +575,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.ResultPlay)
                 .HasMaxLength(250)
                 .HasDefaultValueSql("((0))");
-            entity.Property(e => e.ResultPlayTable)
-                .HasMaxLength(250)
-                .HasDefaultValueSql("((0))");
+            entity.Property(e => e.ResultPlayTable).HasDefaultValueSql("((0))");
             entity.Property(e => e.TotalScore).HasDefaultValueSql("((0))");
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)
@@ -640,7 +638,7 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Tournament");
 
             entity.Property(e => e.AreaCode).HasColumnType("ntext");
-            entity.Property(e => e.CreateDate).HasColumnType("date");
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Image).HasColumnType("text");
             entity.Property(e => e.Introduce).HasColumnType("ntext");
             entity.Property(e => e.LevelTournament).HasColumnType("ntext");

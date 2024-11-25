@@ -31,9 +31,9 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res);
         }
         [HttpGet("list-tournament")]
-        public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? level = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
-            var res = await _tournament.GetTournament(name, provinceCode, status, GenerId, page, pageSize);
+            var res = await _tournament.GetTournament(name, provinceCode, status, level, GenerId, page, pageSize);
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
@@ -76,7 +76,7 @@ namespace STEM_ROBOT_BE.Controllers
         public async Task<IActionResult> UpdateView(int tournamentId)
         {
 
-          
+
             MutipleRsp res = await _tournament.UpdateViewer(tournamentId);
             if (res.Success)
             {
@@ -139,6 +139,6 @@ namespace STEM_ROBOT_BE.Controllers
         //    }
         //    return Ok(res.Data);
         //}
-        
+
     }
 }

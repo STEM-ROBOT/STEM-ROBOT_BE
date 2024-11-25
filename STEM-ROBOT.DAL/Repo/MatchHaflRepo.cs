@@ -28,14 +28,14 @@ namespace STEM_ROBOT.DAL.Repo
                     {
                         HalfId = h.Id,
                         Half_Name = h.HalfName,
-                        Actions = h.Actions.Where(x=> x.Status.ToLower() == "accept").Select(a => new
+                        Actions = h.Actions.Where(x => x.Status.ToLower() == "accept").Select(a => new
                         {
                             TeamMatch_Id = a.TeamMatchId,
                             TeamName = a.TeamMatch.Team.Name,
                             ScoreCategoryType = a.ScoreCategory.Type,
                             ScoreCategoryDescription = a.ScoreCategory.Description,
                             Score = a.ScoreCategory.Point ?? 0,
-                            EventTime = a.EventTime
+                            eventTime = a.EventTime
                         }).ToList()
                     }).ToList()
                 })
@@ -52,18 +52,18 @@ namespace STEM_ROBOT.DAL.Repo
             var matchPoints = matchData.Halves.Select(h => new MatchPoint
             {
                 haftMatch = h.HalfId,
-                haftName=h.Half_Name,
+                haftName = h.Half_Name,
                 activity = new TeamAcctivity
                 {
                     activityTeam1 = h.Actions
-                        .Where(a => a.TeamMatch_Id == team1 )
+                        .Where(a => a.TeamMatch_Id == team1)
                         .Select(a => new TeamActivity1
                         {
                             teamName = a.TeamName,
                             type = a.ScoreCategoryType,
                             description = a.ScoreCategoryDescription,
                             point = a.Score,
-                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.EventTime)
+                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.eventTime)
                         }).ToList(),
 
                     activityTeam2 = h.Actions
@@ -74,7 +74,7 @@ namespace STEM_ROBOT.DAL.Repo
                             type = a.ScoreCategoryType,
                             description = a.ScoreCategoryDescription,
                             point = a.Score,
-                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.EventTime)
+                            timeScore = CalculateElapsedMinutesAndSeconds(matchData.MatchTimeIn, a.eventTime)
                         }).ToList()
                 }
             }).ToList();
@@ -93,21 +93,12 @@ namespace STEM_ROBOT.DAL.Repo
             {
                 throw new ArgumentException("TimeIn and EventTime must not be null.");
             }
-
-
-            var absoluteEventTime = eventTime - timeIn;
-
-           
-            if (eventTime < timeIn)
-            {
-                throw new InvalidOperationException("EventTime is beyond the end of the match.");
-            }
-
+            
             // Extract minutes and seconds from eventTime relative to timeIn
             int minutes = eventTime.Value.Minutes;
             int seconds = eventTime.Value.Seconds;
 
-            
+
             return $"{minutes:D2}:{seconds:D2}";
         }
 

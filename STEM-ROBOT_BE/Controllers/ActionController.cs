@@ -101,6 +101,15 @@ namespace STEM_ROBOT.Web.Controllers
             var point = await _actionSvc.NewAction(req,(int) req.ScheduleId, userId);
             return Ok(point.Message);
         }
+        [HttpGet("referee-sup-action")]
+        public async Task<IActionResult> GetActionSchedule(int scheduleId)
+        {
 
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login ");
+            int userId = int.Parse(user.Value);
+            var action = await _actionSvc.GetActionSchedule(scheduleId, userId);
+            return Ok(action.Data);
+        }
     }
 }

@@ -278,13 +278,7 @@ namespace STEM_ROBOT.DAL.Repo
             }
 
 
-            var absoluteEventTime = eventTime - timeIn;
-
-
-            if (eventTime < timeIn)
-            {
-                throw new InvalidOperationException("EventTime is beyond the end of the match.");
-            }
+      
 
             // Extract minutes and seconds from eventTime relative to timeIn
             int minutes = eventTime.Value.Minutes;
