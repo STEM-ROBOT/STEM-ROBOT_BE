@@ -694,7 +694,7 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetMessage("success");
 
                 }
-                else if (schedule.Match.Stage.StageMode == "Knockout")
+                else 
                 {
                     var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
                     var team1 = schedule.Match.TeamMatches.FirstOrDefault();
