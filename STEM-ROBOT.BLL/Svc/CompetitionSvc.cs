@@ -438,13 +438,8 @@ namespace STEM_ROBOT.BLL.Svc
                     _matchRepo.Add(match);
 
                     // Thêm các đội vào trận đấu
-                    TeamMatch teamM = new TeamMatch
-                    {
-                        MatchId = match.Id,
-                        TotalScore = 0
-                    };
-                    _teamMatchRepo.Add(teamM);
-                    _teamMatchRepo.Add(teamM);
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
 
                     // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
 
@@ -782,14 +777,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                                 };
                                 _matchRepo.Add(match);
-                                TeamMatch teammatch = new TeamMatch
-                                {
-                                    MatchId = match.Id,
-                                    TotalScore = 0
-                                };
-
-                                teamMatchs.Add(teammatch);
-                                teamMatchs.Add(teammatch);
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
                                 mactch_stage++;
                             }
 
@@ -801,7 +790,7 @@ namespace STEM_ROBOT.BLL.Svc
 
             }
             _stageTableRepo.AddRange(tables);
-            _teamMatchRepo.AddRange(teamMatchs);
+            //_teamMatchRepo.AddRange(teamMatchs);
             return winningTeamsFromExtraRound;
         }
 
