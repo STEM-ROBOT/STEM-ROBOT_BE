@@ -18,24 +18,14 @@ namespace STEM_ROBOT_BE.Controllers
             _accountSvc = accountSvc;
         }
 
-        //[HttpGet()]
-        //public  IActionResult GetAccounts()
-        //{
-        //    var res =  _accountSvc.GetAccounts();
-        //    if (res.Success)
-        //    {
-        //        return Ok(res.Data);
-        //    }
-        //    return StatusCode(500, res.Message);
-        //}
 
-        [HttpGet("userId")]
+        [HttpGet("info")]
         public IActionResult GetAccountById()
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
-            if (user == null) return BadRequest("Please check User ");
-            int userID = int.Parse(user.Value);
-            var res = _accountSvc.GetById(userID);
+            if (user == null) return Unauthorized("Please check User ");
+            int userId = int.Parse(user.Value);
+            var res = _accountSvc.GetInfoUser(userId);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -43,8 +33,20 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-
-        [HttpPost("signup-moderator")]
+        [HttpGet("recent-package")]
+        public IActionResult GetRecentPakage()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please check User ");
+            int userId = int.Parse(user.Value);
+            var res = _accountSvc.GetPackageUsed(userId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpPost()]
         public IActionResult CreateAccount([FromBody] AccountReq req)
         {
             if (!ModelState.IsValid)
@@ -59,13 +61,13 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpPut("update-account")]
+        [HttpPut()]
         public IActionResult UpdateAccount([FromBody] AccountReq req)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
-            if (user == null) return BadRequest("Please check User ");
-            int userID = int.Parse(user.Value);
-            var res = _accountSvc.Update(req, userID);
+            if (user == null) return Unauthorized("Please check User ");
+            int userId = int.Parse(user.Value);
+            var res = _accountSvc.Update(req, userId);
             if (!res.Success)
             {
                 return StatusCode(500, res.Message);
@@ -73,7 +75,17 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-        [HttpDelete("delete-account")]
+        [HttpPut("forgot-password")]
+        public async Task<IActionResult> ChangePass(ChangePass pass)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please check User ");
+            int userId = int.Parse(user.Value);
+            var passWord = _accountSvc.ChangePassword(userId, pass);
+            return Ok("Success");
+        }
+
+        [HttpDelete()]
         public IActionResult DeleteAccount(int id)
         {
             if (!ModelState.IsValid)
@@ -88,25 +100,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Message);
         }
 
-        [HttpGet("recent-package")]
-        public IActionResult GetRecentPakage(int id)
-        {
-            var res = _accountSvc.GetPackageUsed(id);
-            if (!res.Success)
-            {
-                return StatusCode(500, res.Message);
-            }
-            return Ok(res.Data);
-        }
-        [HttpPut("change-password")]
-        public async Task<IActionResult> ChangePass(ChangePass pass)
-        {
-            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
-            if (user == null) return BadRequest("Please check User ");
-            int userID = int.Parse(user.Value);
-            var passWord = _accountSvc.ChangePassword(userID,pass);
-            return Ok("Success");
-        }
-        
+
+
     }
 }

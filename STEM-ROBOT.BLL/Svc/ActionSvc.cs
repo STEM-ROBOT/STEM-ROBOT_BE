@@ -72,7 +72,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("Update fail:"+ex);
             }
             return res;
         }
@@ -97,7 +97,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("send fail:"+ ex);
             }
             return res;
         }
@@ -155,7 +155,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("get fail:" + ex);
             }
             return res;
         }
