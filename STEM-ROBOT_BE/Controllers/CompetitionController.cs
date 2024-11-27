@@ -44,7 +44,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         //nội dung thi đấu của giải
         [HttpGet("tournament")]
-        public async Task<IActionResult> GetToutnamentID(int id)
+        public async Task<IActionResult> GetToutnamentID(int idtournamentId
         {
             var res = await _competionSvc.getCompetitionWithIDTournament(id);
             if (!res.Success)
