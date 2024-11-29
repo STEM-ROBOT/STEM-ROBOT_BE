@@ -103,7 +103,7 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //hash password 
-        public SingleRsp Update([FromBody] AccountReq req, int id)
+        public SingleRsp Update([FromBody] AccountUpdateReq req, int id)
         {
             var res = new SingleRsp();
             try
@@ -121,7 +121,7 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
 
-                if (account.Role == "Admin" || req.Role == "Admin")
+                if (account.Role == "Admin" )
                 {
                     res.SetError("403", "You can't update an account with role Admin");
                     return res;

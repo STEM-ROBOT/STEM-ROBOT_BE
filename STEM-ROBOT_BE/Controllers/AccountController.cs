@@ -62,7 +62,7 @@ namespace STEM_ROBOT_BE.Controllers
         }
 
         [HttpPut()]
-        public IActionResult UpdateAccount([FromBody] AccountReq req)
+        public IActionResult UpdateAccount([FromBody] AccountUpdateReq req)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return Unauthorized("Please check User ");
