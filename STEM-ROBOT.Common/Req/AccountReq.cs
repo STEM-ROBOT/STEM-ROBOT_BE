@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
+    public class AccountUpdateReq
+    {
+        public string? Name { get; set; }
+
+        public string? PhoneNumber { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? Image { get; set; }
+      
+        
+    }
     public class AccountReq
     {
         public string? Name { get; set; }

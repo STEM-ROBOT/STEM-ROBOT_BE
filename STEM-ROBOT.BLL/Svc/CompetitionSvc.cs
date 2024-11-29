@@ -397,10 +397,11 @@ namespace STEM_ROBOT.BLL.Svc
             // chuẩn bị danh sách team 
 
             var index = 0;
-
+          
             // tạo vòng đấu cho số đội dư 
             if (!isPowerOf2 && extraTeams > 0)
             {
+
                 string roundName = round switch
                 {
                     1 => "CK",
@@ -422,7 +423,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 // đánh số thứ tự trận win
                 var winMatchNumber = 1;
-
+                List<TeamMatch> teamNewList = new List<TeamMatch>();
                 for (int i = 0; i < teamsForExtraRound; i += 2)
                 {
                     Random randomCode = new Random();
@@ -438,8 +439,8 @@ namespace STEM_ROBOT.BLL.Svc
                     _matchRepo.Add(match);
 
                     // Thêm các đội vào trận đấu
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
-                    _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                    teamNewList.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                    teamNewList.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
 
                     // Giả sử đội đầu tiên thắng (có thể cập nhật khi có thông tin thực tế)
 
@@ -457,8 +458,9 @@ namespace STEM_ROBOT.BLL.Svc
 
                 }
                 round -= 1;
+                _teamMatchRepo.AddRange(teamNewList);
             }
-
+          
             // Main rounds
             for (int currentRound = round; currentRound > 0; currentRound--)
             {
@@ -483,6 +485,7 @@ namespace STEM_ROBOT.BLL.Svc
                 // List<TeamMatch> teamsInCurrentRound = new List<TeamMatch>(winningTeamsFromExtraRound);
 
                 var numbeMatchRounds = Math.Pow(2, currentRound);
+                List<TeamMatch> teamNewMainList = new List<TeamMatch>();
                 // Create matches in pairs
                 for (int i = 0; i < numbeMatchRounds; i += 2)
                 {
@@ -500,19 +503,20 @@ namespace STEM_ROBOT.BLL.Svc
 
                     if (currentRound == round && extraTeams == 0)
                     {
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                        teamNewMainList.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                        teamNewMainList.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
                     }
                     else
                     {
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index].MatchWinCode, TotalScore = 0 });
-                        _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index + 1].MatchWinCode, TotalScore = 0 });
+                        teamNewMainList.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index].MatchWinCode, TotalScore = 0 });
+                        teamNewMainList.Add(new TeamMatch { MatchId = match.Id, TeamId = null, NameDefault = winningTeamsFromExtraRound[index + 1].NameDefault, MatchWinCode = winningTeamsFromExtraRound[index + 1].MatchWinCode, TotalScore = 0 });
 
                     }
 
                     index += 2;
                     winningTeamsFromExtraRound.Add(new TeamMatch { NameDefault = $"W#{i / 2 + 1} {roundName}", MatchWinCode = match.MatchCode, TotalScore = 0 });
                 }
+                _teamMatchRepo.AddRange(teamNewMainList);
             }
 
             return true;
@@ -777,8 +781,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                                 };
                                 _matchRepo.Add(match);
-                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
-                                _teamMatchRepo.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                                teamMatchs.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
+                                teamMatchs.Add(new TeamMatch { MatchId = match.Id, TotalScore = 0 });
                                 mactch_stage++;
                             }
 
@@ -790,7 +794,7 @@ namespace STEM_ROBOT.BLL.Svc
 
             }
             _stageTableRepo.AddRange(tables);
-            //_teamMatchRepo.AddRange(teamMatchs);
+            _teamMatchRepo.AddRange(teamMatchs);
             return winningTeamsFromExtraRound;
         }
 
@@ -990,8 +994,8 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var competition =await _competitionRepo.Rulecompetion(competitionId);
-            
+                var competition = await _competitionRepo.Rulecompetion(competitionId);
+
                 if (competition == null)
                 {
                     res.SetError("404", "Competition not found with the provided ID.");
