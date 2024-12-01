@@ -69,7 +69,7 @@ namespace STEM_ROBOT.BLL.Svc
                     Status = "Pending",
                     OrderDate = ConvertToVietnamTime(DateTime.Now),
                     Amount = package.Price,
-                    LinkPayAgain = $"https://localhost:7283/api/payments/cancel/{orderCode}"
+                    LinkPayAgain = $"http://157.66.27.69:5000/api/payments/cancel/{orderCode}"
 
                 };
                 _orderRepo.Add(order);
@@ -91,14 +91,14 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/orders/cancel/{orderCode}", $"https://localhost:7283/api/order/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"http://157.66.27.69:5000/api/orders/cancel/{orderCode}", $"http://157.66.27.69:5000/api/order/success/{orderCode}");
 
 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
         }
-        public async Task<SingleRsp> CancelOrder(int orderCode)
+        public async Task<SingleRsp> SuccessOrder(int orderCode)
         {
             var res = new SingleRsp();
             try
@@ -106,10 +106,22 @@ namespace STEM_ROBOT.BLL.Svc
                 var order = _orderRepo.GetById(orderCode);
                 var account = _accountRepo.GetById(order.AccountId);
                 var package = _packageRepo.GetById(order.PackageId);
-                account.MaxTournatment += package.MaxTournament;
+
+               
+                account.MaxTournatment = account.MaxTournatment ?? 0;
+                account.MaxMatch = account.MaxMatch ?? 0;
+                account.MaxTeam = account.MaxTeam ?? 0;
+
+               
+                account.MaxTournatment += package.MaxTournament ?? 0;
+                account.MaxMatch += package.MaxMatch ?? 0;
+                account.MaxTeam += package.MaxTeam ?? 0;
+
                 _accountRepo.Update(account);
+
                 order.Status = "Success";
                 _orderRepo.Update(order);
+
                 var payment = new Payment
                 {
                     OrderId = orderCode,
@@ -125,6 +137,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
 
         public SingleRsp GetRevenue()
         {
