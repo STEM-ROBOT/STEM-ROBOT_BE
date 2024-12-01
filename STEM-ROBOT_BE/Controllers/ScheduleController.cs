@@ -152,7 +152,6 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(sendmail);
         }
 
-
         [HttpGet("match-config-schedule")]
         public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)
         {

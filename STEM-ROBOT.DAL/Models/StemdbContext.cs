@@ -75,7 +75,7 @@ public partial class StemdbContext : DbContext
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
 
-  
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -339,6 +339,9 @@ public partial class StemdbContext : DbContext
             entity.ToTable("Notification");
 
             entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.RouterUi)
+                .HasColumnType("text")
+                .HasColumnName("RouterUI");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.AccountId)
@@ -572,9 +575,7 @@ public partial class StemdbContext : DbContext
             entity.Property(e => e.ResultPlay)
                 .HasMaxLength(250)
                 .HasDefaultValueSql("((0))");
-            entity.Property(e => e.ResultPlayTable)
-                .HasMaxLength(250)
-                .HasDefaultValueSql("((0))");
+            entity.Property(e => e.ResultPlayTable).HasDefaultValueSql("((0))");
             entity.Property(e => e.TotalScore).HasDefaultValueSql("((0))");
 
             entity.HasOne(d => d.Match).WithMany(p => p.TeamMatches)

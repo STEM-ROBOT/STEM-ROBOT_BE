@@ -25,7 +25,7 @@ public partial class TeamMatch
 
     public string? MatchWinCode { get; set; }
 
-    public string? ResultPlayTable { get; set; }
+    public int? ResultPlayTable { get; set; }
 
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 

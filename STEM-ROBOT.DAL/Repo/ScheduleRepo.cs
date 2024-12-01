@@ -125,9 +125,25 @@ namespace STEM_ROBOT.DAL.Repo
             return timecheck;
         }
 
-        public async Task<Schedule> confirmSchedule(int scheduleId,int accoutId)
+        public async Task<Schedule> confirmSchedule(int scheduleId, int accoutId)
         {
-            return await _context.Schedules.Where(x=> x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId).Include(x => x.Match).ThenInclude(x => x.TeamMatches).FirstOrDefaultAsync();
+            return await _context.Schedules
+                .Where(x => x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId)
+                .Include(x => x.Match)
+                .ThenInclude(x => x.TeamMatches)
+               .Include(x => x.Match)
+               .ThenInclude(s => s.Stage)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<List<Match>> checkMatchLast(int tableGroupId)
+        {
+            var matchLast = await _context.Matches.Where(x => x.TableGroupId == tableGroupId).ToListAsync();
+
+            return matchLast;
+        }
+        public async Task<TableGroup> checkTableMatch( int tableGroupId)
+        {
+            return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb => tb.TeamTables).ThenInclude(t => t.Team).ThenInclude(tm => tm.TeamMatches).FirstOrDefaultAsync();
         }
         public async Task<TeamMatch> matchWinSchedule(string matchCode)
         {

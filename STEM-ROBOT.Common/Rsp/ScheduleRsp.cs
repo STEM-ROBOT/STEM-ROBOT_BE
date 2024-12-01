@@ -79,13 +79,13 @@ namespace STEM_ROBOT.Common.Rsp
     }
     public class ScheduleMatchInfoRsp
     {
-
+        public int matchId { get; set; }
         public string startTime { get; set; }
         public string startDate { get; set; }
         public string endTime { get; set; }
         public string durationHaft { get; set; }
         public string breakHaftTime { get; set; }
-        public ICollection<ScheduleMatchHaftRsp> haftMatch {  get; set; } = new List<ScheduleMatchHaftRsp>();
+        public ICollection<ScheduleMatchHaftRsp> haftMatch { get; set; } = new List<ScheduleMatchHaftRsp>();
 
         public ICollection<ScheduleMatchTeamMatchRsp> teamMatch { get; set; } = new List<ScheduleMatchTeamMatchRsp>();
     }

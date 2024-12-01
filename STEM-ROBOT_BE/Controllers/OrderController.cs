@@ -30,19 +30,7 @@ namespace STEM_ROBOT.Web.Controllers
             //return Redirect(result.Data.ToString());
         }
 
-        /*[HttpGet("{id}")]
-        public async Task<IActionResult> GetOrder([FromRoute]int id)
-        {
-            try
-            {
-                PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInformation(id);
-                return Ok(paymentLinkInformation);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }*/
+
 
         [HttpGet("success/{orderCode}")]
         public IActionResult Success()

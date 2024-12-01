@@ -25,16 +25,16 @@ namespace STEM_ROBOT.BLL.Svc
             _packageRepo = packageRepo;
         }
 
-        public  MutipleRsp GetAccounts()
+        public SingleRsp GetAccounts()
         {
-            var res = new MutipleRsp();
+            var res = new SingleRsp();
             try
             {
                 var lst =  _accountRepo.All();
                 if (lst != null)
                 {
                     var accountResLst = _mapper.Map<List<AccountRsp>>(lst);
-                    res.SetSuccess(accountResLst, "Success");
+                    res.setData("Success",accountResLst);
                 }
             }
             catch (Exception ex)
@@ -44,23 +44,24 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public  SingleRsp GetById(int id)
+        public  SingleRsp GetInfoUser(int id)
         {
             var res = new SingleRsp();
             try
-            {
+            { 
                 var acc = _accountRepo.GetById(id);
-                if(acc.Role == "Admin")
+                if(acc.Role == "AD")
                 {
-                    res.SetError("403", "You can't get an account with role Admin");
+                    res.SetMessage("You can't get an account with role Admin");
                     return res;
                 }
                 if (acc == null)
                 {
                     res.SetError("404", "No data found");
+                    return res;
                 }
                 var accountRes = _mapper.Map<AccountRsp>(acc);
-                res.setData("Success", accountRes);
+                res.setData("data", accountRes);
             }
             catch (Exception ex)
             {
@@ -102,7 +103,7 @@ namespace STEM_ROBOT.BLL.Svc
         }
 
         //hash password 
-        public SingleRsp Update([FromBody] AccountReq req, int id)
+        public SingleRsp Update([FromBody] AccountUpdateReq req, int id)
         {
             var res = new SingleRsp();
             try
@@ -120,17 +121,19 @@ namespace STEM_ROBOT.BLL.Svc
                     return res;
                 }
 
-                if (account.Role == "Admin" || req.Role == "Admin")
+                if (account.Role == "Admin" )
                 {
                     res.SetError("403", "You can't update an account with role Admin");
                     return res;
                 }
-                var pass = account.Password;
+                
+                account.Name=req.Name;  
+                account.Email=req.Email;    
+                account.PhoneNumber=req.PhoneNumber;    
+                account.Image=req.Image;    
                
-                _mapper.Map(req, account);
-
                 _accountRepo.Update(account);
-                res.setData("data", account);
+                res.setData("data", "success");
             }
             catch (Exception ex)
             {

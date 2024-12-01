@@ -367,7 +367,7 @@ namespace STEM_ROBOT.BLL.Svc
 
             List<MatchHalf> matchesHalf = new List<MatchHalf>();
 
-            DateTime endTime = DateTime.Now;
+            var endTime = new DateTime();
             //var listMatch = competition_data.Stages.Select(m => new Match
             //{
 
@@ -424,7 +424,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (time.Date < timePlay.StartDate.Value.Date)
+                if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -486,7 +486,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (time.Date < timePlay.StartDate.Value.Date)
+                if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -530,11 +530,11 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
-                var matchID = listPoint.MatchId;
+                //var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
+                //var matchID = listPoint.MatchId;
                 var schedule = _scheduleRepo.GetById(scheduleId);
 
-                var timePlay = _matchRepo.GetById(matchID);
+                var timePlay = _matchRepo.GetById(schedule.MatchId);
                 var totalTime = timePlay.StartDate + timePlay.TimeIn;
 
                 var checkDate = time < timePlay.StartDate;
@@ -545,7 +545,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                     res.setData("data", "notjoin");
                 }
-                else if (time.Date < timePlay.StartDate.Value.Date)
+                else if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
                 {
                     //res.SetMessage("Trận đấu chưa diễn ra");
                     res.setData("data", "notstarted");
@@ -580,7 +580,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception(ex.Message);
             }
-
+            
         }
         //confirm point
 

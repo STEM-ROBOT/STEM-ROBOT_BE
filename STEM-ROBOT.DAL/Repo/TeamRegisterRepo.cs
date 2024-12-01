@@ -22,6 +22,14 @@ namespace STEM_ROBOT.DAL.Repo
                 .Include(s => s.ContestantTeams) 
                 .ToListAsync();
         }
-
+        public async Task<List<TeamRegister>> getTeamRegisterTournament(int id)
+        {
+            return await _context.TeamRegisters
+                .Where(x => x.Competition.TournamentId == id)
+                .Include (s => s.Competition.Genre)
+                .Include(s => s.ContestantTeams)
+                
+                .ToListAsync();
+        }
     }
 }
