@@ -98,7 +98,7 @@ namespace STEM_ROBOT.BLL.Svc
 
             return createPayment.checkoutUrl;
         }
-        public async Task<SingleRsp> CancelOrder(int orderCode)
+        public async Task<SingleRsp> SuccessOrder(int orderCode)
         {
             var res = new SingleRsp();
             try
@@ -106,10 +106,22 @@ namespace STEM_ROBOT.BLL.Svc
                 var order = _orderRepo.GetById(orderCode);
                 var account = _accountRepo.GetById(order.AccountId);
                 var package = _packageRepo.GetById(order.PackageId);
-                account.MaxTournatment += package.MaxTournament;
+
+               
+                account.MaxTournatment = account.MaxTournatment ?? 0;
+                account.MaxMatch = account.MaxMatch ?? 0;
+                account.MaxTeam = account.MaxTeam ?? 0;
+
+               
+                account.MaxTournatment += package.MaxTournament ?? 0;
+                account.MaxMatch += package.MaxMatch ?? 0;
+                account.MaxTeam += package.MaxTeam ?? 0;
+
                 _accountRepo.Update(account);
+
                 order.Status = "Success";
                 _orderRepo.Update(order);
+
                 var payment = new Payment
                 {
                     OrderId = orderCode,
@@ -125,6 +137,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
 
         public SingleRsp GetRevenue()
         {

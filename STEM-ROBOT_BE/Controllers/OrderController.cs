@@ -33,16 +33,16 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpGet("success/{orderCode}")]
-        public IActionResult Success()
+        public async Task<IActionResult> Success(int orderCode)
         {
-            return Redirect("https://www.facebook.com/");
+            var result = await _orderSvc.SuccessOrder(orderCode);
+            return Redirect("http://localhost:5173/payment/success");
         }
 
         [HttpGet("cancel/{orderCode}")]
-        public async Task<IActionResult> Cancel(int orderCode)
-        {
-            var result = await _orderSvc.CancelOrder(orderCode);
-            return Redirect("https://www.youtube.com/");
+        public IActionResult Cancel()
+        {      
+            return Redirect("http://localhost:5173/payment/fail");
         }
 
         [HttpGet("total-revenue")]
