@@ -69,7 +69,7 @@ namespace STEM_ROBOT.BLL.Svc
                     Status = "Pending",
                     OrderDate = ConvertToVietnamTime(DateTime.Now),
                     Amount = package.Price,
-                    LinkPayAgain = $"https://localhost:7283/api/payments/cancel/{orderCode}"
+                    LinkPayAgain = $"http://157.66.27.69:5000/api/payments/cancel/{orderCode}"
 
                 };
                 _orderRepo.Add(order);
@@ -91,7 +91,7 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/orders/cancel/{orderCode}", $"https://localhost:7283/api/order/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"http://157.66.27.69:5000/api/orders/cancel/{orderCode}", $"http://157.66.27.69:5000/api/order/success/{orderCode}");
 
 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
