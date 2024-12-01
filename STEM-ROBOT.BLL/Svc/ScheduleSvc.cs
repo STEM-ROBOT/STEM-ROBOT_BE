@@ -156,10 +156,10 @@ namespace STEM_ROBOT.BLL.Svc
                 int randomCode = random.Next(10000, 100000);
 
                 var emailbody = $@"
-                        <div><h3>MÃ KÍCH HOẠT GIẢI ĐẤU CỦA BẠN</h3> 
+                        <div><h3>MÃ XÁC THỰC LỊCH TRÌNH TRỌNG TÀI CHÍNH CỦA BẠN</h3> 
                         <div>
                             
-                            <span>Mã của bạn : </span> <strong>{randomCode}</strong><br>
+                            <span>Mã xác thực : </span> <strong>{randomCode}</strong><br>
                            
                         </div>
                        
@@ -167,7 +167,7 @@ namespace STEM_ROBOT.BLL.Svc
                             <span>Mã có hiệu lực trong 120 giây</strong>
                         </div>
                            
-                        <p>STem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
+                        <p>Stem Xin trân trọng cảm ơn bạn đã sử dụng dịch vụ</p>
                     </div>
                     ";
                 var mail = new MailReq
@@ -689,12 +689,12 @@ namespace STEM_ROBOT.BLL.Svc
                                 _teamMatchRepo.Update(teamMatchWin);
                             }
                         }
-                       
+
                     }
                     res.SetMessage("success");
 
                 }
-                else if (schedule.Match.Stage.StageMode == "Knockout")
+                else 
                 {
                     var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
                     var team1 = schedule.Match.TeamMatches.FirstOrDefault();

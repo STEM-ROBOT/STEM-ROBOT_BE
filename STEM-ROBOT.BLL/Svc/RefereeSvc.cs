@@ -261,11 +261,11 @@ namespace STEM_ROBOT.BLL.Svc
 <body>
     <div class='container'>
         <div class='header'>
-            <img src='https://scontent.fsgn2-7.fna.fbcdn.net/v/t1.6435-9/86806991_598042060775413_5903084531446972416_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEM7N0NmVsmlSlPKPzgOqpz6T6HsIvg59vpPoewi-Dn206PKMh76ZL4wsfdceIr5pRjlLAYFExbu_QujRdab3AC&_nc_ohc=SkPF3QR6dZgQ7kNvgGONk8I&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=AWk_5ffEAWSTiNkQnHg1ynP&oh=00_AYA9ZUvz8oDIgbycVMTS3sZc9jjdcmZOz0u7Wctp3-9WIg&oe=6749301C' alt='STEM'>
+            <img src='https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf' alt='STEM'>
         </div>
         <div class='content'>
             <p>Kính gửi {referee.Email} ,</p>
-            <p>Chúng tôi vui mừng thông báo với bạn rằng bạn đã được phân công trong một giải đấu.</p>
+            <p>Bạn đã được phân công trong một giải đấu.</p>
             <h3>Chi tiết thông tin tài khoản</h3>
             <div class='details'>
                 <p><strong>STEM</strong></p>              
@@ -283,8 +283,8 @@ namespace STEM_ROBOT.BLL.Svc
             </div>
         </div>
         <div class='footer'>
-            <p>---<br>TRUMVPS<br><a href='https://www.facebook.com/profile.php?id=100017088730777' class='link'>https://www.facebook.com/profile.php?id=100017088730777</a></p>
-            <p>Trang Chủ | Đăng Nhập | Gửi Ticket</p>
+            <p>---<br>STEMSYSTEM<br><a href='http://157.66.27.69:5173/' class='link'>http://stem-robot.com</a></p>
+            
             <p>Copyright © 2021 STEM, All rights reserved.</p>
         </div>
     </div>

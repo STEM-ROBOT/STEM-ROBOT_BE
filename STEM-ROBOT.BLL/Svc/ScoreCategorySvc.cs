@@ -15,13 +15,15 @@ namespace STEM_ROBOT.BLL.Svc
     {
         private readonly ScoreCategoryRepo _scoreCategoryRepo;
         private readonly CompetitionRepo _competitionRepo;
+        private readonly GenreRepo _genreRepo;
         private readonly IMapper _mapper;
 
-        public ScoreCategorySvc(ScoreCategoryRepo scoreCategoryRepo, IMapper mapper,CompetitionRepo competitionRepo)
+        public ScoreCategorySvc(ScoreCategoryRepo scoreCategoryRepo, IMapper mapper, CompetitionRepo competitionRepo, GenreRepo genreRepo)
         {
             _scoreCategoryRepo = scoreCategoryRepo;
             _mapper = mapper;
             _competitionRepo = competitionRepo;
+            _genreRepo = genreRepo;
         }
 
         public SingleRsp GetScoreCategories(int competitonId)
@@ -29,9 +31,17 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var lst = _scoreCategoryRepo.All(x=>x.CompetitionId == competitonId);             
-                    var lstRes = _mapper.Map<List<ScoreCategoryRsp>>(lst);
-                    res.setData("data", lstRes);              
+
+                var lst = _scoreCategoryRepo.All(x => x.CompetitionId == competitonId);
+                var lstRes = _mapper.Map<List<ScoreCategoryRsp>>(lst);
+                var competition = _competitionRepo.GetById(competitonId);
+                var gener = _genreRepo.GetById(competition.GenreId);
+                var data = new
+                {
+                    listScore = lstRes,
+                    hintScore = gener.HintScore
+                };
+                res.setData("data", data);
             }
             catch (Exception ex)
             {
@@ -67,7 +77,7 @@ namespace STEM_ROBOT.BLL.Svc
         {
             var res = new SingleRsp();
             try
-            {        
+            {
                 var competition = _competitionRepo.All(x => x.Id == competitionId).FirstOrDefault();
                 if (competition == null)
                 {
@@ -158,6 +168,6 @@ namespace STEM_ROBOT.BLL.Svc
         //    }
         //    return res;
         //}
-       
+
     }
 }

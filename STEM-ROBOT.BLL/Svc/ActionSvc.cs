@@ -34,8 +34,6 @@ namespace STEM_ROBOT.BLL.Svc
             _scheduleRepo = scheduleRepo;
             _matchRepo = matchRepo;
         }
-
-
         public async Task<SingleRsp> ConfirmAction(int actionId, string status, int scheduleId, int accoutId)
         {
             var res = new SingleRsp();
@@ -50,11 +48,13 @@ namespace STEM_ROBOT.BLL.Svc
                     var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
                     if (status == "accept")
                     {
-                        if (score.Type.ToLower() == "điểm trừ" && teamMatch.TotalScore > 0)
+                        if (score.Type.ToLower() == "điểm trừ"
+                            //&& teamMatch.TotalScore > 0
+                            )
                         {
                             teamMatch.TotalScore -= score.Point;
                         }
-                        else if(score.Type.ToLower() == "điểm cộng")
+                        else if (score.Type.ToLower() == "điểm cộng")
                         {
                             teamMatch.TotalScore += score.Point;
                         }
@@ -72,7 +72,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("Update fail:" + ex);
             }
             return res;
         }
@@ -97,7 +97,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("send fail:" + ex);
             }
             return res;
         }
@@ -155,7 +155,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                res.SetMessage("get fail:" + ex);
             }
             return res;
         }
