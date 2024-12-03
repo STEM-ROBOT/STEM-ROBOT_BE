@@ -37,6 +37,10 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await _context.Competitions.Where(x => x.TournamentId == idTournament).Include(x => x.Genre).ToListAsync();
         }
+        public async Task<List<Competition>> getListCompetitionAdhesion(int userId, int tournamentId)
+        {
+            return await _context.Competitions.Where(x => x.TournamentId == tournamentId && x.TeamRegisters.Any(tr=>tr.AccountId== userId)).Include(x => x.Genre).ToListAsync();
+        }
         public async Task<List<Competition>> getListCompetitionbyID(int id)
         {
             return await _context.Competitions.Where(x => x.Id == id).Include(x => x.Locations)
