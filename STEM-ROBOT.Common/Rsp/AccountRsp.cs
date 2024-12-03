@@ -29,6 +29,11 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Role { get; set; }
 
+        public int? MaxTournatment { get; set; }
+        public int? MaxTeam { get; set; }
+
+        public int? MaxMatch { get; set; }
+
         public string? PackageName { get; set; }
         public int CountContestant { get; set; }
     }
