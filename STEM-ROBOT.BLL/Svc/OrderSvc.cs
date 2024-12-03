@@ -66,7 +66,7 @@ namespace STEM_ROBOT.BLL.Svc
                     Id = (int)orderCode,
                     AccountId = userId,
                     PackageId = request.PackageId,
-                    Status = "Pending",
+                    Status = "Fail",
                     OrderDate = ConvertToVietnamTime(DateTime.Now),
                     Amount = package.Price,
                     LinkPayAgain = $"http://157.66.27.69:5000/api/payments/cancel/{orderCode}"
@@ -114,8 +114,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                
                 account.MaxTournatment += package.MaxTournament ?? 0;
-                account.MaxMatch += package.MaxMatch ?? 0;
-                account.MaxTeam += package.MaxTeam ?? 0;
+                account.MaxMatch = package.MaxMatch ?? 0;
+                account.MaxTeam = package.MaxTeam ?? 0;
 
                 _accountRepo.Update(account);
 
@@ -182,7 +182,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
+        
 
         public MutipleRsp GetOrders()
         {
@@ -206,6 +206,29 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var order = _orderRepo.GetById(id);
                 res.setData("data", order);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetOrderByAccountId(int Id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var orders = _orderRepo.GetListOrderByAccount(Id);
+                var transactionList = orders.Select(order => new TransactionRsp
+                {
+                    Id = order.Id,
+                    PackageName = order.Package?.Name,
+                    Status = order.Status,
+                    OrderDate = order.OrderDate,
+                    Amount = order.Amount
+                }).ToList();
+                res.setData("data", transactionList);
             }
             catch (Exception ex)
             {

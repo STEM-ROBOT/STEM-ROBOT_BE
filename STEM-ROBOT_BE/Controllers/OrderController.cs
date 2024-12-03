@@ -87,6 +87,19 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
-        
+        [HttpGet("byAccountId")]
+        public IActionResult GetOrderByAccountId()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userId = int.Parse(user.Value);
+            var res = _orderSvc.GetOrderByAccountId(userId);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
+
     }
 }
