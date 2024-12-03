@@ -110,7 +110,6 @@ namespace STEM_ROBOT.BLL.Svc
                 try
                 {
                     var list = await _teamRegisterRepo.getTeamRegisterTournament(tournamentId);
-
                     var newTeamRegister = list.Select(tr => new TeamRegisterTournamentRsp
                     {
                         competition = tr.Competition.Genre.Name,

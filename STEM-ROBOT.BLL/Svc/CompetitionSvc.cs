@@ -189,6 +189,32 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> GetByToutnamentAdhesionId(int userId,int tournamentId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var list = await _competitionRepo.getListCompetitionAdhesion(userId, tournamentId);
+                if (list != null)
+                {
+                    var mapper = _mapper.Map<List<ListCompetiton>>(list);
+                    res.setData("data", mapper);
+                }
+
+                //if (competition == null)
+                //{
+                //    res.SetError("Please check again!");
+                //    return res;
+                //}
+                //_competitionRepo.Add(competition);
+                //res.setData("OK", competition);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
         public SingleRsp UpdateCompetition(int id, CompetitionReq request)
         {
             var res = new SingleRsp();
