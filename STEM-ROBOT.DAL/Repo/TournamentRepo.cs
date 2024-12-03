@@ -61,7 +61,47 @@ namespace STEM_ROBOT.DAL.Repo
                   CreateDate = t.CreateDate,
                   Introduce = t.Introduce,
                   views = t.ViewTournament,
-                  TournamentLevel=t.TournamentLevel,
+                  TournamentLevel = t.TournamentLevel,
+                  Status = t.Status,
+                  competitionNumber = t.Competitions.Count(),
+                  competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
+                  imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
+              }).ToListAsync();
+            ;
+            var resData = new TournamentListRep
+            {
+                tournamentRep = tournament,
+                totalPages = totalPages,
+            };
+            return resData;
+        }
+
+        public async Task<TournamentListRep> GetTournamentAdhesion(int useId, int page = 1, int pageSize = 10)
+        {
+
+            var query = _context.Tournaments
+    .Where(t => t.Contestants.Any(c => c.AccountId == useId))
+    .AsQueryable();
+
+            // Tính tổng số trang       
+            int totalItems = await query.CountAsync();
+            int skip = (page - 1) * pageSize;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var tournament = await query
+              .OrderByDescending(t => t.CreateDate) // Sắp xếp theo CreateDate giảm dần (mới nhất trước)
+              .Skip(skip)
+              .Take(pageSize)
+              .Select(t => new TournamentRep
+              {
+                  Id = t.Id,
+                  Name = t.Name,
+                  Location = t.Location,
+                  Image = t.Image,
+                  contestant = t.Contestants.Count(),
+                  CreateDate = t.CreateDate,
+                  Introduce = t.Introduce,
+                  views = t.ViewTournament,
+                  TournamentLevel = t.TournamentLevel,
                   Status = t.Status,
                   competitionNumber = t.Competitions.Count(),
                   competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),

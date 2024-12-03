@@ -153,6 +153,22 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> GetTournamentAdhesion(int userId,int page = 1, int pageSize = 10)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var listTournament = await _tournament.GetTournamentAdhesion(userId,page, pageSize);
+                if (listTournament == null) throw new Exception("Please Check Againt");
+                res.setData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+        }
+
         //list tournament 
         public async Task<MutipleRsp> getListTournamentModerator(int userID)
         {
@@ -230,7 +246,7 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var tourmanetRsp = _mapper.Map<TournamentInforRsp>(tournament);
                 tourmanetRsp.competitionNumber = tournament.Competitions.Count;
-                tourmanetRsp.competitionActivateNumber= tournament.Competitions.Where(cs=>cs.IsActive==true).Count();
+                tourmanetRsp.competitionActivateNumber = tournament.Competitions.Where(cs => cs.IsActive == true).Count();
                 tourmanetRsp.contestant = tournament.Contestants.Count;
 
                 res.setData("data", tourmanetRsp);
@@ -297,7 +313,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-     
+
 
         public MutipleRsp GetTournamentsPerMonth()
         {
