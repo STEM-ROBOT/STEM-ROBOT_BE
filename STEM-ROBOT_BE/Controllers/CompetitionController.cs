@@ -53,6 +53,23 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("tournament-adhesion/{tournamentId}")]
+        public async Task<IActionResult> GetByToutnamentAdhesionId(int tournamentId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _competionSvc.GetByToutnamentAdhesionId(userId, tournamentId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
         //luật tính điểm của nội dung thi đấu
         [HttpGet("score-competition")]
         public async Task<IActionResult> GetListScore(int competitionID)
@@ -171,11 +188,6 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-
-
-
-
 
         [HttpPut("addRegulation/{competitionId}")]
         public async Task<IActionResult> AddRegulation(int competitionId, [FromBody] RuleReq ruleReq)

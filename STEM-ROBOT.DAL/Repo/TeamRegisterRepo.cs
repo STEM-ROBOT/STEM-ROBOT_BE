@@ -27,8 +27,7 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.TeamRegisters
                 .Where(x => x.Competition.TournamentId == id)
                 .Include (s => s.Competition.Genre)
-                .Include(s => s.ContestantTeams)
-                
+                .Include(s => s.ContestantTeams)               
                 .ToListAsync();
         }
     }
