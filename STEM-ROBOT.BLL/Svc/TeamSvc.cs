@@ -49,7 +49,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
+      
         public SingleRsp GetById(int id)
         {
             var res = new SingleRsp();
@@ -215,6 +215,24 @@ namespace STEM_ROBOT.BLL.Svc
                 res.SetError("500", ex.Message);
             }
             return res;
+        }
+        public async Task<SingleRsp> SchedulesTeamAdhesion(int teamId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var list = await _teamRepo.schedulesTeamAdhesion(teamId);
+                if (list == null) throw new Exception("No data");
+                var mapper = _mapper.Map<TeamScheduleRsp>(list);
+                res.setData("data", mapper);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get List Referee Fail");
+            }
+            return res;
+
         }
     }
 }

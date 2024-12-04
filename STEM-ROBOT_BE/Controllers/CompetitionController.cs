@@ -53,7 +53,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("tournament-adhesion/{tournamentId}")]
+        [HttpGet("competition-adhesion/{tournamentId}")]
         public async Task<IActionResult> GetByToutnamentAdhesionId(int tournamentId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
@@ -67,6 +67,23 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("team-competition-adhesion/{competitionId}")]
+        public async Task<IActionResult> GetListTeamAdhesionPlay(int competitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _competionSvc.getlistTeamAdhesionplay(userId,competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check again");
             }
             return Ok(res.Data);
         }

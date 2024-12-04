@@ -101,5 +101,12 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
+        [HttpGet("schedules-team-adhesion/{teamId}")]
+        public async Task<IActionResult> schedulesTeamAdhesion(int teamId)
+        {
+    
+            var list = await _teamSvc.SchedulesTeamAdhesion(teamId);
+            return Ok(list.Data);
+        }
     }
 }

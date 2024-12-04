@@ -20,9 +20,22 @@ namespace STEM_ROBOT.DAL.Repo
         .Where(x => x.CompetitionId == id)
         .Include(c => c.Competition)
         .Include(c => c.ContestantTeams)
-        .ThenInclude(ct => ct.Contestant) 
+        .ThenInclude(ct => ct.Contestant)
         .ToList();
         }
-
+        public async Task<Team> schedulesTeamAdhesion(int teamId)
+        {
+            return await _context.Teams
+    .Include(x => x.Competition)
+    .Include(x => x.TeamMatches)
+    .ThenInclude(x => x.Match)
+    .ThenInclude(x => x.Location)
+   .Include(x => x.TeamMatches)
+    .ThenInclude(x => x.Match)
+    .ThenInclude(x => x.TeamMatches)
+    .ThenInclude(x => x.Team)
+    .Where(x => x.Id == teamId)
+    .FirstOrDefaultAsync();
+        }
     }
 }
