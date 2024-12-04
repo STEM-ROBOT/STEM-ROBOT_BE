@@ -33,16 +33,16 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpGet("success/{orderCode}")]
-        public IActionResult Success()
+        public async Task<IActionResult> Success(int orderCode)
         {
-            return Redirect("https://www.facebook.com/");
+            var result = await _orderSvc.SuccessOrder(orderCode);
+            return Redirect("http://localhost:5173/payment/success");
         }
 
         [HttpGet("cancel/{orderCode}")]
-        public async Task<IActionResult> Cancel(int orderCode)
-        {
-            var result = await _orderSvc.CancelOrder(orderCode);
-            return Redirect("https://www.youtube.com/");
+        public IActionResult Cancel()
+        {      
+            return Redirect("http://localhost:5173/payment/fail");
         }
 
         [HttpGet("total-revenue")]
@@ -87,6 +87,19 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return StatusCode(500, res.Message);
         }
-        
+        [HttpGet("byAccountId")]
+        public IActionResult GetOrderByAccountId()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userId = int.Parse(user.Value);
+            var res = _orderSvc.GetOrderByAccountId(userId);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
+
     }
 }
