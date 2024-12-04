@@ -541,7 +541,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                 TimeSpan checkTime = (DateTime)totalTime - time;
 
-                if (schedule.IsJoin != true) {
+                if (schedule.IsJoin != true)
+                {
 
                     res.setData("data", "notjoin");
                 }
@@ -580,10 +581,64 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 throw new Exception(ex.Message);
             }
-            
+
         }
         //confirm point
+        public async Task<SingleRsp> TeamAdhesionListActionSvc(int matchId, int teamId)
+        {
+            var time = ConvertToVietnamTime(DateTime.Now);
+            var res = new SingleRsp();
+            try
+            {
+                //var listPoint = await _matchRepo.MatchListPoint(teamMatchId);
+                //var matchID = listPoint.MatchId;
 
+                var teamMatchInfo = await _matchRepo.TeamMatchInfo(matchId, teamId);
+                var timePlay = _matchRepo.GetById(matchId);
+                var totalTime = timePlay.StartDate + timePlay.TimeIn;
+
+                var checkDate = time < timePlay.StartDate;
+
+                TimeSpan checkTime = (DateTime)totalTime - time;
+
+                if (time.Date < timePlay.StartDate.Value.Date || checkTime.TotalMinutes > 15)
+                {
+                    //res.SetMessage("Trận đấu chưa diễn ra");
+                    res.setData("data", "notstarted");
+                }
+                else
+                  if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes <= 15 && checkTime.TotalMinutes > 0)
+                {
+                    var data = new
+                    {
+                        TimeAwait = checkTime,
+                        TimeInMatch = timePlay.TimeIn
+
+                    };
+                    res.setData("data", data);
+                    return res;
+                }
+                else if (time.Date == timePlay.StartDate.Value.Date && checkTime.TotalMinutes < 0 && time.TimeOfDay <= timePlay.TimeOut)
+                {
+
+                    var data = await _stemHub.TeamAdhesionListActionClient(teamMatchInfo.Id, ConvertToVietnamTime(DateTime.Now));
+                    res.setData("data", data.Message);
+                }
+                else
+                {
+                    var match = await _matchRepo.TeamAdhesionListAction(teamMatchInfo.Id);
+                    res.setData("data", match);
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+        //confirm point
         public async Task<SingleRsp> ConfirmPoint(int actionID, string status)
         {
             var res = new SingleRsp();

@@ -203,6 +203,52 @@ namespace STEM_ROBOT.BLL.HubClient
             return res;
 
         }
+
+
+        //realtime team-adhesion-actions 
+        public async Task<SingleRsp> TeamAdhesionListActionClient(int teamMatchId, DateTime time)
+        {
+            var cancellationToken = new CancellationToken();
+            var res = new SingleRsp();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
+
+                // Create a CancellationTokenSource with a 30-minute timeout
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                {
+                    var matchInfo = await _matchRepo.MatchTimeOut(teamMatchId);
+                               
+                    TimeSpan totalTime = (TimeSpan)(matchInfo.TimeOut - time.TimeOfDay);
+
+                    if (totalTime.TotalMinutes > 0)
+                    {
+                        linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
+                        while (!linkedCts.Token.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                var listPoints = await _matchRepo.TeamAdhesionListAction(teamMatchId);
+
+                                await hubContext.Clients.All.SendAsync("team-adhesion-actions/" + teamMatchId.ToString(), listPoints, linkedCts.IsCancellationRequested);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending message: {ex.Message}");
+                            }
+
+                            // Delay to prevent continuous rapid execution, adjust as needed
+                            await Task.Delay(TimeSpan.FromMilliseconds(4000));
+                        }
+                    }
+
+                }
+            }
+
+            res.SetMessage("timeout");
+            return res;
+
+        }
         //realtime action refereeCompetitions
         public async Task<SingleRsp> ActionByRefereeSupClient(int matchId, int refereeCompetitionId,int schduleId, DateTime time)
         {
