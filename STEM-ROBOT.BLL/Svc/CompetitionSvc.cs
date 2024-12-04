@@ -215,6 +215,25 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+        public async Task<SingleRsp> getlistTeamAdhesionplay(int useId,int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListPlayerAdhesion(useId,competitionId);
+
+                if (competitons == null) throw new Exception("No data");
+
+
+
+                res.setData("data", competitons);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
+            }
+            return res;
+        }
         public SingleRsp UpdateCompetition(int id, CompetitionReq request)
         {
             var res = new SingleRsp();

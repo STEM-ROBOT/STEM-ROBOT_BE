@@ -6,6 +6,7 @@ using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.DAL;
 using STEM_ROBOT_BE.Extensions;
+using System.Net;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,14 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.Listen(IPAddress.Any, 5000); // HTTP
+//    options.Listen(IPAddress.Any, 5001, listenOptions =>
+//    {
+//        listenOptions.UseHttps(); // HTTPS
+//    });
+//});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
