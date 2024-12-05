@@ -285,6 +285,7 @@ namespace STEM_ROBOT.DAL.Repo
                 {
                     teamMatchId = a.Id,
                     MatchId = a.MatchId,
+                    TeamId=a.TeamId,
                     teamMatchResult = (int)a.TotalScore,
                     teamName = a.Team.Name,
                     teamImage = a.Team.Image,

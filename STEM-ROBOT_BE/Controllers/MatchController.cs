@@ -146,9 +146,9 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("match-action-team")]
         public async Task<IActionResult> TeamAdhesionListAction(int matchId, int teamId)
         {
-            //var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
-            //if (user == null) return Unauthorized("Please login");
-            //int userID = int.Parse(user.Value);
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
             var point = await _matchSvc.TeamAdhesionListActionSvc(matchId, teamId);
             return Ok(point.Data);
         }

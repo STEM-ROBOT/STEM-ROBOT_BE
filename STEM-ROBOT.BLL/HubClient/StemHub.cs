@@ -230,7 +230,7 @@ namespace STEM_ROBOT.BLL.HubClient
                             {
                                 var listPoints = await _matchRepo.TeamAdhesionListAction(teamMatchId);
 
-                                await hubContext.Clients.All.SendAsync("team-adhesion-actions/" + teamMatchId.ToString(), listPoints, linkedCts.IsCancellationRequested);
+                                await hubContext.Clients.All.SendAsync("team-adhesion-actions/" + listPoints.TeamId.ToString(), listPoints, linkedCts.IsCancellationRequested);
                             }
                             catch (Exception ex)
                             {

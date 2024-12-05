@@ -265,5 +265,16 @@ namespace STEM_ROBOT.BLL.Mapper
             }
             return false;
         }
+        public bool CheckScheduleTeamStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
