@@ -16,6 +16,8 @@ namespace STEM_ROBOT.Common.Req
     public class ScheduleRandomReq
     {
         public int? teamMatchWinId { get; set; }
+        public int? teamMatchRandomId { get; set; }
+        public int? teamId { get; set; }
 
         public ICollection<ScheduleRandomTeamMatchReq> TeamMatchs{ get; set; } = new List<ScheduleRandomTeamMatchReq>();
     }

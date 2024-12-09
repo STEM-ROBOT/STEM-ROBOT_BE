@@ -92,8 +92,8 @@ namespace STEM_ROBOT.DAL.Repo
                     Logo = t.Image,
 
                     played = t.TeamMatches.Count(x => x.IsPlay == true),
-                    win = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
-                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    win = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
                     lost = t.TeamMatches.Count(x => x.ResultPlay == "Lose"),
                     members = t.ContestantTeams.Select(v => new MemeberPlayer
                     {
@@ -116,8 +116,8 @@ namespace STEM_ROBOT.DAL.Repo
                     Logo = t.Image,
 
                     played = t.TeamMatches.Count(x => x.IsPlay == true),
-                    win = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
-                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    win = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
                     lost = t.TeamMatches.Count(x => x.ResultPlay == "Lose"),
                     members = t.ContestantTeams.Select(v => new MemeberPlayer
                     {

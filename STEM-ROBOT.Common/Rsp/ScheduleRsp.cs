@@ -116,6 +116,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
 
         public int teamMatchId { get; set; }
+        public int teamId { get; set; }
         public string teamName { get; set; }
         public string teamImage { get; set; }
         public string ResultPlay { get; set; }
