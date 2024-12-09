@@ -27,6 +27,10 @@ public partial class TeamMatch
 
     public int? ResultPlayTable { get; set; }
 
+    public double? AverageMinus { get; set; }
+
+    public double? AverageBonus { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }

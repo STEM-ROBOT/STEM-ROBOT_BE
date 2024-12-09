@@ -90,7 +90,9 @@ namespace STEM_ROBOT.BLL.Svc
                     res.SetError("403", "You can't create an account with role Admin");
                     return res;
                 }
-                account.MaxTournatment = 3;
+                account.MaxTournatment = 5;
+                account.MaxTeam = 8;
+                account.MaxMatch = 12;
                 account.Password = BCrypt.Net.BCrypt.HashPassword(req.Password);
                 _accountRepo.Add(account);
                 res.setData("data","Success");
