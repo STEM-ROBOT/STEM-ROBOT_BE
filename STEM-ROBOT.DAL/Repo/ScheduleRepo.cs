@@ -129,8 +129,13 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await _context.Schedules
                 .Where(x => x.Id == scheduleId && x.RefereeCompetition.Referee.AccountId == accoutId)
+                 .Include(x => x.Match)
+            .ThenInclude(m => m.TeamMatches)
+                .ThenInclude(tm => tm.Team)
                 .Include(x => x.Match)
                 .ThenInclude(x => x.TeamMatches)
+                .ThenInclude(ac => ac.Actions)
+                .ThenInclude(cs => cs.ScoreCategory)
                .Include(x => x.Match)
                .ThenInclude(s => s.Stage)
                 .FirstOrDefaultAsync();
@@ -141,7 +146,7 @@ namespace STEM_ROBOT.DAL.Repo
 
             return matchLast;
         }
-        public async Task<TableGroup> checkTableMatch( int tableGroupId)
+        public async Task<TableGroup> checkTableMatch(int tableGroupId)
         {
             return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb => tb.TeamTables).ThenInclude(t => t.Team).ThenInclude(tm => tm.TeamMatches).FirstOrDefaultAsync();
         }

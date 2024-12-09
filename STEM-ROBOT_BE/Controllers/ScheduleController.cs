@@ -148,8 +148,8 @@ namespace STEM_ROBOT.Web.Controllers
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null) return BadRequest("Please login ");
             int userID = int.Parse(user.Value);
-            var sendmail = await _scheduleSvc.ConfirmSchedule(scheduleId, userID);
-            return Ok(sendmail);
+            var response = await _scheduleSvc.ConfirmSchedule(scheduleId, userID);
+            return Ok(response);
         }
 
         [HttpGet("match-config-schedule")]

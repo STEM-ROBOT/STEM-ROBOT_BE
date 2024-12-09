@@ -39,35 +39,44 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
+                var time = ConvertToVietnamTime(DateTime.Now);
                 var check = await _actionRepo.checkRefereeschedule(scheduleId, accoutId);
 
-                if (check != null)
+                var totalTime = check.Match.StartDate + check.Match.TimeOut.Value.Add(TimeSpan.FromMinutes(5));
+
+                if (time <= totalTime)
                 {
-                    var action = _actionRepo.GetById(actionId);
-                    var score = _scoreCategoryRepo.GetById(action.ScoreCategoryId);
-                    var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
-                    if (status == "accept")
+                    if (check != null)
                     {
-                        if (score.Type.ToLower() == "điểm trừ"
-                            //&& teamMatch.TotalScore > 0
-                            )
+                        var action = _actionRepo.GetById(actionId);
+                        var score = _scoreCategoryRepo.GetById(action.ScoreCategoryId);
+                        var teamMatch = _teamMatchRepo.GetById(action.TeamMatchId);
+                        if (status == "accept")
                         {
-                            teamMatch.TotalScore -= score.Point;
+                            if (score.Type.ToLower() == "điểm trừ"
+                                //&& teamMatch.TotalScore > 0
+                                )
+                            {
+                                teamMatch.TotalScore -= score.Point;
+                            }
+                            else if (score.Type.ToLower() == "điểm cộng")
+                            {
+                                teamMatch.TotalScore += score.Point;
+                            }
                         }
-                        else if (score.Type.ToLower() == "điểm cộng")
-                        {
-                            teamMatch.TotalScore += score.Point;
-                        }
+                        action.Status = status;
+                        _teamMatchRepo.Update(teamMatch);
+                        _actionRepo.Update(action);
+                        res.SetMessage("Update success");
                     }
-                    action.Status = status;
-                    _teamMatchRepo.Update(teamMatch);
-                    _actionRepo.Update(action);
-                    res.SetMessage("Update success");
-                }
-                else
-                {
-                    res.SetMessage("Update fail");
-                }
+                    else
+                    {
+                        res.SetMessage("Update fail");
+                    }
+                }else { res.SetMessage("timeout"); }
+
+
+
 
             }
             catch (Exception ex)
