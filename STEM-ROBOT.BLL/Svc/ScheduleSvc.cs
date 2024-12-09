@@ -605,6 +605,34 @@ namespace STEM_ROBOT.BLL.Svc
             public string MatchWinCode { get; set; }
             public int Score { get; set; }
         }
+        public async Task<SingleRsp> ConfirmMatchRandom(int scheduleID, int accountId, ScheduleRandomReq req)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.confirmSchedule(scheduleID, accountId);
+                if (schedule == null)
+                {
+                    res.Setmessage("lich trinh khong ton tai");
+                }
+                else
+                {
+                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
+                    var teamUpdate = new List<TeamMatch>();
+                    foreach (var teamMatch in req.TeamMatchs)
+                    {
+                        var teamItem = _teamMatchRepo.GetById(teamMatch.Id);
+                        teamItem.HitCount = teamMatch.HitCount;
+                        teamUpdate.Add(teamItem);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
         //confirm schedule
         public async Task<SingleRsp> ConfirmSchedule(int scheduleID, int accountId)
         {
@@ -716,11 +744,21 @@ namespace STEM_ROBOT.BLL.Svc
                     var listTeamMatch = new List<TeamMatch>();
                     if (team1.TotalScore == team2.TotalScore)
                     {
+                        // Tính trung bình cộng của listBonusTeam
                         var listBonusTeam1 = team1.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm cộng").ToList();
                         var listBonusTeam2 = team2.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm cộng").ToList();
-                        // Tính trung bình cộng của listBonusTeam
-                        team1.AverageBonus = listBonusTeam1.Count > 0 ? listBonusTeam1.Average(a => a.Score ?? 0) : 0;
-                        team2.AverageBonus = listBonusTeam2.Count > 0 ? listBonusTeam2.Average(a => a.Score ?? 0) : 0;
+
+                        team1.AverageBonus = listBonusTeam1.Count > 0 ? listBonusTeam1.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+                        team2.AverageBonus = listBonusTeam2.Count > 0 ? listBonusTeam2.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+
+                        // Tính trung bình cộng của listMinusTeam
+                        var listMinusTeam1 = team1.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
+                        var listMinusTeam2 = team2.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
+
+                        team1.AverageMinus = listMinusTeam1.Count > 0 ? listMinusTeam1.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+                        team2.AverageMinus = listMinusTeam2.Count > 0 ? listMinusTeam2.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+
+
                         if (team1.AverageBonus > team2.AverageBonus)
                         {
                             team1.IsPlay = true;
@@ -751,11 +789,7 @@ namespace STEM_ROBOT.BLL.Svc
                         }
                         else if (team2.AverageBonus == team1.AverageBonus)
                         {
-                            var listMinusTeam1 = team1.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
-                            var listMinusTeam2 = team2.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
-                            // Tính trung bình cộng của listBonusTeam
-                            team1.AverageMinus = listMinusTeam1.Average(a => a.Score ?? 0);
-                            team2.AverageMinus = listMinusTeam2.Average(a => a.Score ?? 0);
+
                             if (team1.AverageMinus < team2.AverageMinus)
                             {
                                 team1.IsPlay = true;
@@ -790,16 +824,19 @@ namespace STEM_ROBOT.BLL.Svc
                                 var data = new MatchDataScheduleConfirm
                                 {
                                     formatName = "Loại Trực Tiếp",
+                                    formatType = "knock-out",
                                     teamMatchWinId = teamMatchWin.Id,
                                     teamRanDom = schedule.Match.TeamMatches.Select(ac => new RandomTeamWinRsp
                                     {
                                         averageMinus = (double)ac.AverageMinus,
                                         averageBonus = (double)ac.AverageBonus,
+                                        tolalScore = (int)ac.TotalScore,
                                         teamImage = ac.Team.Image,
                                         teamMatchId = ac.Id,
                                         teamName = ac.Team.Name,
                                     }).ToList(),
-                                };
+                                }; 
+                                _teamMatchRepo.UpdateRange(schedule.Match.TeamMatches);
                                 res.setData("data", data);
                                 res.SetMessage("randome");
                             }
@@ -833,8 +870,6 @@ namespace STEM_ROBOT.BLL.Svc
                             res.SetMessage("success");
 
                         }
-
-
                     }
                 }
             }

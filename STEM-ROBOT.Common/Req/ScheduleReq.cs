@@ -13,4 +13,17 @@ namespace STEM_ROBOT.Common.Req
 
         public int? MatchId { get; set; }
     }
+    public class ScheduleRandomReq
+    {
+        public int? teamMatchWinId { get; set; }
+
+        public ICollection<ScheduleRandomTeamMatchReq> TeamMatchs{ get; set; } = new List<ScheduleRandomTeamMatchReq>();
+    }
+    public class ScheduleRandomTeamMatchReq
+    {
+        public int? Id { get; set; }
+        public int? HitCount { get; set; }
+
+
+    }
 }
