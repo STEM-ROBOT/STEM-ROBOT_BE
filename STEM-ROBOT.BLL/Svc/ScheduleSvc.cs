@@ -617,14 +617,27 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
                     var teamUpdate = new List<TeamMatch>();
+                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
+                    teamWin.TeamId = req.teamId;
+                    teamUpdate.Add(teamWin);
                     foreach (var teamMatch in req.TeamMatchs)
                     {
                         var teamItem = _teamMatchRepo.GetById(teamMatch.Id);
+                        if (teamMatch.Id == req.teamMatchRandomId)
+                        {
+                            teamItem.ResultPlay = "Win";
+                        }
+                        else
+                        {
+                            teamItem.ResultPlay = "Lose";
+                        }
                         teamItem.HitCount = teamMatch.HitCount;
                         teamUpdate.Add(teamItem);
+
                     }
+                    _teamMatchRepo.UpdateRange(teamUpdate);
+                    res.SetMessage("success");
                 }
             }
             catch (Exception ex)
@@ -834,42 +847,45 @@ namespace STEM_ROBOT.BLL.Svc
                                         teamImage = ac.Team.Image,
                                         teamMatchId = ac.Id,
                                         teamName = ac.Team.Name,
+                                        teamId = (int)ac.TeamId
                                     }).ToList(),
-                                }; 
+                                };
                                 _teamMatchRepo.UpdateRange(schedule.Match.TeamMatches);
                                 res.setData("data", data);
                                 res.SetMessage("randome");
                             }
                         }
-                        else if (team1.TotalScore > team2.TotalScore)
-                        {//capj nhat team 1
-                            team1.IsPlay = true;
-                            team1.ResultPlay = "Win";
-                            //capj nhat team 2b
-                            team2.IsPlay = true;
-                            team2.ResultPlay = "Lose";
-                            teamMatchWin.TeamId = team1.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
-                            listTeamMatch.Add(team1);
-                            listTeamMatch.Add(team2);
-                            _teamMatchRepo.UpdateRange(listTeamMatch);
-                            res.SetMessage("success");
-                        }
-                        else
-                        {
-                            team1.IsPlay = true;
-                            team1.ResultPlay = "Lose";
-                            //capj nhat team 2
-                            team2.IsPlay = true;
-                            team2.ResultPlay = "Win";
-                            teamMatchWin.TeamId = team2.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
-                            listTeamMatch.Add(team1);
-                            listTeamMatch.Add(team2);
-                            _teamMatchRepo.UpdateRange(listTeamMatch);
-                            res.SetMessage("success");
 
-                        }
+
+                    }
+                    else if (team1.TotalScore > team2.TotalScore)
+                    {//capj nhat team 1
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Win";
+                        //capj nhat team 2b
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Lose";
+                        teamMatchWin.TeamId = team1.TeamId;
+                        listTeamMatch.Add(teamMatchWin);
+                        listTeamMatch.Add(team1);
+                        listTeamMatch.Add(team2);
+                        _teamMatchRepo.UpdateRange(listTeamMatch);
+                        res.SetMessage("success");
+                    }
+                    else
+                    {
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Lose";
+                        //capj nhat team 2
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Win";
+                        teamMatchWin.TeamId = team2.TeamId;
+                        listTeamMatch.Add(teamMatchWin);
+                        listTeamMatch.Add(team1);
+                        listTeamMatch.Add(team2);
+                        _teamMatchRepo.UpdateRange(listTeamMatch);
+                        res.SetMessage("success");
+
                     }
                 }
             }
