@@ -95,6 +95,7 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             var notifications = await _notificationRepo.listNotifi(userid);
                             var mappedNotifications = _mapper.Map<List<NotificationRsp>>(notifications);
+
                             await hubContext.Clients.All.SendAsync("notification/" + userid.ToString(), mappedNotifications, linkedCts.IsCancellationRequested);
                         }
                         catch (Exception ex)

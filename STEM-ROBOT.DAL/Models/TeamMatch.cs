@@ -31,6 +31,10 @@ public partial class TeamMatch
 
     public double? AverageBonus { get; set; }
 
+    public int? HitCount { get; set; }
+
+    public int? Perfomance { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual Match? Match { get; set; }

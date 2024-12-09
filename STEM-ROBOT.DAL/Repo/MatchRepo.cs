@@ -289,7 +289,7 @@ namespace STEM_ROBOT.DAL.Repo
                     teamMatchResult = (int)a.TotalScore,
                     teamName = a.Team.Name,
                     teamImage = a.Team.Image,
-                    halfActionTeam = a.Actions.Where(a=>a.Status == "accetp").Select(c => new MatchListPoint
+                    halfActionTeam = a.Actions.Where(a=>a.Status == "accept").Select(c => new MatchListPoint
                     {
                         id = c.Id,
                         halfId = c.MatchHalf.Id,

@@ -74,8 +74,6 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<TeamTable> TeamTables { get; set; }
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -338,6 +336,7 @@ public partial class StemdbContext : DbContext
         {
             entity.ToTable("Notification");
 
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.RouterUi)
                 .HasColumnType("text")

@@ -109,6 +109,7 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int teamMatchWinId { get; set; }
         public string formatName { get; set; }
+        public string formatType { get; set; }
         public ICollection<RandomTeamWinRsp> teamRanDom { get; set; } = new List<RandomTeamWinRsp>();
     }
     public class RandomTeamWinRsp
