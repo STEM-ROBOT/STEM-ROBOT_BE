@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "STEM-ROBOT.Common", "STEM-R
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{92754C2C-315A-40AF-A48B-484EB4FE1309}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STEM-ROBOT.TEST", "..\STEM-ROBOT.TEST\STEM-ROBOT.TEST.csproj", "{9C01A8D0-7912-4DA4-9D3E-02BF16793878}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{92754C2C-315A-40AF-A48B-484EB4FE1309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92754C2C-315A-40AF-A48B-484EB4FE1309}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92754C2C-315A-40AF-A48B-484EB4FE1309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C01A8D0-7912-4DA4-9D3E-02BF16793878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C01A8D0-7912-4DA4-9D3E-02BF16793878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C01A8D0-7912-4DA4-9D3E-02BF16793878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C01A8D0-7912-4DA4-9D3E-02BF16793878}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

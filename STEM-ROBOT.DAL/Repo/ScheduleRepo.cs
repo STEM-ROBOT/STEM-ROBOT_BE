@@ -134,7 +134,7 @@ namespace STEM_ROBOT.DAL.Repo
                 .ThenInclude(tm => tm.Team)
                 .Include(x => x.Match)
                 .ThenInclude(x => x.TeamMatches)
-                .ThenInclude(ac => ac.Actions)
+                .ThenInclude(ac => ac.Actions.Where(a=>a.Status == "accept"))
                 .ThenInclude(cs => cs.ScoreCategory)
                .Include(x => x.Match)
                .ThenInclude(s => s.Stage)
@@ -148,7 +148,7 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<TableGroup> checkTableMatch(int tableGroupId)
         {
-            return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb => tb.TeamTables).ThenInclude(t => t.Team).ThenInclude(tm => tm.TeamMatches).FirstOrDefaultAsync();
+            return await _context.TableGroups.Where(x => x.Id == tableGroupId).Include(tb => tb.TeamTables).ThenInclude(t => t.Team).ThenInclude(tm => tm.TeamMatches).ThenInclude(ac => ac.Actions ).ThenInclude(sc=>sc.ScoreCategory).FirstOrDefaultAsync();
         }
         public async Task<TeamMatch> matchWinSchedule(string matchCode)
         {
