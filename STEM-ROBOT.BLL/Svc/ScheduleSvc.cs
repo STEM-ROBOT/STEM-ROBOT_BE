@@ -627,10 +627,12 @@ namespace STEM_ROBOT.BLL.Svc
                         if (teamMatch.Id == req.teamMatchRandomId)
                         {
                             teamItem.ResultPlay = "Win";
+                            teamItem.IsPlay = true;
                         }
                         else
                         {
                             teamItem.ResultPlay = "Lose";
+                            teamItem.IsPlay = true;
                         }
                         teamItem.HitCount = teamMatch.HitCount;
                         teamUpdate.Add(teamItem);
@@ -706,6 +708,8 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamMatchRepo.UpdateRange(listTeam);
                     }
 
+
+                    //kiem tra co phai tran dau cuoi cung cua bang khong
                     var matchLast = await _scheduleRepo.checkMatchLast((int)schedule.Match.TableGroupId);
                     var matchLastcheck = matchLast.LastOrDefault();
                     if ((int)schedule.MatchId == matchLastcheck.Id)
@@ -714,35 +718,37 @@ namespace STEM_ROBOT.BLL.Svc
                         if (matchLast != null)
                         {
                             int teamNextRound = (int)matchtable.TeamNextRoud;
-                            var listTeamReult = new List<TeamResult>();
-                            foreach (var team in matchtable.TeamTables)
-                            {
-                                int toltalScore = 0;
-                                var teamResult = new TeamResult();
+                       
+                            // lay danh sach team trong bangr
+                            var listTeamTable = matchtable.TeamTables;
 
-                                foreach (var teamMatch in team.Team.TeamMatches)
+                            //sap xep theo thu tu diem giamr dan
+                            var topTeams = listTeamTable
+                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))                     
+                            .ToList();
+
+                            // mang xu li 
+                            var listBackup = topTeams;
+
+                            for (int i = 0; i< teamNextRound; i++)
+                            {
+                                var topSame = listBackup[i];
+
+                                int sameScoreCount = topTeams
+                                    .Count(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0));
+                                if( sameScoreCount > 1 )
                                 {
-                                    toltalScore += (int)teamMatch.ResultPlayTable;
 
                                 }
-                                teamResult.TeamId = (int)team.TeamId;
-                                teamResult.Score = toltalScore;
-                                teamResult.TableName = matchtable.Name;
-                                listTeamReult.Add(teamResult);
+                                else {
+                                    var MatchCode = $"T#{i+1}B#{matchtable.Name}";
+                                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
+                                    teamMatchWin.TeamId = topSame.TeamId;
+                                    _teamMatchRepo.Update(teamMatchWin);
+                                }
                             }
-                            var topTeams = listTeamReult
-                            .OrderByDescending(t => t.Score)
-                            .Take(teamNextRound)
-                            .ToList();
-                            int top = 0;
-                            foreach (var team in topTeams)
-                            {
-                                top += 1;
-                                var MatchCode = $"T#{top}B#{team.TableName}";
-                                var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
-                                teamMatchWin.TeamId = team.TeamId;
-                                _teamMatchRepo.Update(teamMatchWin);
-                            }
+                            
+   
                         }
 
                     }
