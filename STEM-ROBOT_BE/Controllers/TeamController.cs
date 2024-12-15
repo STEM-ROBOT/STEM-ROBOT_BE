@@ -108,5 +108,6 @@ namespace STEM_ROBOT.Web.Controllers
             var list = await _teamSvc.SchedulesTeamAdhesion(teamId);
             return Ok(list.Data);
         }
+      
     }
 }

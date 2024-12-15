@@ -221,7 +221,7 @@ namespace STEM_ROBOT.BLL.Svc
             var res = new SingleRsp();
             try
             {
-                var list = await _teamRepo.schedulesTeamAdhesion(teamId);
+                var list = await _teamRepo.schedulesTeamAdhesion(teamId);   
                 if (list == null) throw new Exception("No data");
                 var mapper = _mapper.Map<TeamScheduleRsp>(list);
                 res.setData("data", mapper);
@@ -234,5 +234,6 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
 
         }
+     
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Threading;
 using Google.Api.Gax;
+using System.Text.RegularExpressions;
 
 
 namespace STEM_ROBOT.BLL.HubClient
@@ -249,6 +250,96 @@ namespace STEM_ROBOT.BLL.HubClient
             res.SetMessage("timeout");
             return res;
 
+        }
+        public async Task<SingleRsp> AverageScoreActionClient(int teamId, int matchId, DateTime time)
+        {
+            var cancellationToken = new CancellationToken();
+            var res = new SingleRsp();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StemHub>>();
+
+                // Create a CancellationTokenSource with a 30-minute timeout
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                {
+                    var matchInfo =  _matchRepo.GetById(matchId);
+                    TimeSpan LengthData = (TimeSpan)matchInfo.TimeOut - (TimeSpan)matchInfo.TimeIn;
+                    int totalMinutes = (int)LengthData.TotalMinutes;
+                    int[] minuteArray = Enumerable.Range(1, totalMinutes).ToArray();
+                    TimeSpan totalTime = (TimeSpan)(matchInfo.TimeOut - time.TimeOfDay);
+                    int totalTimeScore = (int)totalTime.TotalMinutes;
+                    if (totalTime.TotalMinutes > 0)
+                    {
+                        linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
+                        while (!linkedCts.Token.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                var match = await _teamMatchRepo.getAverageScore(teamId, matchId);
+                                var bonusAction = CalculateAverageScoresPerMinute(match.Where(a => a.ScoreCategory.Type == "Điểm cộng").ToList(), "bonus");
+                                var MinusAction = CalculateAverageScoresPerMinute(match.Where(a => a.ScoreCategory.Type == "Điểm trừ").ToList(), "minus");
+                                var rpsBosnusAction = Enumerable.Repeat(0.0, totalTimeScore).ToArray();
+                                foreach (var action in bonusAction)
+                                {
+
+                                    rpsBosnusAction[action.Minute] = action.AverageScore;
+
+                                }
+                                var rpsMinusAction = Enumerable.Repeat(0.0, totalTimeScore).ToArray();
+                                foreach (var action in MinusAction)
+                                {
+
+                                    rpsMinusAction[action.Minute] = action.AverageScore;
+
+                                }
+                                var rpsAverageScore = new
+                                {
+                                    time = minuteArray,
+                                    bonus = rpsBosnusAction,
+                                    minus = rpsMinusAction
+                                };
+                                
+                                // danh sach trung binh diem cong theo phut
+                                await hubContext.Clients.All.SendAsync("team-average-score/" + teamId.ToString(), rpsAverageScore, linkedCts.IsCancellationRequested);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending message: {ex.Message}");
+                            }
+
+                            // Delay to prevent continuous rapid execution, adjust as needed
+                            await Task.Delay(TimeSpan.FromMilliseconds(4000));
+                        }
+                    }
+
+                }
+            }
+
+            res.SetMessage("timeout");
+            return res;
+
+        }
+        public class AveragedAction
+        {
+            public int Minute { get; set; }
+            public double AverageScore { get; set; }
+        }
+        public static List<AveragedAction> CalculateAverageScoresPerMinute(List<DAL.Models.Action> actions, string type)
+        {
+            // Kiểm tra loại điểm để xác định hệ số nhân
+            int multiplier = type == "bonus" ? 1 : -1;
+
+            // Nhóm các hành động theo phút và tính điểm trung bình
+            var averagedActions = actions
+                .GroupBy(a => a.EventTime.Value.Minutes)
+                .Select(g => new AveragedAction
+                {
+                    Minute = g.Key,
+                    AverageScore = multiplier * (double)g.Average(a => a.ScoreCategory.Point)
+                })
+                .ToList();
+
+            return averagedActions;
         }
         //realtime action refereeCompetitions
         public async Task<SingleRsp> ActionByRefereeSupClient(int matchId, int refereeCompetitionId,int schduleId, DateTime time)

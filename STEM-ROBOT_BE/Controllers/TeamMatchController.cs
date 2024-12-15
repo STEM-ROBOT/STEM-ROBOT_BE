@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit.Tnef;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
@@ -26,7 +27,13 @@ namespace STEM_ROBOT.Web.Controllers
             var res = _teamMatchSvc.GetIdTeamMatch(id);
             return Ok(res);
         }
+        [HttpGet("teamMatch-statistical")]
+        public async Task<IActionResult> TeamStatistical(int teamId,int matchId)
+        {
 
-        
+            var list = await _teamMatchSvc.TeamStatistical(matchId,teamId);
+            return Ok(list.Data);
+        }
+
     }
 }
