@@ -6,6 +6,7 @@ using STEM_ROBOT.BLL.HubClient;
 using STEM_ROBOT.BLL.Mapper;
 using STEM_ROBOT.DAL;
 using STEM_ROBOT_BE.Extensions;
+using System.Net;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +32,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("myAppCors", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://157.66.27.69:5173", "https://stem-robot-system.vercel.app")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://157.66.27.69:5173", "http://stemsystem.io.vn:5173", "http://10.4.0.203:8081")
                  .AllowAnyHeader()
                  .AllowAnyMethod()
                     .AllowCredentials();
@@ -39,6 +40,14 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.Listen(IPAddress.Any, 5000); // HTTP
+//    options.Listen(IPAddress.Any, 5001, listenOptions =>
+//    {
+//        listenOptions.UseHttps(); // HTTPS
+//    });
+//});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

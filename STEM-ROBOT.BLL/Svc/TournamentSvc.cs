@@ -67,6 +67,7 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var user = _account.GetById(userID);
+                user.MaxTournatment -= 1;
                 if (user.Role == "RF")
                 {
                     res.setData("data", "Sai phan quyen");

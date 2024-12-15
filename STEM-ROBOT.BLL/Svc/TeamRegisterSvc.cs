@@ -132,7 +132,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp updateStatusTeamRegister(int id, int competitionId, TeamRegisterStatusRsp teamRegisterStatusRsp)
+        public async Task<SingleRsp> updateStatusTeamRegister(int id, TeamRegisterStatusRsp teamRegisterStatusRsp)
         {
             var res = new SingleRsp();
             try
@@ -145,7 +145,7 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
 
-                    var slot = _teamRepo.All(x => x.CompetitionId == competitionId && x.IsSetup != true).FirstOrDefault();
+                    var slot = _teamRepo.All(x => x.CompetitionId == teamRegister.CompetitionId && x.IsSetup != true).FirstOrDefault();
                     if (slot == null)
                     {
                         res.SetMessage("Hết teams để đăng kí");

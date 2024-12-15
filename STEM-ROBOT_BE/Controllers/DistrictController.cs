@@ -4,7 +4,7 @@ using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/distric")]
     [ApiController]
     public class DistrictController : ControllerBase
     {
@@ -14,7 +14,7 @@ namespace STEM_ROBOT.Web.Controllers
             _districtSvc = districtSvc;
         }
 
-        [HttpPost("Import-excel")]
+        [HttpPost("import-excel")]
         public async Task<IActionResult> ImportDistrictExcel(IFormFile file)
         {
             var res = await _districtSvc.ImportDistrictExcel(file);

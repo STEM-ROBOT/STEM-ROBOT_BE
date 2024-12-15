@@ -605,6 +605,49 @@ namespace STEM_ROBOT.BLL.Svc
             public string MatchWinCode { get; set; }
             public int Score { get; set; }
         }
+        public async Task<SingleRsp> ConfirmMatchRandom(int scheduleID, int accountId, ScheduleRandomReq req)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var schedule = await _scheduleRepo.confirmSchedule(scheduleID, accountId);
+                if (schedule == null)
+                {
+                    res.Setmessage("lich trinh khong ton tai");
+                }
+                else
+                {
+                    var teamUpdate = new List<TeamMatch>();
+                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
+                    teamWin.TeamId = req.teamId;
+                    teamUpdate.Add(teamWin);
+                    foreach (var teamMatch in req.TeamMatchs)
+                    {
+                        var teamItem = _teamMatchRepo.GetById(teamMatch.Id);
+                        if (teamMatch.Id == req.teamMatchRandomId)
+                        {
+                            teamItem.ResultPlay = "Win";
+                            teamItem.IsPlay = true;
+                        }
+                        else
+                        {
+                            teamItem.ResultPlay = "Lose";
+                            teamItem.IsPlay = true;
+                        }
+                        teamItem.HitCount = teamMatch.HitCount;
+                        teamUpdate.Add(teamItem);
+
+                    }
+                    _teamMatchRepo.UpdateRange(teamUpdate);
+                    res.SetMessage("success");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return res;
+        }
         //confirm schedule
         public async Task<SingleRsp> ConfirmSchedule(int scheduleID, int accountId)
         {
@@ -625,18 +668,28 @@ namespace STEM_ROBOT.BLL.Svc
 
                     if (team1.TotalScore > team2.TotalScore)
                     {
+
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.WinScore;
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Win";
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.LoseScore;
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Lose";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
                     }
                     else if (team1.TotalScore == team2.TotalScore)
                     {
                         var listTeam = new List<TeamMatch>();
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Draw";
                         team1.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team1);
+                        //capj nhat team 2
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Draw";
                         team2.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
@@ -645,12 +698,18 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.LoseScore;
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Lose";
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.WinScore;
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Win";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
                     }
 
+
+                    //kiem tra co phai tran dau cuoi cung cua bang khong
                     var matchLast = await _scheduleRepo.checkMatchLast((int)schedule.Match.TableGroupId);
                     var matchLastcheck = matchLast.LastOrDefault();
                     if ((int)schedule.MatchId == matchLastcheck.Id)
@@ -659,60 +718,182 @@ namespace STEM_ROBOT.BLL.Svc
                         if (matchLast != null)
                         {
                             int teamNextRound = (int)matchtable.TeamNextRoud;
-                            var listTeamReult = new List<TeamResult>();
-                            foreach (var team in matchtable.TeamTables)
-                            {
-                                int toltalScore = 0;
-                                var teamResult = new TeamResult();
+                       
+                            // lay danh sach team trong bangr
+                            var listTeamTable = matchtable.TeamTables;
 
-                                foreach (var teamMatch in team.Team.TeamMatches)
+                            //sap xep theo thu tu diem giamr dan
+                            var topTeams = listTeamTable
+                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))                     
+                            .ToList();
+
+                            // mang xu li 
+                            var listBackup = topTeams;
+
+                            for (int i = 0; i< teamNextRound; i++)
+                            {
+                                var topSame = listBackup[i];
+
+                                int sameScoreCount = topTeams
+                                    .Count(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0));
+                                if( sameScoreCount > 1 )
                                 {
-                                    toltalScore += (int)teamMatch.ResultPlayTable;
 
                                 }
-                                teamResult.TeamId = (int)team.TeamId;
-                                teamResult.Score = toltalScore;
-                                teamResult.TableName = matchtable.Name;
-                                listTeamReult.Add(teamResult);
+                                else {
+                                    var MatchCode = $"T#{i+1}B#{matchtable.Name}";
+                                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
+                                    teamMatchWin.TeamId = topSame.TeamId;
+                                    _teamMatchRepo.Update(teamMatchWin);
+                                }
                             }
-                            var topTeams = listTeamReult
-                            .OrderByDescending(t => t.Score)
-                            .Take(teamNextRound)
-                            .ToList();
-                            int top = 0;
-                            foreach (var team in topTeams)
-                            {
-                                top += 1;
-                                var MatchCode = $"T#{top}B#{team.TableName}";
-                                var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
-                                teamMatchWin.TeamId = team.TeamId;
-                                _teamMatchRepo.Update(teamMatchWin);
-                            }
+                            
+   
                         }
 
                     }
                     res.SetMessage("success");
 
                 }
-                else 
+                else
                 {
                     var teamMatchWin = await _scheduleRepo.matchWinSchedule(schedule.Match.MatchCode);
                     var team1 = schedule.Match.TeamMatches.FirstOrDefault();
                     var team2 = schedule.Match.TeamMatches.LastOrDefault();
-                    if (team1.TotalScore > team2.TotalScore)
+                    var listTeamMatch = new List<TeamMatch>();
+                    if (team1.TotalScore == team2.TotalScore)
                     {
+                        // Tính trung bình cộng của listBonusTeam
+                        var listBonusTeam1 = team1.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm cộng").ToList();
+                        var listBonusTeam2 = team2.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm cộng").ToList();
+
+                        team1.AverageBonus = listBonusTeam1.Count > 0 ? listBonusTeam1.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+                        team2.AverageBonus = listBonusTeam2.Count > 0 ? listBonusTeam2.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+
+                        // Tính trung bình cộng của listMinusTeam
+                        var listMinusTeam1 = team1.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
+                        var listMinusTeam2 = team2.Actions.Where(a => a.ScoreCategory.Type.ToLower() == "điểm trừ").ToList();
+
+                        team1.AverageMinus = listMinusTeam1.Count > 0 ? listMinusTeam1.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+                        team2.AverageMinus = listMinusTeam2.Count > 0 ? listMinusTeam2.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+
+
+                        if (team1.AverageBonus > team2.AverageBonus)
+                        {
+                            team1.IsPlay = true;
+                            team1.ResultPlay = "Win";
+                            //capj nhat team 2
+                            team2.IsPlay = true;
+                            team2.ResultPlay = "Lose";
+                            teamMatchWin.TeamId = team1.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                            listTeamMatch.Add(team1);
+                            listTeamMatch.Add(team2);
+                            _teamMatchRepo.UpdateRange(listTeamMatch);
+                            res.SetMessage("success");
+                        }
+                        else if (team1.AverageBonus < team2.AverageBonus)
+                        {
+                            team1.IsPlay = true;
+                            team1.ResultPlay = "Lose";
+                            //capj nhat team 2
+                            team2.IsPlay = true;
+                            team2.ResultPlay = "Win";
+                            teamMatchWin.TeamId = team2.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                            listTeamMatch.Add(team1);
+                            listTeamMatch.Add(team2);
+                            _teamMatchRepo.UpdateRange(listTeamMatch);
+                            res.SetMessage("success");
+                        }
+                        else if (team2.AverageBonus == team1.AverageBonus)
+                        {
+
+                            if (team1.AverageMinus < team2.AverageMinus)
+                            {
+                                team1.IsPlay = true;
+                                team1.ResultPlay = "Win";
+                                //capj nhat team 2
+                                team2.IsPlay = true;
+                                team2.ResultPlay = "Lose";
+                                teamMatchWin.TeamId = team1.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                                listTeamMatch.Add(team1);
+                                listTeamMatch.Add(team2);
+                                _teamMatchRepo.UpdateRange(listTeamMatch);
+                                res.SetMessage("success");
+                            }
+                            else if (team1.AverageMinus > team2.AverageMinus)
+                            {
+                                team1.IsPlay = true;
+                                team1.ResultPlay = "Lose";
+                                //capj nhat team 2
+                                team2.IsPlay = true;
+                                team2.ResultPlay = "Win";
+                                teamMatchWin.TeamId = team2.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                                listTeamMatch.Add(team1);
+                                listTeamMatch.Add(team2);
+                                _teamMatchRepo.UpdateRange(listTeamMatch);
+                                res.SetMessage("success");
+                            }
+                            else if (team1.AverageMinus == team2.AverageMinus)
+                            {
+
+                                var data = new MatchDataScheduleConfirm
+                                {
+                                    formatName = "Loại Trực Tiếp",
+                                    formatType = "knock-out",
+                                    teamMatchWinId = teamMatchWin.Id,
+                                    teamRanDom = schedule.Match.TeamMatches.Select(ac => new RandomTeamWinRsp
+                                    {
+                                        averageMinus = (double)ac.AverageMinus,
+                                        averageBonus = (double)ac.AverageBonus,
+                                        tolalScore = (int)ac.TotalScore,
+                                        teamImage = ac.Team.Image,
+                                        teamMatchId = ac.Id,
+                                        teamName = ac.Team.Name,
+                                        teamId = (int)ac.TeamId
+                                    }).ToList(),
+                                };
+                                _teamMatchRepo.UpdateRange(schedule.Match.TeamMatches);
+                                res.setData("data", data);
+                                res.SetMessage("randome");
+                            }
+                        }
+
+
+                    }
+                    else if (team1.TotalScore > team2.TotalScore)
+                    {//capj nhat team 1
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Win";
+                        //capj nhat team 2b
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Lose";
                         teamMatchWin.TeamId = team1.TeamId;
-                        _teamMatchRepo.Update(teamMatchWin);
+                        listTeamMatch.Add(teamMatchWin);
+                        listTeamMatch.Add(team1);
+                        listTeamMatch.Add(team2);
+                        _teamMatchRepo.UpdateRange(listTeamMatch);
+                        res.SetMessage("success");
                     }
                     else
                     {
+                        team1.IsPlay = true;
+                        team1.ResultPlay = "Lose";
+                        //capj nhat team 2
+                        team2.IsPlay = true;
+                        team2.ResultPlay = "Win";
                         teamMatchWin.TeamId = team2.TeamId;
-                        _teamMatchRepo.Update(teamMatchWin);
+                        listTeamMatch.Add(teamMatchWin);
+                        listTeamMatch.Add(team1);
+                        listTeamMatch.Add(team2);
+                        _teamMatchRepo.UpdateRange(listTeamMatch);
+                        res.SetMessage("success");
+
                     }
-                    res.SetMessage("success");
-
                 }
-
             }
             catch (Exception ex)
             {

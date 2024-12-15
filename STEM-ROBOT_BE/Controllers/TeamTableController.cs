@@ -5,7 +5,7 @@ using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/table")]
     [ApiController]
     public class TeamTableController : ControllerBase
     {

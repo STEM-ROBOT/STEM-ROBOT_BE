@@ -52,6 +52,7 @@ namespace STEM_ROBOT.Common.Rsp
     {
         public int? teamMatchId { get; set; }
         public int? MatchId { get; set; }
+        public int? TeamId { get; set; }
         public int? teamMatchResult {  get; set; }
         public string? teamName { get; set; }
         public string? teamImage { get; set; }

@@ -21,6 +21,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
+
         [HttpGet]
         public async Task<IActionResult> GetListCompetition()
         {
@@ -32,6 +33,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpGet("Id")]
+
         public async Task<IActionResult> GetByIdCompetition(int id)
         {
             var res = await _competionSvc.GetIDCompetitions(id);
@@ -53,7 +55,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("tournament-adhesion/{tournamentId}")]
+        [HttpGet("competition-adhesion/{tournamentId}")]
         public async Task<IActionResult> GetByToutnamentAdhesionId(int tournamentId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
@@ -67,6 +69,23 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("team-competition-adhesion/{competitionId}")]
+        public async Task<IActionResult> GetListTeamAdhesionPlay(int competitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _competionSvc.getlistTeamAdhesionplay(userId,competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check again");
             }
             return Ok(res.Data);
         }
@@ -135,6 +154,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+
         [HttpGet("data-to-assing/{competitionId}")]
         public async Task<IActionResult> GetDataToAssign(int competitionId)
         {
@@ -148,6 +168,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         [HttpGet("active/{competitionId}")]
         public IActionResult ActiveCompetition(int competitionId)
+
         {
             var res = _competionSvc.getActiveCompetition(competitionId);
             if (!res.Success)
@@ -157,8 +178,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+
         [HttpGet("get-rule")]
         public async Task<IActionResult> GetRule(int competitionId)
+
         {
             var res = await _competionSvc.GetRuleCompetition(competitionId);
             if (!res.Success)
@@ -167,7 +190,9 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
         [HttpGet("Infor")]
+
         public async Task<IActionResult> GetInfor(int id)
         {
             var res = await _competionSvc.GetCompetitionInfor(id);

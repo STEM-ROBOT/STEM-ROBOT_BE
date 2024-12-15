@@ -225,7 +225,16 @@ namespace STEM_ROBOT.DAL.Repo
         }
 
         //realtime point schedule 
-
+        public async Task<Models.Match> MatchTimeOut(int teamMatchId)
+        {
+            var data = await _context.Matches.Where(m => m.TeamMatches.Any(tm => tm.Id == teamMatchId)).FirstOrDefaultAsync();
+            return data;
+        }
+        public async Task<TeamMatch> TeamMatchInfo(int matchId, int teamId)
+        {
+            var data = await _context.TeamMatches.Where(m => m.TeamId == teamId && m.MatchId == matchId).FirstOrDefaultAsync();
+            return data;
+        }
         public async Task<List<Teampoint>> TeamPoint(int matchID)
         {
             var list = await _context.Matches.Where(x => x.Id == matchID).SelectMany(team => team.TeamMatches.Select(tm => new Teampoint
@@ -252,6 +261,35 @@ namespace STEM_ROBOT.DAL.Repo
                     teamName = a.Team.Name,
                     teamImage = a.Team.Image,
                     halfActionTeam = a.Actions.Select(c => new MatchListPoint
+                    {
+                        id = c.Id,
+                        halfId = c.MatchHalf.Id,
+                        halfName = c.MatchHalf.HalfName,
+                        refereeCompetitionId = c.RefereeCompetition.Referee.Id,
+                        refereeCompetitionName = c.RefereeCompetition.Referee.Name,
+                        scoreTime = CalculateElapsedMinutesAndSeconds(c.EventTime),
+                        scoreDescription = c.ScoreCategory.Description,
+                        scorePoint = c.ScoreCategory.Point,
+                        scoreType = c.ScoreCategory.Type,
+                        status = c.Status
+
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+
+            return list;
+        }
+        public async Task<MatchlistPointParent> TeamAdhesionListAction(int teamMatchId)
+        {
+            var list = await _context.TeamMatches.Where(x => x.Id == teamMatchId)
+                .Select(a => new MatchlistPointParent
+                {
+                    teamMatchId = a.Id,
+                    MatchId = a.MatchId,
+                    TeamId=a.TeamId,
+                    teamMatchResult = (int)a.TotalScore,
+                    teamName = a.Team.Name,
+                    teamImage = a.Team.Image,
+                    halfActionTeam = a.Actions.Where(a=>a.Status == "accept").Select(c => new MatchListPoint
                     {
                         id = c.Id,
                         halfId = c.MatchHalf.Id,
