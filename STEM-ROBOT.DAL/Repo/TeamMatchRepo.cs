@@ -16,7 +16,14 @@ namespace STEM_ROBOT.DAL.Repo
         public async Task<Competition> getCompetition(int competitionId)
         {
             var competition = await _context.Competitions.Where(c => c.Id == competitionId).FirstOrDefaultAsync();
-         
+
+            return competition;
+
+        }
+        public async Task<List<Models.Action>> getAverageScore(int teamId,int matchId)
+        {
+            var competition = await _context.Actions.Where(c => c.TeamMatch.MatchId == matchId && c.TeamMatch.TeamId == teamId && c.Status == "accept").Include(s=>s.ScoreCategory).ToListAsync();
+
             return competition;
 
         }

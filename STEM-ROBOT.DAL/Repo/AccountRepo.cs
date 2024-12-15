@@ -33,7 +33,7 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<List<Account>> GetAccount()
         {
-            return await _context.Accounts.Where(x => x.Role != "AD").Include(x => x.Orders).ThenInclude(pa => pa.Package).Include(x=> x.Tournaments).Include(x=> x.Contestants).ToListAsync();        }
+            return await _context.Accounts.Where(x => x.Role == "MD").Include(x => x.Orders).ThenInclude(pa => pa.Package).Include(x=> x.Tournaments).Include(x=> x.Contestants).ToListAsync();        }
     }
     
 }

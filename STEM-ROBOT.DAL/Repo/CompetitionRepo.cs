@@ -39,7 +39,7 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<List<Competition>> getListCompetitionAdhesion(int userId, int tournamentId)
         {
-            return await _context.Competitions.Where(x => x.TournamentId == tournamentId && x.TeamRegisters.Any(tr=>tr.AccountId== userId)).Include(x => x.Genre).ToListAsync();
+            return await _context.Competitions.Where(x => x.TournamentId == tournamentId && x.TeamRegisters.Any(tr => tr.AccountId == userId)).Include(x => x.Genre).ToListAsync();
         }
         public async Task<List<Competition>> getListCompetitionbyID(int id)
         {
@@ -92,8 +92,32 @@ namespace STEM_ROBOT.DAL.Repo
                     Logo = t.Image,
 
                     played = t.TeamMatches.Count(x => x.IsPlay == true),
-                    win = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
-                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    win = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
+                    lost = t.TeamMatches.Count(x => x.ResultPlay == "Lose"),
+                    members = t.ContestantTeams.Select(v => new MemeberPlayer
+                    {
+                        Id = v.Contestant.Id,
+                        Name = v.Contestant.Name,
+                        avatar = v.Contestant.Image
+
+                    }).ToList()
+
+                }).ToListAsync();
+            return listplayer;
+        }
+        public async Task<IEnumerable<ListPlayer>> getListPlayerAdhesion(int useId, int competitionId)
+        {
+            var listplayer = await _context.Teams.Where(c => c.CompetitionId == competitionId && c.TeamRegisters.Any(tr => tr.AccountId == useId))
+                .Select(t => new ListPlayer
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Logo = t.Image,
+
+                    played = t.TeamMatches.Count(x => x.IsPlay == true),
+                    win = t.TeamMatches.Count(x => x.ResultPlay == "Win"),
+                    draw = t.TeamMatches.Count(x => x.ResultPlay == "Draw"),
                     lost = t.TeamMatches.Count(x => x.ResultPlay == "Lose"),
                     members = t.ContestantTeams.Select(v => new MemeberPlayer
                     {
@@ -111,7 +135,7 @@ namespace STEM_ROBOT.DAL.Repo
             var competition = _context.Competitions.Where(c => c.Id == competitionId)
                 .Include(c => c.Genre)
                 .Include(c => c.Format)
-                .Include(t=>t.Tournament)
+                .Include(t => t.Tournament)
                 .FirstOrDefault();
 
             return competition;
@@ -122,7 +146,7 @@ namespace STEM_ROBOT.DAL.Repo
         public async Task<Competition> Rulecompetion(int competitionId)
         {
             var competition = _context.Competitions.Where(c => c.Id == competitionId)
-                .Include(c => c.Genre)              
+                .Include(c => c.Genre)
                 .FirstOrDefault();
 
             return competition;

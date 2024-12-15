@@ -189,7 +189,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        public async Task<SingleRsp> GetByToutnamentAdhesionId(int userId,int tournamentId)
+        public async Task<SingleRsp> GetByToutnamentAdhesionId(int userId, int tournamentId)
         {
             var res = new SingleRsp();
             try
@@ -212,6 +212,25 @@ namespace STEM_ROBOT.BLL.Svc
             catch (Exception ex)
             {
                 res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+        public async Task<SingleRsp> getlistTeamAdhesionplay(int useId, int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var competitons = await _competitionRepo.getListPlayerAdhesion(useId, competitionId);
+
+                if (competitons == null) throw new Exception("No data");
+
+
+
+                res.setData("data", competitons);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("No data");
             }
             return res;
         }
@@ -423,7 +442,7 @@ namespace STEM_ROBOT.BLL.Svc
             // chuẩn bị danh sách team 
 
             var index = 0;
-          
+
             // tạo vòng đấu cho số đội dư 
             if (!isPowerOf2 && extraTeams > 0)
             {
@@ -486,7 +505,7 @@ namespace STEM_ROBOT.BLL.Svc
                 round -= 1;
                 _teamMatchRepo.AddRange(teamNewList);
             }
-          
+
             // Main rounds
             for (int currentRound = round; currentRound > 0; currentRound--)
             {
@@ -562,12 +581,14 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         matchId = m.Id,
                         //team tham gia
-
+                        statusView = GetMatchStatus(m.StartDate.Value.Add(m.TimeIn.Value), m.StartDate.Value.Add(m.TimeOut.Value)),
                         homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
                         awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
                         homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
                         awayTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).LastOrDefault(),
                         //ti so tran dau
+                        homeTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).FirstOrDefault(),
+                        awayTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).LastOrDefault(),
                         homeScore = m.TeamMatches.Select(tm => tm.TotalScore).FirstOrDefault(),
                         awayScore = m.TeamMatches.Select(tm => tm.TotalScore).LastOrDefault(),
                         //thoi gian, dia diem   
@@ -604,7 +625,7 @@ namespace STEM_ROBOT.BLL.Svc
                         {
                             matchId = m.Id,
                             //team tham gia
-
+                            statusView = GetMatchStatus(m.StartDate.Value.Add(m.TimeIn.Value), m.StartDate.Value.Add(m.TimeOut.Value)),
                             homeTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).FirstOrDefault(),
                             awayTeam = m.TeamMatches.Select(tm => tm.TeamId == null ? tm.NameDefault : tm.Team.Name).LastOrDefault(),
                             homeTeamLogo = m.TeamMatches.Select(tm => tm.TeamId == null ? "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf" : tm.Team.Image).FirstOrDefault(),
@@ -613,6 +634,8 @@ namespace STEM_ROBOT.BLL.Svc
                             homeScore = m.TeamMatches.Select(tm => tm.TotalScore).FirstOrDefault(),
                             awayScore = m.TeamMatches.Select(tm => tm.TotalScore).LastOrDefault(),
                             //thoi gian, dia diem   
+                            awayTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).FirstOrDefault(),
+                            homeTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).LastOrDefault(),
                             startTime = m.StartDate + m.TimeIn,
                             locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
@@ -630,6 +653,28 @@ namespace STEM_ROBOT.BLL.Svc
             }
         }
 
+        public string GetMatchStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            return currentTime switch
+            {
+                var time when time < startTime.AddMinutes(-15) => "no-start",
+                var time when time >= startTime.AddMinutes(-15) && time < startTime => "count-down",
+                var time when time >= startTime && time <= endTime => "start",
+                _ => "done"
+            };
+        }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
         public SingleRsp getActiveCompetition(int competitionId)
         {
             var res = new SingleRsp();
@@ -823,8 +868,6 @@ namespace STEM_ROBOT.BLL.Svc
             _teamMatchRepo.AddRange(teamMatchs);
             return winningTeamsFromExtraRound;
         }
-
-
 
         // Hàm tính toán số lượng trận đấu cần có trong giải đấu
         public SingleRsp CalculateTotalMatches(int numberOfTeams, int numberOfGroups, int numberTeamsNextRound)

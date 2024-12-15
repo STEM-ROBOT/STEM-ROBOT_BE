@@ -42,13 +42,18 @@ namespace STEM_ROBOT.Web.Controllers
             var res = await _teamRegisterSvc.getListTeamRegister(competitionId);
             return Ok(res);
         }
-        [HttpGet("competition-adhesion/{competitionId}")]
+        [HttpGet("by-tournament/{competitionId}")]
         public async Task<IActionResult> GetTeamRegisterTournament(int competitionId)
         {
             var res = await _teamRegisterSvc.getListTeamRegisterTournament(competitionId);
             return Ok(res.Data);
         }
-
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> UpdateStatusTeamRegister(int Id, TeamRegisterStatusRsp teamRegisterStatusRsp)
+        {
+            var res = await _teamRegisterSvc.updateStatusTeamRegister(Id, teamRegisterStatusRsp);
+            return Ok(res.Data);
+        }
     }
 
 }

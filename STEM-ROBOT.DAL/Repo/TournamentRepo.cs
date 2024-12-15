@@ -104,7 +104,9 @@ namespace STEM_ROBOT.DAL.Repo
                   TournamentLevel = t.TournamentLevel,
                   Status = t.Status,
                   competitionNumber = t.Competitions.Count(),
-                  competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
+                  competitionActivateNumber = t.Competitions
+                .SelectMany(c => c.TeamRegisters) // Lấy tất cả TeamRegisters từ các Competition
+                .Count(tr => tr.AccountId == useId),
                   imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
               }).ToListAsync();
             ;
