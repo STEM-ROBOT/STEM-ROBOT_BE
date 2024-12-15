@@ -29,6 +29,10 @@ public partial class Account
 
     public string? DistrictCode { get; set; }
 
+    public int? MaxTeam { get; set; }
+
+    public int? MaxMatch { get; set; }
+
     public virtual ICollection<Contestant> Contestants { get; set; } = new List<Contestant>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();

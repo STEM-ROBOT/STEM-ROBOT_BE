@@ -69,4 +69,59 @@ namespace STEM_ROBOT.Common.Rsp
 
         public int textView { get; set; }
     }
+    public class ScheduleMatchScoreRsp
+    {
+        public int scoreId { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; }
+        public string Point { get; set; }
+
+    }
+    public class ScheduleMatchInfoRsp
+    {
+        public int matchId { get; set; }
+        public string startTime { get; set; }
+        public string startDate { get; set; }
+        public string endTime { get; set; }
+        public string durationHaft { get; set; }
+        public string breakHaftTime { get; set; }
+        public ICollection<ScheduleMatchHaftRsp> haftMatch { get; set; } = new List<ScheduleMatchHaftRsp>();
+
+        public ICollection<ScheduleMatchTeamMatchRsp> teamMatch { get; set; } = new List<ScheduleMatchTeamMatchRsp>();
+    }
+    public class ScheduleMatchHaftRsp
+    {
+
+        public int HaftId { get; set; }
+        public string HaftName { get; set; }
+
+    }
+    public class ScheduleMatchTeamMatchRsp
+    {
+
+        public int teamMatchId { get; set; }
+        public string teamName { get; set; }
+        public string teamLogo { get; set; }
+
+    }
+    public class MatchDataScheduleConfirm
+    {
+
+        public int teamMatchWinId { get; set; }
+        public string formatName { get; set; }
+        public string formatType { get; set; }
+        public ICollection<RandomTeamWinRsp> teamRanDom { get; set; } = new List<RandomTeamWinRsp>();
+    }
+    public class RandomTeamWinRsp
+    {
+
+        public int teamMatchId { get; set; }
+        public int teamId { get; set; }
+        public string teamName { get; set; }
+        public string teamImage { get; set; }
+        public string ResultPlay { get; set; }
+        public int tolalScore { get; set; }
+        public double averageMinus { get; set; }
+        public double averageBonus { get; set; }
+    }
 }

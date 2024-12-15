@@ -40,7 +40,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpPost("{competitionId}")]
-        public IActionResult CreateScoreCategory([FromBody] List<ScoreCategoryReq>  req,int competitionId)
+        public IActionResult CreateScoreCategory([FromBody] List<ScoreCategoryReq> req, int competitionId)
         {
             if (!ModelState.IsValid)
             {

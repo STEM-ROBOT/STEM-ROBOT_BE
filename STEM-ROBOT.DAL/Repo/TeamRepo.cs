@@ -21,38 +21,51 @@ namespace STEM_ROBOT.DAL.Repo
         .Where(x => x.CompetitionId == id)
         .Include(c => c.Competition)
         .Include(c => c.ContestantTeams)
-        .ThenInclude(ct => ct.Contestant) 
+        .ThenInclude(ct => ct.Contestant)
         .ToList();
         }
-
-        public async Task<TeamMatch> GetTeamWin(int competitionId)
+        public async Task<Team> schedulesTeamAdhesion(int teamId)
         {
-        //    var teamWinMatch = await  _context.Competitions
-        //.Where(c => c.Id == competitionId)
-        //.Include(c => c.Stages)
-        //    .ThenInclude(s => s.Matches)
-        //        .ThenInclude(m => m.TeamMatches)
-        //            .ThenInclude(tm => tm.Team)
-        //.SelectMany(c => c.Stages
-        //    .Where(s => s.Name == "CK")
-        //    .SelectMany(s => s.Matches
-        //        .SelectMany(m => m.TeamMatches)
-        //        .Where(tm => tm.ResultPlay == "Win")))
-        //.OrderByDescending(tm => tm.Match.Id)
-        //.FirstOrDefaultAsync();           
-        //    if (teamWinMatch == null)
-        //    {
-        //        return null; 
-        //    }
+            return await _context.Teams
+    .Include(x => x.Competition)
+    .Include(x => x.TeamMatches)
+    .ThenInclude(x => x.Match)
+    .ThenInclude(x => x.Location)
+   .Include(x => x.TeamMatches)
+    .ThenInclude(x => x.Match)
+    .ThenInclude(x => x.TeamMatches)
+    .ThenInclude(x => x.Team)
+    .Where(x => x.Id == teamId)
+    .FirstOrDefaultAsync();
+        }
 
-           
-        //    return new TeamWinCompetition
-        //    {
-        //        img = teamWinMatch.Team.Image,
-        //        name = teamWinMatch.Team.Name 
-        //    };
-        var team = _context.TeamMatches.Where(x=> x.Id == competitionId).FirstOrDefault();
-            return team;
+        public async Task<TeamWinCompetition> GetTeamWin(int competitionId)
+        {
+            var teamWinMatch = await _context.Competitions
+        .Where(c => c.Id == competitionId)
+        .Include(c => c.Stages)
+            .ThenInclude(s => s.Matches)
+                .ThenInclude(m => m.TeamMatches)
+                    .ThenInclude(tm => tm.Team)
+        .SelectMany(c => c.Stages
+            .Where(s => s.Name == "CK")
+            .SelectMany(s => s.Matches
+                .SelectMany(m => m.TeamMatches)
+                .Where(tm => tm.ResultPlay == "Win")))
+        .OrderByDescending(tm => tm.Match.Id)
+        .FirstOrDefaultAsync();
+            if (teamWinMatch == null)
+            {
+                return null;
+            }
+
+
+            return new TeamWinCompetition
+            {
+                img = teamWinMatch.Team.Image,
+                name = teamWinMatch.Team.Name
+            };
+
         }
     }
 }

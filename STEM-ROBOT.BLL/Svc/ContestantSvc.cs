@@ -291,7 +291,7 @@ namespace STEM_ROBOT.BLL.Svc
                         Gender = contestant.Gender,
                         Phone = contestant.Phone,
                         Image = contestant.Image,
-
+                        SchoolName=contestant.SchoolName,
                     });
 
                 }

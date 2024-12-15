@@ -42,7 +42,7 @@ namespace STEM_ROBOT.Web.Controllers
         [HttpGet("match-config-time")]
         public async Task<IActionResult> getRoundTableGame(int CompetitionID)
         {
-           
+
             var res = await _matchSvc.getListRound(CompetitionID);
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
@@ -81,7 +81,7 @@ namespace STEM_ROBOT.Web.Controllers
             if (!res.Success) throw new Exception("Check again");
             return Ok(res);
         }
-    
+
         [HttpPost]
         public IActionResult AddStage(MatchReq request)
         {
@@ -125,7 +125,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpGet("match-detail-action")]
-        public async Task<IActionResult> MatchDetailAction(int matchId) 
+        public async Task<IActionResult> MatchDetailAction(int matchId)
         {
             var list = await _matchSvc.CheckMatch(matchId);
             //if(list.Data == null) return Ok(list.Message);
@@ -138,9 +138,18 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(point.Data);
         }
         [HttpGet("match-action-referee")]
-        public async Task<IActionResult> Listpoint(int teamMatchId,int scheduleId)
+        public async Task<IActionResult> Listpoint(int teamMatchId, int scheduleId)
         {
             var point = await _matchSvc.ListPoint(teamMatchId, scheduleId);
+            return Ok(point.Data);
+        }
+        [HttpGet("match-action-team")]
+        public async Task<IActionResult> TeamAdhesionListAction(int matchId, int teamId)
+        {
+            //var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            //if (user == null) return Unauthorized("Please login");
+            //int userID = int.Parse(user.Value);
+            var point = await _matchSvc.TeamAdhesionListActionSvc(matchId, teamId);
             return Ok(point.Data);
         }
         [HttpPut("confirm-point")]

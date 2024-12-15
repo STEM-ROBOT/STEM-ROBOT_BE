@@ -13,5 +13,9 @@ public partial class Notification
 
     public int? AccountId { get; set; }
 
+    public string? RouterUi { get; set; }
+
+    public DateTime? CreateDate { get; set; }
+
     public virtual Account? Account { get; set; }
 }

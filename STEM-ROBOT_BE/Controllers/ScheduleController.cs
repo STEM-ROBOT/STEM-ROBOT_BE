@@ -53,7 +53,26 @@ namespace STEM_ROBOT.Web.Controllers
             
             return Ok(res.Data);
         }
+        [HttpGet("schedule-referee-sup")]
+        public async Task<IActionResult> ScheduleSupReferee(int refereeCompetitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.ScheduleSupReferee(refereeCompetitionId, userID);
 
+            return Ok(res.Data);
+        }
+        [HttpGet("schedule-referee-sup-match-info")]
+        public async Task<IActionResult> ScheduleSupRefereeMatchInfo(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return Unauthorized("Please login");
+            int userID = int.Parse(user.Value);
+            var res = await _scheduleSvc.ScheduleSupRefereeMatchInfo(scheduleId, userID);
+
+            return Ok(res.Data);
+        }
         //[HttpPost()]
         //public IActionResult CreateSchedule([FromBody] ScheduleReq req)
         //{
@@ -123,7 +142,24 @@ namespace STEM_ROBOT.Web.Controllers
             var sendmail = await _scheduleSvc.CheckCodeSchedule(scheduleId, userID,code);
             return Ok(sendmail);
         }
-
+        [HttpPut("schedule-confirm")]
+        public async Task<IActionResult> ConfirmMatch(int scheduleId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var response = await _scheduleSvc.ConfirmSchedule(scheduleId, userID);
+            return Ok(response);
+        }
+        [HttpPut("schedule-confirm-random")]
+        public async Task<IActionResult> ConfirmMatchRandom(int scheduleId, ScheduleRandomReq req)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please login ");
+            int userID = int.Parse(user.Value);
+            var response = await _scheduleSvc.ConfirmMatchRandom(scheduleId, userID, req);
+            return Ok(response);
+        }
 
         [HttpGet("match-config-schedule")]
         public async Task<IActionResult>  GetScheduleConfigCompetition(int competitionId)

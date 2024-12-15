@@ -31,9 +31,23 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res);
         }
         [HttpGet("list-tournament")]
-        public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? level = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
-            var res = await _tournament.GetTournament(name, provinceCode, status, GenerId, page, pageSize);
+            var res = await _tournament.GetTournament(name, provinceCode, status, level, GenerId, page, pageSize);
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
+        [HttpGet("tournament-adhesion")]
+        public async Task<IActionResult> listTournamentAdhesion( int page = 1, int pageSize = 10)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _tournament.GetTournamentAdhesion(userId, page, pageSize);
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
@@ -76,11 +90,33 @@ namespace STEM_ROBOT_BE.Controllers
         public async Task<IActionResult> UpdateView(int tournamentId)
         {
 
-          
+
             MutipleRsp res = await _tournament.UpdateViewer(tournamentId);
             if (res.Success)
             {
                 return Ok(res.Message);
+            }
+            else
+            {
+                return StatusCode(401, res.Message);
+            }
+        }
+        [HttpGet("check-register-moderator")]
+        public async Task<IActionResult> CheckRegisterContestant(int tournamentId)
+        {
+
+
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return BadRequest("Please Login!");
+            }
+
+            int userID = int.Parse(user.Value);
+            var res = await _tournament.CheckRegisterContestant(tournamentId, userID);
+            if (res.Success)
+            {
+                return Ok(res.Data);
             }
             else
             {
@@ -117,6 +153,6 @@ namespace STEM_ROBOT_BE.Controllers
         //    }
         //    return Ok(res.Data);
         //}
-        
+
     }
 }

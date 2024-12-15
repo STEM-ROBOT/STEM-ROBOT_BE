@@ -21,17 +21,17 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        //[HttpGet("list-competition")]
-        //public async Task<IActionResult> GetListCompetition()
-        //{
-        //    var res = await _competionSvc.GetListCompetitions();
-        //    if (!res.Success)
-        //    {
-        //        res.SetError("400", res.Message);
-        //    }
-        //    return Ok(res);
-        //}
-        [HttpGet("id")]
+        [HttpGet]
+        public async Task<IActionResult> GetListCompetition()
+        {
+            var res = await _competionSvc.GetListCompetitions();
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpGet("Id")]
         public async Task<IActionResult> GetByIdCompetition(int id)
         {
             var res = await _competionSvc.GetIDCompetitions(id);
@@ -43,15 +43,49 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         //nội dung thi đấu của giải
-        [HttpGet("tournament")]
-        public async Task<IActionResult> GetToutnamentID(int id)
+        [HttpGet("{tournamentId}")]
+        public async Task<IActionResult> GetToutnamentID(int tournamentId)
         {
-            var res = await _competionSvc.getCompetitionWithIDTournament(id);
+            var res = await _competionSvc.getCompetitionWithIDTournament(tournamentId);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
             }
             return Ok(res);
+        }
+        [HttpGet("competition-adhesion/{tournamentId}")]
+        public async Task<IActionResult> GetByToutnamentAdhesionId(int tournamentId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _competionSvc.GetByToutnamentAdhesionId(userId, tournamentId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("team-competition-adhesion/{competitionId}")]
+        public async Task<IActionResult> GetListTeamAdhesionPlay(int competitionId)
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null)
+            {
+                return Unauthorized("Please Login!");
+            }
+
+            int userId = int.Parse(user.Value);
+            var res = await _competionSvc.getlistTeamAdhesionplay(userId, competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check again");
+            }
+            return Ok(res.Data);
         }
         //luật tính điểm của nội dung thi đấu
         [HttpGet("score-competition")]
@@ -86,8 +120,123 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
         }
 
-        //cấu hình hình thức thi đấu của nội dung thi đấu
-        [HttpPut("format-config")]
+        [HttpGet("register-config")]
+        public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
+        {
+            var res = await _competionSvc.getGenerCompetitionID(competitionID);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
+        //xem lịch trình thi đấu của nội dung
+        [HttpGet("matches-schedule-view")]
+        public async Task<IActionResult> MatchScheduleCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchScheduleCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
+        //xem lịch trình thi đấu vong bang của nội dung
+        [HttpGet("matches-group-stage-view")]
+        public async Task<IActionResult> MatchGroupStageCompetition(int competitionId)
+        {
+            var res = await _competionSvc.matchGroupStageCompetition(competitionId);
+            if (!res.Success)
+            {
+                throw new Exception("Please check input");
+            }
+            return Ok(res.Data);
+        }
+        [HttpGet("data-to-assing/{competitionId}")]
+        public async Task<IActionResult> GetDataToAssign(int competitionId)
+        {
+            var res = await _competionSvc.GetDataToAssign(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpGet("active/{competitionId}")]
+        public IActionResult ActiveCompetition(int competitionId)
+        {
+            var res = _competionSvc.getActiveCompetition(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpGet("get-rule")]
+        public async Task<IActionResult> GetRule(int competitionId)
+        {
+            var res = await _competionSvc.GetRuleCompetition(competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpGet("Infor")]
+        public async Task<IActionResult> GetInfor(int id)
+        {
+            var res = await _competionSvc.GetCompetitionInfor(id);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCompetition(CompetitionReq request)
+        {
+            var res = _competionSvc.AddCompetion(request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+
+        [HttpPut("addRegulation/{competitionId}")]
+        public async Task<IActionResult> AddRegulation(int competitionId, [FromBody] RuleReq ruleReq)
+        {
+            var res = await _competionSvc.AddRule(ruleReq.file, competitionId);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpPut("config-teamtable-stagetable")]
+        public async Task<IActionResult> ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
+        {
+            var res = await _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpPut("id")]
+        public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
+        {
+            var res = _competionSvc.UpdateCompetition(id, request);
+            if (!res.Success)
+            {
+                res.SetError("400", res.Message);
+            }
+            return Ok(res);
+        }
+        [HttpPut("config-format")]
         public async Task<IActionResult> UpdateCompetitionFormat(int competitionId, CompetitionConfigFormatReq request)
         {
 
@@ -116,129 +265,6 @@ namespace STEM_ROBOT.Web.Controllers
 
         }
 
-        //thông tin cấu hình đăng kí thí sinh tham gia nội dung
-        [HttpGet("config-register")]
-        public async Task<IActionResult> GetGenerCompetitionID(int competitionID)
-        {
-            var res = await _competionSvc.getGenerCompetitionID(competitionID);
-            if (!res.Success)
-            {
-                throw new Exception("Please check input");
-            }
-            return Ok(res.Data);
-        }
-        //xem lịch trình thi đấu của nội dung
-        [HttpGet("match-schedule-view")]
-        public async Task<IActionResult> MatchScheduleCompetition(int competitionId)
-        {
-            var res = await _competionSvc.matchScheduleCompetition(competitionId);
-            if (!res.Success)
-            {
-                throw new Exception("Please check input");
-            }
-            return Ok(res.Data);
-        }
-        //xem lịch trình thi đấu vong bang của nội dung
-        [HttpGet("match-group-stage-view")]
-        public async Task<IActionResult> MatchGroupStageCompetition(int competitionId)
-        {
-            var res = await _competionSvc.matchGroupStageCompetition(competitionId);
-            if (!res.Success)
-            {
-                throw new Exception("Please check input");
-            }
-            return Ok(res.Data);
-        }
-        //[HttpPost]
-        //public async Task<IActionResult> AddCompetition(CompetitionReq request)
-        //{
-        //    var res = _competionSvc.AddCompetion(request);
-        //    if (!res.Success)
-        //    {
-        //        res.SetError("400", res.Message);
-        //    }
-        //    return Ok(res);
-        //}
-        [HttpPut("update-competition")]
-        public async Task<IActionResult> UpdateCompetition(int id, CompetitionReq request)
-        {
-            var res = _competionSvc.UpdateCompetition(id, request);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-
-        [HttpDelete("delete-competition")]
-        public async Task<IActionResult> DeleteCompetition(int id)
-        {
-            var res = _competionSvc.DeleteCompetition(id);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-
-
-        [HttpGet("information-competition")]
-        public async Task<IActionResult> GetInfor(int id)
-        {
-            var res = await _competionSvc.GetCompetitionInfor(id);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-
-        [HttpPost("addRegulation/{competitionId}")]
-        public async Task<IActionResult> AddRegulation(int competitionId, [FromBody] RuleReq ruleReq)
-        {
-            var res = await _competionSvc.AddRule(ruleReq.file,competitionId);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-        [HttpPost("config-teamtable-stagetable")]
-        public async Task<IActionResult> ConfigTeamTableStageTable(int competitionId, TableAssignmentReq tableAssignments)
-        {
-            var res = await _competionSvc.AssignTeamsToTables(competitionId, tableAssignments);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-        [HttpGet("data-to-assing/{competitionId}")]
-        public async Task<IActionResult> GetDataToAssign(int competitionId)
-        {
-            var res = await _competionSvc.GetDataToAssign(competitionId);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
-        [HttpGet("active/{competitionId}")]
-        public IActionResult ActiveCompetition(int competitionId)
-        {
-            var res = _competionSvc.getActiveCompetition(competitionId);
-            if (!res.Success)
-            {
-                res.SetError("400", res.Message);
-            }
-            return Ok(res);
-        }
-
         [HttpPut("set-active")]
         public IActionResult SetActive(int competitionId)
         {
@@ -249,17 +275,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-
-        [HttpGet("get-rule")]
-        public IActionResult GetRule(int competitionId)
+        [HttpDelete("id")]
+        public async Task<IActionResult> DeleteCompetition(int id)
         {
-            var res = _competionSvc.GetRuleCompetition(competitionId);
+            var res = _competionSvc.DeleteCompetition(id);
             if (!res.Success)
             {
                 res.SetError("400", res.Message);
             }
             return Ok(res);
         }
+
     }
 }
-

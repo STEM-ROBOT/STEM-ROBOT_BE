@@ -20,10 +20,11 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRegisterRepo _teamRegisterRepo;
         private readonly CompetitionRepo _competitionRepo;
         private readonly ContestantTeamRepo _contestantTeamRepo;
+        private readonly TournamentRepo _tournamentRepo;
         private readonly TeamRepo _teamRepo;
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
-        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper, TeamRepo teamRepo)
+        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper, TeamRepo teamRepo, TournamentRepo tournamentRepo)
         {
             _teamRegisterRepo = repo;
             _competitionRepo = competitionRepo;
@@ -31,6 +32,7 @@ namespace STEM_ROBOT.BLL.Svc
             _mapper = mapper;
             _accountRepo = accountRepo;
             _teamRepo = teamRepo;
+            _tournamentRepo = tournamentRepo;
         }
 
 
@@ -61,11 +63,11 @@ namespace STEM_ROBOT.BLL.Svc
                     _contestantTeamRepo.AddRange(listContestTants);
                     res.SetMessage("success");
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     res.SetError(ex.ToString());
                 }
-               
+
             }
             return res;
         }
@@ -83,7 +85,7 @@ namespace STEM_ROBOT.BLL.Svc
                 try
                 {
                     var list = await _teamRegisterRepo.getTeamRegister(competitionId);
-      
+
                     var newTeamRegister = _mapper.Map<List<TeamRegisterRsp>>(list);
 
                     res.setData("data", newTeamRegister);
@@ -95,35 +97,75 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
-        public SingleRsp updateStatusTeamRegister(int id,int competitionId,TeamRegisterStatusRsp teamRegisterStatusRsp)
+        public async Task<SingleRsp> getListTeamRegisterTournament(int tournamentId)
         {
             var res = new SingleRsp();
-            var teamRegister =_teamRegisterRepo.GetById(id);
-            if (teamRegister == null)
+            var competition = _tournamentRepo.GetById(tournamentId);
+            if (competition == null)
             {
-                res.SetMessage("Nội dung thi đấu không tồn tại!");
+                res.SetMessage("Giải đấu không tồn tại!");
             }
             else
             {
                 try
                 {
-                    var slot = _teamRepo.All(x => x.CompetitionId == competitionId && x.IsSetup != true).FirstOrDefault();
-                    if(slot == null)
+                    var list = await _teamRegisterRepo.getTeamRegisterTournament(tournamentId);
+                    var newTeamRegister = list.Select(tr => new TeamRegisterTournamentRsp
+                    {
+                        competition = tr.Competition.Genre.Name,
+                        Name = tr.Name,
+                        contactPerson = tr.ContactInfo,
+                        contactPhone = tr.PhoneNumber,
+                        Id = tr.Id,
+                        Members = tr.ContestantTeams.Count,
+                        RegisterTime = tr.RegisterTime,
+                        Status = tr.Status
+                    });
+
+                    res.setData("data", newTeamRegister);
+                }
+                catch (Exception ex)
+                {
+                    res.SetError(ex.ToString());
+                }
+            }
+            return res;
+        }
+
+        public async Task<SingleRsp> updateStatusTeamRegister(int id, TeamRegisterStatusRsp teamRegisterStatusRsp)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var teamRegister = _teamRegisterRepo.GetById(id);
+                if (teamRegister == null)
+                {
+                    res.SetMessage("Nội dung thi đấu không tồn tại!");
+                }
+                else
+                {
+
+                    var slot = _teamRepo.All(x => x.CompetitionId == teamRegister.CompetitionId && x.IsSetup != true).FirstOrDefault();
+                    if (slot == null)
                     {
                         res.SetMessage("Hết teams để đăng kí");
                     }
-                    if(teamRegisterStatusRsp.status == "Chấp nhận")
+                    if (teamRegisterStatusRsp.status == "Chấp nhận")
                     {
                         teamRegister.Status = teamRegisterStatusRsp.status;
                         teamRegister.TeamId = slot.Id;
                         var contestantTeam = _contestantTeamRepo.All(x => x.TeamRegisterId == teamRegister.Id).ToList();
-                        foreach(var item in contestantTeam)
+                        foreach (var item in contestantTeam)
                         {
                             item.TeamId = slot.Id;
+
                         }
                         _contestantTeamRepo.UpdateRange(contestantTeam);
                         slot.IsSetup = true;
+                        slot.ContactInfo = teamRegister.ContactInfo;
+                        slot.Image = teamRegister.Image;
+                        slot.Name= teamRegister.Name;
+                        slot.PhoneNumber = teamRegister.PhoneNumber;                      
                         _teamRegisterRepo.Update(teamRegister);
                         _teamRepo.Update(slot);
                         res.SetMessage("Cập nhật thành công");
@@ -134,12 +176,13 @@ namespace STEM_ROBOT.BLL.Svc
                         _teamRegisterRepo.Update(teamRegister);
                         res.SetMessage("Cập nhật thành công");
                     }
-                   
+
+
                 }
-                catch (Exception ex)
-                {
-                    res.SetError(ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.ToString());
             }
             return res;
         }

@@ -18,7 +18,7 @@ namespace STEM_ROBOT_BE.Controllers
             _genreSvc = genreSvc;
         }
 
-        [HttpGet("list-genre")]
+        [HttpGet()]
         public IActionResult GetGenres()
         {
             var res = _genreSvc.GetGenres();
@@ -40,7 +40,7 @@ namespace STEM_ROBOT_BE.Controllers
             return Ok(res.Data);
         }
 
-      
+
 
 
         [HttpPost()]

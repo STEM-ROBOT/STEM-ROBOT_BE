@@ -17,7 +17,7 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Email { get; set; }
 
-        public string? Password { get; set; }
+        //public string? Password { get; set; }
 
         public string? Image { get; set; }
 
@@ -28,6 +28,11 @@ namespace STEM_ROBOT.Common.Rsp
         public int? SchoolId { get; set; }
 
         public string? Role { get; set; }
+
+        public int? MaxTournatment { get; set; }
+        public int? MaxTeam { get; set; }
+
+        public int? MaxMatch { get; set; }
 
         public string? PackageName { get; set; }
 

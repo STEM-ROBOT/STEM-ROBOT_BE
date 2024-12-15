@@ -15,6 +15,11 @@ namespace STEM_ROBOT.Common.Rsp
         public bool? Status { get; set; }
 
         public int? AccountId { get; set; }
+
+        public DateTime? CreateDate { get; set; }
+
+        public string? RouterUi { get; set; }
+
     }
 
     public class CheckTimeSchedule

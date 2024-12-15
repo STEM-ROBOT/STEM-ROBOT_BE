@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit.Tnef;
 using STEM_ROBOT.BLL.Svc;
 using STEM_ROBOT.Common.Req;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/teammatch")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TeamMatchController : ControllerBase
     {
@@ -15,7 +16,7 @@ namespace STEM_ROBOT.Web.Controllers
             _teamMatchSvc = teamMatchSvc;
         }
         [HttpPut("")]
-        public async Task<IActionResult> GetListTeamMatch(int competitionId,List<TeamMatchConfigCompetition>  teamsMatchs)
+        public async Task<IActionResult> GetListTeamMatch(int competitionId, List<TeamMatchConfigCompetition> teamsMatchs)
         {
             var res = await _teamMatchSvc.UpdateTeamMatchConfig(teamsMatchs, competitionId);
             return Ok(res);
@@ -26,7 +27,13 @@ namespace STEM_ROBOT.Web.Controllers
             var res = _teamMatchSvc.GetIdTeamMatch(id);
             return Ok(res);
         }
+        [HttpGet("teamMatch-statistical")]
+        public async Task<IActionResult> TeamStatistical(int teamId, int matchId)
+        {
 
-        
+            var list = await _teamMatchSvc.TeamStatistical(matchId, teamId);
+            return Ok(list.Data);
+        }
+
     }
 }

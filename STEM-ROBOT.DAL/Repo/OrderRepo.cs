@@ -22,5 +22,10 @@ namespace STEM_ROBOT.DAL.Repo
             return await _context.Orders.Include(x=> x.Account).Include(x=> x.Payments).ToListAsync();
             }
         }
+
+        public List<Order> GetListOrderByAccount(int Id)
+        {
+            return _context.Orders.Where(x => x.AccountId == Id).Include(p => p.Package).ToList(); 
+        }
     }
 }

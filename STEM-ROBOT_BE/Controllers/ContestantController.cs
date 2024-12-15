@@ -19,7 +19,7 @@ namespace STEM_ROBOT.Web.Controllers
         {
             _contestantSvc = contestantSvc;
         }
-        [HttpPost("add-contestant")]
+        [HttpPost]
         public async Task<IActionResult> AddContestant(IFormFile formFile)
         {
             var res = await _contestantSvc.AddContestant(formFile);
@@ -31,7 +31,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
-        [HttpPost("add-list-contestant")]
+        [HttpPost("list-contestant")]
         public IActionResult AddListContestantInTournament([FromBody] List<ContestantReq> contestants, int tournamentId)
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
@@ -48,7 +48,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("list-contestant")]
+        [HttpGet]
         public async Task<IActionResult> GetListContestant()
         {
             var res = _contestantSvc.GetListContestants();
@@ -59,7 +59,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-        [HttpGet("available/tournament/{tournamentId}")]
+        [HttpGet("available/tournamentId")]
         public IActionResult GetListAvailableContestantInTournamentId(int tournamentId)
         {
             var res = _contestantSvc.GetListAvailableContestantByTournament(tournamentId);
@@ -71,10 +71,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         }
 
-
-      
-        [HttpGet("account-list-contestant")]
-
+        [HttpGet("accountId")]
         public IActionResult GetListContestantByAccount()
         {
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
@@ -91,7 +88,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        [HttpGet("contestant/tournament/{tournamentId}")]
+        [HttpGet("tournamentId")]
         public IActionResult GetListContestantInTournamentId(int tournamentId)
         {
             var res = _contestantSvc.GetListContestantByTournament(tournamentId);
@@ -103,7 +100,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id")]
         public async Task<IActionResult> GetIdContestant(int id)
         {
             var res = _contestantSvc.GetContestantID(id);
@@ -114,42 +111,31 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-        //[HttpPut("id")]
-        //public async Task<IActionResult> UpdateContestant(int id, ContestantReq request)
-        //{
-        //    var res = _contestantSvc.UpdateContestant(id, request);
-        //    if (!res.Success)
-        //    {
-        //        res.SetError("500", res.Message);
-        //    }
-        //    return Ok(res);
-
-        //}
-        //[HttpDelete("id")]
-        //public async Task<IActionResult> DeleteContestant(int id)
-        //{
-        //    var res = _contestantSvc.DeleteContestant(id);
-        //    if (!res.Success)
-        //    {
-        //        res.SetError("500", res.Message);
-        //    }
-        //    return Ok(res);
-
-
-        //}
-        [HttpPost("contestant-to-team/{teamId}")]
-        public IActionResult AddContestantToTeam(int teamId, [FromBody] List<ContestantTeamReq> req)
+        [HttpPut("id")]
+        public async Task<IActionResult> UpdateContestant(int id, ContestantReq request)
         {
-            var res = _contestantSvc.AddContestantTeam(teamId, req);
+            var res = _contestantSvc.UpdateContestant(id, request);
             if (!res.Success)
             {
-                return StatusCode(500, res.Message);
+                res.SetError("500", res.Message);
             }
             return Ok(res);
+
+        }
+        [HttpDelete("id")]
+        public async Task<IActionResult> DeleteContestant(int id)
+        {
+            var res = _contestantSvc.DeleteContestant(id);
+            if (!res.Success)
+            {
+                res.SetError("500", res.Message);
+            }
+            return Ok(res);
+
         }
 
 
-        [HttpGet("team/{teamId}")]
+        [HttpGet("teamId")]
         public IActionResult GetContestantInTeam(int teamId)
         {
             var res = _contestantSvc.GetContestantInTeam(teamId);
@@ -160,7 +146,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
-        [HttpGet("available/{competitionId}")]
+        [HttpGet("available/competitionId")]
         public IActionResult GetAvailableContestantByCompetition(int competitionId)
         {
             var res = _contestantSvc.GetAvailableContestantByCompetition(competitionId);
@@ -170,7 +156,16 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-       
+        [HttpPost("contestant-to-team/{teamId}")]
+        public IActionResult AddContestantToTeam(int teamId, [FromBody] List<ContestantTeamReq> req)
+        {
+            var res = _contestantSvc.AddContestantTeam(teamId, req);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res);
+        }
         [HttpGet("public-available-moderater")]
         public IActionResult GetListAvailableContestantByAccount(int tounamentId, int competitionId)
         {
@@ -190,7 +185,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
 
         }
-       
+
         [HttpPost("public-tournament")]
         public IActionResult AddContestantPublicTournament(int tournamentId, ContestantReq contestants)
         {
@@ -198,7 +193,7 @@ namespace STEM_ROBOT.Web.Controllers
             var userSchool = User.Claims.FirstOrDefault(x => x.Type == "SchoolName");
             if (user == null)
             {
-                return BadRequest("Please Login!");
+                return Unauthorized("Please Login!");
             }
             var accountId = int.Parse(user.Value);
             var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants, userSchool.ToString());
