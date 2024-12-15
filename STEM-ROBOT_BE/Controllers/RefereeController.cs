@@ -52,7 +52,19 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
-
+        [HttpGet("referee-sup-tournament")]
+        public async Task<IActionResult> ListSupRefereeTournament()
+        {
+            var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
+            if (user == null) return BadRequest("Please Login ");
+            int userId = int.Parse(user.Value);
+            var res = await _refereeSvc.ListSupRefereeTournament(userId);
+            if (!res.Success)
+            {
+                return StatusCode(500, res.Message);
+            }
+            return Ok(res.Data);
+        }
         [HttpGet("byTournamnet/{tournamentId}")]
         public IActionResult GetRefereeByTournamentId(int tournamentId)
         {

@@ -15,12 +15,10 @@ namespace STEM_ROBOT.DAL.Repo
         {
         }
 
-        public async Task<TournamentListRep> GetListTournament(string? name = null, string? provinceCode = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
+        public async Task<TournamentListRep> GetListTournament(string? name = null, string? provinceCode = null, string? level = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
 
             var query = _context.Tournaments.AsQueryable();
-
-            
 
             // Tính tổng số trang
 
@@ -40,7 +38,11 @@ namespace STEM_ROBOT.DAL.Repo
             }
             if (!string.IsNullOrEmpty(provinceCode))
             {
-                query = query.Where(t => t.ProvinceCode == provinceCode || t.ProvinceCode == null);
+                query = query.Where(t => t.ProvinceCode == provinceCode);
+            }
+            if (!string.IsNullOrEmpty(level))
+            {
+                query = query.Where(t => t.TournamentLevel.Equals(level));
             }
             int totalItems = await query.CountAsync();
             int skip = (page - 1) * pageSize;
@@ -59,9 +61,52 @@ namespace STEM_ROBOT.DAL.Repo
                   CreateDate = t.CreateDate,
                   Introduce = t.Introduce,
                   views = t.ViewTournament,
+                  TournamentLevel = t.TournamentLevel,
                   Status = t.Status,
                   competitionNumber = t.Competitions.Count(),
                   competitionActivateNumber = t.Competitions.Count(c => c.IsActive == true),
+                  imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
+              }).ToListAsync();
+            ;
+            var resData = new TournamentListRep
+            {
+                tournamentRep = tournament,
+                totalPages = totalPages,
+            };
+            return resData;
+        }
+
+        public async Task<TournamentListRep> GetTournamentAdhesion(int useId, int page = 1, int pageSize = 10)
+        {
+
+            var query = _context.Tournaments
+    .Where(t => t.Contestants.Any(c => c.AccountId == useId))
+    .AsQueryable();
+
+            // Tính tổng số trang       
+            int totalItems = await query.CountAsync();
+            int skip = (page - 1) * pageSize;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var tournament = await query
+              .OrderByDescending(t => t.CreateDate) // Sắp xếp theo CreateDate giảm dần (mới nhất trước)
+              .Skip(skip)
+              .Take(pageSize)
+              .Select(t => new TournamentRep
+              {
+                  Id = t.Id,
+                  Name = t.Name,
+                  Location = t.Location,
+                  Image = t.Image,
+                  contestant = t.Contestants.Count(),
+                  CreateDate = t.CreateDate,
+                  Introduce = t.Introduce,
+                  views = t.ViewTournament,
+                  TournamentLevel = t.TournamentLevel,
+                  Status = t.Status,
+                  competitionNumber = t.Competitions.Count(),
+                  competitionActivateNumber = t.Competitions
+                .SelectMany(c => c.TeamRegisters) // Lấy tất cả TeamRegisters từ các Competition
+                .Count(tr => tr.AccountId == useId),
                   imagesCompetition = t.Competitions.Select(g => new ImageCompetition { imageCompetition = g.Genre.Image }).ToList(),
               }).ToListAsync();
             ;
@@ -98,7 +143,15 @@ namespace STEM_ROBOT.DAL.Repo
         }
         public async Task<Tournament> TournamentById(int tournamentId)
         {
-            return await _context.Tournaments.Where(t => t.Id == tournamentId).Include(c => c.Contestants).Include(cp=> cp.Competitions).FirstOrDefaultAsync();
+            return await _context.Tournaments.Where(t => t.Id == tournamentId).Include(c => c.Contestants).Include(cp => cp.Competitions).FirstOrDefaultAsync();
+        }
+        public async Task<Province> AreaAccount(int provinceId)
+        {
+            return await _context.Provinces.Where(t => t.Id == provinceId).FirstOrDefaultAsync();
+        }
+        public async Task<Tournament> TournamentCheck(int tournamentId)
+        {
+            return await _context.Tournaments.Where(t => t.Id == tournamentId).Include(c => c.Account).FirstOrDefaultAsync();
         }
     }
 }

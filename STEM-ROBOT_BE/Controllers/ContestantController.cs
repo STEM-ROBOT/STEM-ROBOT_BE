@@ -178,7 +178,7 @@ namespace STEM_ROBOT.Web.Controllers
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
             {
-                return Unauthorized(new { Message = "Please login" });
+                return Unauthorized(new { Message = "Please login" }); 
             }
 
             int userId = int.Parse(user.Value);
@@ -198,7 +198,7 @@ namespace STEM_ROBOT.Web.Controllers
             var userSchool = User.Claims.FirstOrDefault(x => x.Type == "SchoolName");
             if (user == null)
             {
-                return BadRequest("Please Login!");
+                return Unauthorized("Please Login!");
             }
             var accountId = int.Parse(user.Value);
             var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants, userSchool.ToString());

@@ -47,6 +47,23 @@ namespace STEM_ROBOT.Common.Rsp
         public ICollection<TeamMatchReferee> teamMatch { get; set; } = new List<TeamMatchReferee>();
 
     }
+    public class ScheduleSupReferee
+    {
+        //schedule
+        public int Id { get; set; }
+        public string StartTime { get; set; }
+
+        public string EndTime { get; set; }
+
+        public bool? status { get; set; }
+
+        public string location { get; set; } // location name owr bang location
+
+        public int matchId { get; set; } //id matchID
+
+        public ICollection<TeamMatchReferee> teamMatch { get; set; } = new List<TeamMatchReferee>();
+
+    }
     public class TeamMatchReferee
     {
         public int? teamId { get; set; }

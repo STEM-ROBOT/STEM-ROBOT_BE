@@ -43,13 +43,13 @@ namespace STEM_ROBOT.BLL.Svc
 
             return vietnamTime;
         }
-        public async Task<SingleRsp> CreateOrder(OrderReq request)
+        public async Task<SingleRsp> CreateOrder(int userId,OrderReq request)
         {
             var res = new SingleRsp();
             try
             {
                 long orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-                var account = _accountRepo.GetById(request.AccountId);
+                var account = _accountRepo.GetById(userId);
                 if (account == null)
                 {
                     res.SetError("Account not found");
@@ -64,12 +64,12 @@ namespace STEM_ROBOT.BLL.Svc
                 var order = new Order
                 {
                     Id = (int)orderCode,
-                    AccountId = request.AccountId,
+                    AccountId = userId,
                     PackageId = request.PackageId,
-                    Status = "Pending",
+                    Status = "Fail",
                     OrderDate = ConvertToVietnamTime(DateTime.Now),
                     Amount = package.Price,
-                    LinkPayAgain = $"https://localhost:7283/api/payments/cancel/{orderCode}"
+                    LinkPayAgain = $"http://157.66.27.69:5000/api/payments/cancel/{orderCode}"
 
                 };
                 _orderRepo.Add(order);
@@ -91,14 +91,14 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"https://localhost:7283/api/orders/cancel/{orderCode}", $"https://localhost:7283/api/order/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"http://157.66.27.69:5000/api/orders/cancel/{orderCode}", $"http://157.66.27.69:5000/api/order/success/{orderCode}");
 
 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
         }
-        public async Task<SingleRsp> CancelOrder(int orderCode)
+        public async Task<SingleRsp> SuccessOrder(int orderCode)
         {
             var res = new SingleRsp();
             try
@@ -106,10 +106,22 @@ namespace STEM_ROBOT.BLL.Svc
                 var order = _orderRepo.GetById(orderCode);
                 var account = _accountRepo.GetById(order.AccountId);
                 var package = _packageRepo.GetById(order.PackageId);
-                account.MaxTournatment += package.MaxTournament;
+
+               
+                account.MaxTournatment = account.MaxTournatment ?? 0;
+                account.MaxMatch = account.MaxMatch ?? 0;
+                account.MaxTeam = account.MaxTeam ?? 0;
+
+               
+                account.MaxTournatment += package.MaxTournament ?? 0;
+                account.MaxMatch = package.MaxMatch ?? 0;
+                account.MaxTeam = package.MaxTeam ?? 0;
+
                 _accountRepo.Update(account);
+
                 order.Status = "Success";
                 _orderRepo.Update(order);
+
                 var payment = new Payment
                 {
                     OrderId = orderCode,
@@ -125,6 +137,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
 
         public SingleRsp GetRevenue()
         {
@@ -169,7 +182,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-
+        
 
         public MutipleRsp GetOrders()
         {
@@ -193,6 +206,29 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var order = _orderRepo.GetById(id);
                 res.setData("data", order);
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
+        public SingleRsp GetOrderByAccountId(int Id)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var orders = _orderRepo.GetListOrderByAccount(Id);
+                var transactionList = orders.Select(order => new TransactionRsp
+                {
+                    Id = order.Id,
+                    PackageName = order.Package?.Name,
+                    Status = order.Status,
+                    OrderDate = order.OrderDate,
+                    Amount = order.Amount
+                }).ToList();
+                res.setData("data", transactionList);
             }
             catch (Exception ex)
             {

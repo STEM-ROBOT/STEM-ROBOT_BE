@@ -76,6 +76,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? Name { get; set; }
 
         public DateTime? RegisterTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         public DateTime? EndTime { get; set; }
 
@@ -167,11 +168,14 @@ namespace STEM_ROBOT.Common.Rsp
         public string? awayTeamLogo { get; set; }
         public string? awayTeam { get; set; }
         //ti so tran dau
-        public string? homeScore { get; set; }
-        public string? awayScore { get; set; }
+        public string? homeTeamResult { get; set; }
+        public string? awayTeamResult { get; set; }
+        public int? homeScore { get; set; }
+        public int? awayScore { get; set; }
         //thoi gian, dia diem   
         public DateTime? startTime { get; set; }
         public string? locationName { get; set; }
+        public string? statusView { get; set;}
     }
 
 }

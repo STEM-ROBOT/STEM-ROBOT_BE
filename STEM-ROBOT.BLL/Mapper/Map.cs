@@ -44,7 +44,6 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Tournament, TournamentReq>().ReverseMap();
 
             CreateMap<Tournament, TournamentInforRsp>()
-                .ForMember(x => x.NumberTeam, op => op.MapFrom(x => x.Contestants.Count))
                 .ForMember(x => x.Views, op => op.MapFrom(x => x.ViewTournament))
                 .ReverseMap();
 
@@ -142,6 +141,32 @@ namespace STEM_ROBOT.BLL.Mapper
              }).ToList()));
             CreateMap<Team, ListTeamRspByTournament>().ReverseMap();
 
+            CreateMap<Team, TeamScheduleRsp>()
+     // Format date fields to return only the date portion as a string
+     .ForMember(x => x.dateStartCompetition, op => op.MapFrom(x => x.Competition.StartTime.HasValue ? x.Competition.StartTime.Value.ToString("yyyy-MM-dd") : null))
+     .ForMember(x => x.dateEndCompetition, op => op.MapFrom(x => x.Competition.EndTime.HasValue ? x.Competition.EndTime.Value.ToString("yyyy-MM-dd") : null))
+     // Format time fields to return only hours and minutes as a string
+     .ForMember(x => x.hourStartInDay, op => op.MapFrom(x => x.Competition.TimeStartPlay.HasValue ? x.Competition.TimeStartPlay.Value.ToString(@"hh\:mm") : null))
+     .ForMember(x => x.hourEndInDay, op => op.MapFrom(x => x.Competition.TimeEndPlay.HasValue ? x.Competition.TimeEndPlay.Value.ToString(@"hh\:mm") : null))
+     .ForMember(x => x.timePlayMatch, op => op.MapFrom(x => x.Competition.TimeOfMatch.HasValue ? x.Competition.TimeOfMatch.Value.ToString(@"hh\:mm") : null))
+     .ForMember(x => x.scheduleTeam, op => op.MapFrom(x => x.TeamMatches))
+     .ReverseMap();
+            CreateMap<TeamMatch, ScheduleTeam>()
+                       .ForMember(x => x.location, op => op.MapFrom(x => x.Match.Location.Address))
+                       .ForMember(x => x.status, op => op.MapFrom(src => CheckMatchStatus(src.Match.StartDate.Value.Add(src.Match.TimeIn.Value), src.Match.StartDate.Value.Add(src.Match.TimeOut.Value))))
+                       .ForMember(x => x.matchId, op => op.MapFrom(x => x.MatchId))
+            .ForMember(x => x.StartTime,
+           op => op.MapFrom(src => src.Match.StartDate.HasValue && src.Match.TimeIn.HasValue
+               ? src.Match.StartDate.Value.Add(src.Match.TimeIn.Value).ToString("yyyy-MM-ddTHH:mm:ss")
+               : null))
+
+                       .ForMember(x => x.teamMatch, op => op.MapFrom(x => x.Match.TeamMatches))
+                       .ReverseMap();
+            CreateMap<TeamMatch, TeamMatchAdhesion>()
+                .ForMember(x => x.teamId, op => op.MapFrom(x => x.TeamId))
+                   .ForMember(x => x.teamName, op => op.MapFrom(x => x.TeamId != null ? x.Team.Name : x.NameDefault))
+                .ForMember(x => x.teamLogo, op => op.MapFrom(x => x.TeamId != null ? x.Team.Image : "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf"))
+               .ReverseMap();
             //action
             CreateMap<Action, ActionReq>().ReverseMap();
             //teammatch
@@ -190,7 +215,7 @@ namespace STEM_ROBOT.BLL.Mapper
      .ReverseMap();
             CreateMap<Schedule, ScheduleReferee>()
                        .ForMember(x => x.location, op => op.MapFrom(x => x.Match.Location.Address))
-                       .ForMember(x => x.status, op => op.MapFrom(x => x.Status))
+                       .ForMember(x => x.status, op => op.MapFrom(src => CheckMatchStatus(src.Match.StartDate.Value.Add(src.Match.TimeIn.Value), src.Match.StartDate.Value.Add(src.Match.TimeOut.Value))))
                        .ForMember(x => x.matchId, op => op.MapFrom(x => x.MatchId))
             .ForMember(x => x.StartTime,
            op => op.MapFrom(src => src.Match.StartDate.HasValue && src.Match.TimeIn.HasValue
@@ -201,7 +226,7 @@ namespace STEM_ROBOT.BLL.Mapper
                        .ReverseMap();
             CreateMap<TeamMatch, TeamMatchReferee>()
                 .ForMember(x => x.teamId, op => op.MapFrom(x => x.TeamId))
-                .ForMember(x => x.teamLogo, op => op.MapFrom(x => x.Team.Image))
+                .ForMember(x => x.teamLogo, op => op.MapFrom(x => x.TeamId != null ? x.Team.Image : "https://firebasestorage.googleapis.com/v0/b/fine-acronym-438603-m5.firebasestorage.app/o/stem-sever%2Flogo-dask.png?alt=media&token=f1ac1eeb-4acc-402e-b11b-080f442d55bf"))
                .ReverseMap();
 
 
@@ -215,10 +240,41 @@ namespace STEM_ROBOT.BLL.Mapper
             CreateMap<Notification, NotificationRsp>().ReverseMap();
             //teamRegister
             CreateMap<TeamRegister, TeamRegisterReq>().ReverseMap();
-            CreateMap<TeamRegister, TeamRegisterRsp>()  
-            .ForMember(dest => dest.Member, opt => opt.MapFrom(src => src.ContestantTeams.Count))   
+            CreateMap<TeamRegister, TeamRegisterRsp>()
+            .ForMember(dest => dest.Member, opt => opt.MapFrom(src => src.ContestantTeams.Count))
             .ReverseMap();
         }
+        public DateTime ConvertToVietnamTime(DateTime serverTime)
+        {
+            // Lấy thông tin múi giờ Việt Nam (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
+            // Chuyển đổi từ thời gian server sang thời gian Việt Nam
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(serverTime.ToUniversalTime(), vietnamTimeZone);
+
+            return vietnamTime;
+        }
+        public bool CheckMatchStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool CheckScheduleTeamStatus(DateTime startTime, DateTime endTime)
+        {
+            DateTime currentTime = ConvertToVietnamTime(DateTime.Now);
+
+            // Kiểm tra nếu thời gian hiện tại nằm trong khoảng 15 phút trước StartTime hoặc trong thời gian trận đấu
+            if (currentTime >= startTime.AddMinutes(-15) && currentTime <= endTime)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

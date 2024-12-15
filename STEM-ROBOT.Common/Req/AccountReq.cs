@@ -4,6 +4,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace STEM_ROBOT.Common.Req
 {
+    public class AccountUpdateReq
+    {
+        public string? Name { get; set; }
+
+        public string? PhoneNumber { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? Image { get; set; }
+      
+        
+    }
     public class AccountReq
     {
         [Required(ErrorMessage = "Name is required.")]
