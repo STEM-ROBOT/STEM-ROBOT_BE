@@ -4,7 +4,7 @@ using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/provice")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProvinceController : ControllerBase
     {
@@ -13,7 +13,7 @@ namespace STEM_ROBOT.Web.Controllers
         {
             _provinceSvc = provinceSvc;
         }
-        
+
         [HttpPost("Import-excel")]
         public async Task<IActionResult> ImportProvinceExcel(IFormFile file)
         {

@@ -89,7 +89,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var data = await _refereeRepo.GetListSupReferee(refe.Id);
                 List<SupRefereeCompetitionTournament> dateCompe = data.Select(cp => new SupRefereeCompetitionTournament
                 {
-                    Id = cp.Id,                  
+                    Id = cp.Id,
                     Image = cp.Competition.Genre.Image,
                     CompetitionName = cp.Competition.Genre.Name,
                     TournamentName = refe.Tournament.Name,
@@ -462,7 +462,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssignRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
+        public MutipleRsp AssignRefereeInCompetition(int competitionId, List<AssginRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
         {
             var res = new MutipleRsp();
             try
