@@ -161,6 +161,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var query = _paymentRepo.All(p => p.Status == "Success");
 
+                // Lấy dữ liệu doanh thu nhóm theo năm và tháng
                 var monthlyRevenue = query
                     .GroupBy(p => new { p.PurchaseDate.Value.Year, p.PurchaseDate.Value.Month })
                     .Select(g => new
@@ -173,8 +174,26 @@ namespace STEM_ROBOT.BLL.Svc
                     .ThenBy(result => result.Month)
                     .ToList();
 
-                // Đưa dữ liệu vào kết quả trả về
-                res.setData("data", monthlyRevenue);
+               
+                var currentYear = DateTime.Now.Year;
+
+             
+                var fullYearRevenue = new List<object>();
+
+                for (int month = 1; month <= 12; month++)
+                {
+                    var monthRevenue = monthlyRevenue.FirstOrDefault(m => m.Year == currentYear && m.Month == month);
+
+                  
+                    fullYearRevenue.Add(new
+                    {
+                        Month = month,
+                        Revenue = monthRevenue?.Revenue ?? 0
+                    });
+                }
+
+              
+                res.setData("data", fullYearRevenue);
             }
             catch (Exception ex)
             {
@@ -182,7 +201,8 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
-        
+
+
 
         public MutipleRsp GetOrders()
         {

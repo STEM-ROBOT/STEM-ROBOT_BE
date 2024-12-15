@@ -81,6 +81,8 @@ namespace STEM_ROBOT.BLL.Svc
                         tournament.TournamentLevel = "trường";
                         tournament.ProvinceCode = user.ProvinceCode;
                         tournament.AreaCode = null;
+                        user.MaxTournatment -= 1;
+                        _account.Update(user);
                     }
                     var userName = user.Name;
                     var email = user.Email;
@@ -329,10 +331,29 @@ namespace STEM_ROBOT.BLL.Svc
                         Month = g.Key.Month,
                         Count = g.Count()
                     })
-                    .OrderBy(res => res.Year)
-                    .ThenBy(res => res.Month)
+                    .OrderBy(r => r.Year)
+                    .ThenBy(r => r.Month)
                     .ToList();
-                res.SetData("data", tournaments);
+
+               
+                var currentYear = DateTime.Now.Year;
+
+               
+                var fullYearTournaments = new List<object>();
+
+                
+                for (int month = 1; month <= 12; month++)
+                {
+                    var monthData = tournaments.FirstOrDefault(t => t.Year == currentYear && t.Month == month);
+
+                    
+                    fullYearTournaments.Add(new
+                    {
+                        Month =  month,  
+                        Count = monthData?.Count ?? 0 
+                    });
+                }
+                res.SetData("data", fullYearTournaments);
             }
             catch (Exception ex)
             {
@@ -340,6 +361,7 @@ namespace STEM_ROBOT.BLL.Svc
             }
             return res;
         }
+
         public DateTime ConvertToVietnamTime(DateTime serverTime)
         {
             // Lấy thông tin múi giờ Việt Nam (UTC+7)
