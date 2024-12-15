@@ -4,7 +4,7 @@ using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/provice")]
     [ApiController]
     public class ProvinceController : ControllerBase
     {

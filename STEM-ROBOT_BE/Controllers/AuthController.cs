@@ -17,9 +17,9 @@ namespace STEM_ROBOT_BE.Controllers
             _authSvc = authSvc;
         }
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginReq login)
+        public async Task<IActionResult> Login([FromBody] LoginReq login)
         {
-            var user = _authSvc.Login(login);
+            var user = await _authSvc.Login(login);
             return Ok(user);
         }
     }

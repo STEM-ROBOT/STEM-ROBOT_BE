@@ -21,6 +21,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
 
+
         [HttpGet]
         public async Task<IActionResult> GetListCompetition()
         {
@@ -32,6 +33,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpGet("Id")]
+
         public async Task<IActionResult> GetByIdCompetition(int id)
         {
             var res = await _competionSvc.GetIDCompetitions(id);
@@ -152,6 +154,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Data);
         }
+
         [HttpGet("data-to-assing/{competitionId}")]
         public async Task<IActionResult> GetDataToAssign(int competitionId)
         {
@@ -165,6 +168,7 @@ namespace STEM_ROBOT.Web.Controllers
 
         [HttpGet("active/{competitionId}")]
         public IActionResult ActiveCompetition(int competitionId)
+
         {
             var res = _competionSvc.getActiveCompetition(competitionId);
             if (!res.Success)
@@ -174,8 +178,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
 
+
         [HttpGet("get-rule")]
         public async Task<IActionResult> GetRule(int competitionId)
+
         {
             var res = await _competionSvc.GetRuleCompetition(competitionId);
             if (!res.Success)
@@ -184,7 +190,9 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
+
         [HttpGet("Infor")]
+
         public async Task<IActionResult> GetInfor(int id)
         {
             var res = await _competionSvc.GetCompetitionInfor(id);
