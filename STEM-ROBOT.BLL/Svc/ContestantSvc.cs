@@ -515,7 +515,7 @@ namespace STEM_ROBOT.BLL.Svc
             return res;
         }
 
-        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request, string userSchool)
+        public SingleRsp AddContestantPublic(int tournamentId, int accountId, ContestantReq request)
         {
             var res = new SingleRsp();
             try
@@ -539,8 +539,7 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 var contestant = _mapper.Map<Contestant>(request);
                 contestant.AccountId = accountId;
-                contestant.TournamentId = tournamentId;
-                contestant.SchoolName = userSchool;
+                contestant.TournamentId = tournamentId;        
                 contestant.StartTime = ConvertToVietnamTime(DateTime.Now);
                 _contestantRepo.Add(contestant);
                 res.setData("data", "success");

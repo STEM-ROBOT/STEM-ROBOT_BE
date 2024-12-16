@@ -718,37 +718,41 @@ namespace STEM_ROBOT.BLL.Svc
                         if (matchLast != null)
                         {
                             int teamNextRound = (int)matchtable.TeamNextRoud;
-                       
+
                             // lay danh sach team trong bangr
                             var listTeamTable = matchtable.TeamTables;
 
                             //sap xep theo thu tu diem giamr dan
                             var topTeams = listTeamTable
-                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))                     
+                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
                             .ToList();
 
                             // mang xu li 
-                            var listBackup = topTeams;
+                            var listBackup = listTeamTable
+                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
+                            .ToList();
 
-                            for (int i = 0; i< teamNextRound; i++)
+                            for (int i = 0; i < teamNextRound; i++)
                             {
                                 var topSame = listBackup[i];
-
-                                int sameScoreCount = topTeams
-                                    .Count(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0));
-                                if( sameScoreCount > 1 )
+                                int currentTeamScore = topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0);
+                                var sameScoreCount = topTeams
+                                     .Where(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == currentTeamScore)
+                                        .ToList();
+                                if (sameScoreCount.Count > 1)
                                 {
-
+                                    
                                 }
-                                else {
-                                    var MatchCode = $"T#{i+1}B#{matchtable.Name}";
+                                else
+                                {
+                                    var MatchCode = $"T#{i + 1}B#{matchtable.Name}";
                                     var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
                                     teamMatchWin.TeamId = topSame.TeamId;
                                     _teamMatchRepo.Update(teamMatchWin);
                                 }
                             }
-                            
-   
+
+
                         }
 
                     }
