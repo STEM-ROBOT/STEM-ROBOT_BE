@@ -18,13 +18,13 @@ namespace STEM_ROBOT.BLL.Svc
 
         private readonly RefereeRepo _refereeRepo;
         private readonly IMapper _mapper;
-
+        private readonly TournamentRepo _tournamentRepo;
         private readonly RefereeCompetitionRepo _refereeCompetitionRepo;
         private readonly ScheduleRepo _scheduleRepo;
         private readonly CompetitionRepo _competitionRepo;
         private readonly IMailService _mailSerivce;
         private readonly AccountRepo _accountRepo;
-        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, RefereeCompetitionRepo refereeCompetitionRepo, ScheduleRepo scheduleRepo, CompetitionRepo competitionRepo, IMailService mailSerivce, AccountRepo accountRepo)
+        public RefereeSvc(RefereeRepo refereeRepo, IMapper mapper, RefereeCompetitionRepo refereeCompetitionRepo, ScheduleRepo scheduleRepo, CompetitionRepo competitionRepo, IMailService mailSerivce, AccountRepo accountRepo, TournamentRepo tournamentRepo)
         {
             _refereeRepo = refereeRepo;
             _mapper = mapper;
@@ -33,7 +33,7 @@ namespace STEM_ROBOT.BLL.Svc
             _competitionRepo = competitionRepo;
             _mailSerivce = mailSerivce;
             _accountRepo = accountRepo;
-
+            _tournamentRepo = tournamentRepo;
         }
 
         public MutipleRsp GetReferees()
@@ -89,7 +89,7 @@ namespace STEM_ROBOT.BLL.Svc
                 var data = await _refereeRepo.GetListSupReferee(refe.Id);
                 List<SupRefereeCompetitionTournament> dateCompe = data.Select(cp => new SupRefereeCompetitionTournament
                 {
-                    Id = cp.Id,                  
+                    Id = cp.Id,
                     Image = cp.Competition.Genre.Image,
                     CompetitionName = cp.Competition.Genre.Name,
                     TournamentName = refe.Tournament.Name,
@@ -161,6 +161,7 @@ namespace STEM_ROBOT.BLL.Svc
             {
                 var refereeList = new List<Referee>();
                 var accoutList = new List<Account>();
+                var tournament = _tournamentRepo.GetById(referees[0].TournamentId);
                 foreach (var item in referees)
                 {
 
@@ -265,8 +266,8 @@ namespace STEM_ROBOT.BLL.Svc
         </div>
         <div class='content'>
             <p>Kính gửi {referee.Email} ,</p>
-            <p>Bạn đã được phân công trong một giải đấu.</p>
-            <h3>Chi tiết thông tin tài khoản</h3>
+            <p>Bạn đã được phân công trong  giải đấu {tournament.Name}.</p>
+            <h3>Chi tiết thông tin đăng nhập</h3>
             <div class='details'>
                 <p><strong>STEM</strong></p>              
             <br>
@@ -296,7 +297,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var mailRequest = new MailReq()
                     {
                         ToEmail = referee.Email,
-                        Subject = "[STEM PLATFORM]",
+                        Subject = "[STEM SYSTEM]",
                         Body = emailbody
                     };
 

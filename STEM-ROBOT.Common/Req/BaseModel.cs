@@ -19,7 +19,7 @@ namespace STEM_ROBOT.Common.Req
         public int? ModifiedBy { get; set; }
 
         public DateTime? ModifiedOn { get; set; }
-   
+
         public BaseModel(int id)
         {
             Id = id;

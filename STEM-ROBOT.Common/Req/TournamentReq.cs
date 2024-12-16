@@ -28,14 +28,14 @@ namespace STEM_ROBOT.Common.Req
 
         public string? AreaCode { get; set; }
 
-        public ICollection<TournamentComeptition> competition {  get; set; } = new List<TournamentComeptition>();
+        public ICollection<TournamentComeptition> competition { get; set; } = new List<TournamentComeptition>();
     }
 
 
 
     public class TournamentComeptition
     {
-       
+
 
         public int? GenreId { get; set; }
 
@@ -78,10 +78,10 @@ namespace STEM_ROBOT.Common.Req
         public TimeSpan? TimeOfMatch = null!;
 
 
-        public string Name  = null!;
+        public string Name = null!;
 
-       
-        public string Location  = null!;
+
+        public string Location = null!;
 
         public string Image = null!;
 
@@ -90,9 +90,8 @@ namespace STEM_ROBOT.Common.Req
 
         public DateTime? EndTime = DateTime.UtcNow;
 
-        public DateTime? TimeStartPlay =DateTime.UtcNow;
+        public DateTime? TimeStartPlay = DateTime.UtcNow;
 
         public DateTime? TimeEndPlay = DateTime.UtcNow;
     }
 }
-

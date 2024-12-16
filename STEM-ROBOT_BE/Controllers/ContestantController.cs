@@ -133,7 +133,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
 
         }
-      
+
 
         [HttpGet("teamId")]
         public IActionResult GetContestantInTeam(int teamId)
@@ -173,7 +173,7 @@ namespace STEM_ROBOT.Web.Controllers
             var user = User.Claims.FirstOrDefault(x => x.Type == "Id");
             if (user == null)
             {
-                return Unauthorized(new { Message = "Please login" }); 
+                return Unauthorized(new { Message = "Please login" });
             }
 
             int userId = int.Parse(user.Value);
@@ -185,7 +185,7 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res.Data);
 
         }
-       
+
         [HttpPost("public-tournament")]
         public IActionResult AddContestantPublicTournament(int tournamentId, ContestantReq contestants)
         {
@@ -196,7 +196,7 @@ namespace STEM_ROBOT.Web.Controllers
                 return Unauthorized("Please Login!");
             }
             var accountId = int.Parse(user.Value);
-            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants, userSchool.ToString());
+            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);

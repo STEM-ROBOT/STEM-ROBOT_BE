@@ -80,7 +80,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
 
             int userId = int.Parse(user.Value);
-            var res = await _competionSvc.getlistTeamAdhesionplay(userId,competitionId);
+            var res = await _competionSvc.getlistTeamAdhesionplay(userId, competitionId);
             if (!res.Success)
             {
                 throw new Exception("Please check again");
@@ -288,4 +288,3 @@ namespace STEM_ROBOT.Web.Controllers
 
     }
 }
-

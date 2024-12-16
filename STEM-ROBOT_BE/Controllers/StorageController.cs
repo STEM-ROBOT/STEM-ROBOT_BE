@@ -15,7 +15,7 @@ namespace STEM_ROBOT.Web.Controllers
         private readonly StorageSvc _storageSvc;
 
 
-        public StorageController(ILogger<StorageController> logger, StorageSvc storageSvc )
+        public StorageController(ILogger<StorageController> logger, StorageSvc storageSvc)
         {
             _storageSvc = storageSvc;
             _logger = logger;
@@ -44,8 +44,8 @@ namespace STEM_ROBOT.Web.Controllers
             }
 
         }
-      
-      
+
+
 
     }
 }

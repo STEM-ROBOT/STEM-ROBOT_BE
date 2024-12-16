@@ -53,6 +53,14 @@ namespace STEM_ROBOT.Common.Rsp
 
         public string? Image { get; set; }
     }
+    public class TeamWinCompetition
+    {
+        public int? id { get; set; }
+        public string img { get; set; }
+        public string name { get; set; }
+    }
+
+
     public class TeamScheduleRsp
     {
         public int Id { get; set; }

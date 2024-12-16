@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
-   public  class SchoolReq
+    public class SchoolReq
     {
         public string? SchoolName { get; set; }
 

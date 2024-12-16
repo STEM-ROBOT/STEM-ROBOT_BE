@@ -8,7 +8,7 @@ namespace STEM_ROBOT.Common.Req
 {
     public class TableGroupReq
     {
-      
+
         public int? StageId { get; set; }
 
         public string? Name { get; set; }
