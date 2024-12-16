@@ -312,7 +312,7 @@ namespace STEM_ROBOT.BLL.HubClient
                             }
 
                             // Delay to prevent continuous rapid execution, adjust as needed
-                            await Task.Delay(TimeSpan.FromMilliseconds(60000));
+                            await Task.Delay(TimeSpan.FromMilliseconds(4000));
                         }
                     }
 
