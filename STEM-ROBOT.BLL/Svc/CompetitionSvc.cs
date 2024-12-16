@@ -634,8 +634,9 @@ namespace STEM_ROBOT.BLL.Svc
                             homeScore = m.TeamMatches.Select(tm => tm.TotalScore).FirstOrDefault(),
                             awayScore = m.TeamMatches.Select(tm => tm.TotalScore).LastOrDefault(),
                             //thoi gian, dia diem   
-                            awayTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).FirstOrDefault(),
-                            homeTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).LastOrDefault(),
+                            homeTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).FirstOrDefault(),
+                            awayTeamResult = m.TeamMatches.Select(tm => tm.IsPlay == false ? "no-start" : tm.ResultPlay).LastOrDefault(),
+                          
                             startTime = m.StartDate + m.TimeIn,
                             locationName = m.LocationId == null ? "" : locaions.Where(l => l.Id == m.LocationId).FirstOrDefault().Address,
                         }).ToList()
