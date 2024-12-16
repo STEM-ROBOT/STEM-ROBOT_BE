@@ -62,6 +62,7 @@ namespace STEM_ROBOT.DAL.Repo
 
             return new TeamWinCompetition
             {
+                id = teamWinMatch.Team.Id,
                 img = teamWinMatch.Team.Image,
                 name = teamWinMatch.Team.Name
             };
