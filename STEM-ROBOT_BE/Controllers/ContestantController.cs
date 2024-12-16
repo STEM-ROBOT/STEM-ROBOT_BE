@@ -196,7 +196,7 @@ namespace STEM_ROBOT.Web.Controllers
                 return Unauthorized("Please Login!");
             }
             var accountId = int.Parse(user.Value);
-            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants, userSchool.ToString());
+            var res = _contestantSvc.AddContestantPublic(tournamentId, accountId, contestants);
             if (!res.Success)
             {
                 res.SetError("500", res.Message);

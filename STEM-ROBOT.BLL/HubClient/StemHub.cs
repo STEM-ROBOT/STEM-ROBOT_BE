@@ -269,8 +269,7 @@ namespace STEM_ROBOT.BLL.HubClient
                     int totalMinutes = (int)LengthData.TotalMinutes;
                     int[] minuteArray = Enumerable.Range(1, totalMinutes).ToArray();
                     TimeSpan totalTime = (TimeSpan)(matchInfo.TimeOut - time.TimeOfDay);
-                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
-                    int totalTimeScore = (int)totalTime.TotalMinutes;
+                   
                     if (totalTime.TotalMinutes > 0)
                     {
                         linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
@@ -278,6 +277,8 @@ namespace STEM_ROBOT.BLL.HubClient
                         {
                             try
                             {
+                                TimeSpan totalTimeCheck = (TimeSpan)(time.TimeOfDay - matchInfo.TimeIn);
+                                int totalTimeScore = (int)totalTimeCheck.TotalMinutes;
                                 var match = await _teamMatchRepo.getAverageScore(teamId, matchId);
                                 var bonusAction = CalculateAverageScoresPerMinute(match.Where(a => a.ScoreCategory.Type == "Điểm cộng").ToList(), "bonus");
                                 var MinusAction = CalculateAverageScoresPerMinute(match.Where(a => a.ScoreCategory.Type == "Điểm trừ").ToList(), "minus");

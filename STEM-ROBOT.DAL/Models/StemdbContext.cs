@@ -74,6 +74,8 @@ public partial class StemdbContext : DbContext
     public virtual DbSet<TeamTable> TeamTables { get; set; }
 
     public virtual DbSet<Tournament> Tournaments { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -560,6 +562,7 @@ public partial class StemdbContext : DbContext
         {
             entity.ToTable("TeamMatch");
 
+            entity.Property(e => e.ConcededScore).HasDefaultValueSql("((0))");
             entity.Property(e => e.IsHome)
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("isHome");
