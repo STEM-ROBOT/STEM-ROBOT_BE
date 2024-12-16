@@ -53,6 +53,7 @@ namespace STEM_ROBOT.Common.Rsp
         public string? TournamentLevel { get; set; }
         public int competitionNumber { get; set; }
 
+        public string? phoneNumber { get; set; }
         public int competitionActivateNumber { get; set; }
     }
     public class TournamentModerator
