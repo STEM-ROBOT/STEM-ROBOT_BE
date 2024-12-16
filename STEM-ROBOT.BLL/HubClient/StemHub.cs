@@ -50,6 +50,7 @@ namespace STEM_ROBOT.BLL.HubClient
                 {
                     var timeMinute = _matchRepo.GetById(matchID);
                     TimeSpan totalTime = (TimeSpan)(timeMinute.TimeOut - time.TimeOfDay);
+                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
 
                     linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
 
@@ -129,6 +130,7 @@ namespace STEM_ROBOT.BLL.HubClient
                 {
                     var timeMinute = _matchRepo.GetById(matchID);
                     TimeSpan totalTime = (TimeSpan)(timeMinute.TimeOut - time.TimeOfDay);
+                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
                     if (totalTime.TotalMinutes > 0)
                     {
                         linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
@@ -176,7 +178,7 @@ namespace STEM_ROBOT.BLL.HubClient
                     var match = _matchRepo.GetById(matchID);
 
                     TimeSpan totalTime = (TimeSpan)(match.TimeOut - time.TimeOfDay);
-                  
+                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
                     if (totalTime.TotalMinutes > 0)
                     {
                         linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
@@ -222,7 +224,7 @@ namespace STEM_ROBOT.BLL.HubClient
                     var matchInfo = await _matchRepo.MatchTimeOut(teamMatchId);
                                
                     TimeSpan totalTime = (TimeSpan)(matchInfo.TimeOut - time.TimeOfDay);
-
+                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
                     if (totalTime.TotalMinutes > 0)
                     {
                         linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));
@@ -358,7 +360,7 @@ namespace STEM_ROBOT.BLL.HubClient
 
                     var timeMinute = _matchRepo.GetById(matchId);
                     TimeSpan totalTime = (TimeSpan)(timeMinute.TimeOut - time.TimeOfDay);
-
+                    totalTime = totalTime.Add(TimeSpan.FromMinutes(5));
                     if (totalTime.TotalMinutes > 0)
                     {
                         linkedCts.CancelAfter(TimeSpan.FromMinutes(totalTime.TotalMinutes));

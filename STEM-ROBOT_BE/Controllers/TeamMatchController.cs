@@ -16,7 +16,7 @@ namespace STEM_ROBOT.Web.Controllers
             _teamMatchSvc = teamMatchSvc;
         }
         [HttpPut("")]
-        public async Task<IActionResult> GetListTeamMatch(int competitionId,List<TeamMatchConfigCompetition>  teamsMatchs)
+        public async Task<IActionResult> GetListTeamMatch(int competitionId, List<TeamMatchConfigCompetition> teamsMatchs)
         {
             var res = await _teamMatchSvc.UpdateTeamMatchConfig(teamsMatchs, competitionId);
             return Ok(res);
@@ -28,10 +28,10 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(res);
         }
         [HttpGet("teamMatch-statistical")]
-        public async Task<IActionResult> TeamStatistical(int teamId,int matchId)
+        public async Task<IActionResult> TeamStatistical(int teamId, int matchId)
         {
 
-            var list = await _teamMatchSvc.TeamStatistical(matchId,teamId);
+            var list = await _teamMatchSvc.TeamStatistical(matchId, teamId);
             return Ok(list.Data);
         }
 

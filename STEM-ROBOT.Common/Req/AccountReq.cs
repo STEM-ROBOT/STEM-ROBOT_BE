@@ -17,8 +17,8 @@ namespace STEM_ROBOT.Common.Req
         public string? Email { get; set; }
 
         public string? Image { get; set; }
-      
-        
+
+
     }
     public class AccountReq
     {

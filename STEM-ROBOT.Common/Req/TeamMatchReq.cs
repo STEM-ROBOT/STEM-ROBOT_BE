@@ -25,8 +25,8 @@ namespace STEM_ROBOT.Common.Req
         public int teamId { get; set; }
         public string teamName { get; set; }
         public int teamMatchId { get; set; }
-        public int matchId { get; set; }        
+        public int matchId { get; set; }
 
     }
-   
+
 }

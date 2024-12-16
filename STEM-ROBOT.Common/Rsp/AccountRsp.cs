@@ -35,6 +35,7 @@ namespace STEM_ROBOT.Common.Rsp
         public int? MaxMatch { get; set; }
 
         public string? PackageName { get; set; }
+
         public int CountContestant { get; set; }
     }
    

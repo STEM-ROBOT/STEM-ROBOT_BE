@@ -127,7 +127,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
- 
+
         [HttpGet("free-referee")]
         public IActionResult GetListFreeRefereeInTournamentId(int tournamentId, int competitionId)
         {
@@ -149,8 +149,6 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        
+
     }
 }
-    
-
