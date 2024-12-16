@@ -160,5 +160,13 @@ namespace STEM_ROBOT.DAL.Repo
         {
             return await _context.TeamMatches.Where(x => x.MatchWinCode == matchCode).FirstOrDefaultAsync();
         }
+        public async Task<TeamMatch> matchWinScheduleTable (string matchCode, int competitonId)
+        {
+            return await _context.TeamMatches.Where(x => x.MatchWinCode == matchCode && x.Match.Stage.CompetitionId == competitonId).FirstOrDefaultAsync();
+        }
+        //public async Task<TeamMatch> GetMatchTableId(int TableGroupId)
+        //{
+        //    return await _context.TeamMatches.Where(x => x.MatchWinCode == matchCode && x.Match.Stage.CompetitionId == competitonId).FirstOrDefaultAsync();
+        //}
     }
 }

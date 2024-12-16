@@ -668,14 +668,15 @@ namespace STEM_ROBOT.BLL.Svc
 
                     if (team1.TotalScore > team2.TotalScore)
                     {
-
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.WinScore;
                         team1.IsPlay = true;
                         team1.ResultPlay = "Win";
+                        team1.ConcededScore = team2.TotalScore;
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.LoseScore;
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Lose";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
@@ -685,10 +686,12 @@ namespace STEM_ROBOT.BLL.Svc
                         var listTeam = new List<TeamMatch>();
                         team1.IsPlay = true;
                         team1.ResultPlay = "Draw";
+                        team1.ConcededScore = team2.TotalScore;
                         team1.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team1);
                         //capj nhat team 2
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Draw";
                         team2.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team2);
@@ -698,11 +701,13 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.LoseScore;
+                        team1.ConcededScore = team2.TotalScore;
                         team1.IsPlay = true;
                         team1.ResultPlay = "Lose";
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.WinScore;
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Win";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
@@ -714,7 +719,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var matchLastcheck = matchLast.LastOrDefault();
                     if ((int)schedule.MatchId == matchLastcheck.Id)
                     {
-                        var matchtable = await _scheduleRepo.checkTableMatch((int)schedule.MatchId);
+                        var matchtable = await _scheduleRepo.checkTableMatch((int)matchLastcheck.TableGroupId);
                         if (matchLast != null)
                         {
                             int teamNextRound = (int)matchtable.TeamNextRoud;
@@ -724,29 +729,56 @@ namespace STEM_ROBOT.BLL.Svc
 
                             //sap xep theo thu tu diem giamr dan
                             var topTeams = listTeamTable
-                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
-                            .ToList();
+      .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
+      .ThenByDescending(t => t.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0) - t.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0))
+      .ThenByDescending(t =>
+      {
+          var bonusActions = t.Team.TeamMatches
+              .SelectMany(tm => tm.Actions)
+              .Where(a => a.ScoreCategory.Type.Equals("điểm cộng", StringComparison.OrdinalIgnoreCase))
+              .ToList();
+          return bonusActions.Any() ? bonusActions.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+      })
+      .ThenByDescending(t =>
+      {
+          var minusActions = t.Team.TeamMatches
+              .SelectMany(tm => tm.Actions)
+              .Where(a => a.ScoreCategory.Type.Equals("điểm trừ", StringComparison.OrdinalIgnoreCase))
+              .ToList();
+          return minusActions.Any() ? minusActions.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+      })
+      .ToList();
+
 
                             // mang xu li 
-                            var listBackup = listTeamTable
-                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
-                            .ToList();
+                            //var listBackup = listTeamTable
+                            //.OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
+                            //.ToList();
 
                             for (int i = 0; i < teamNextRound; i++)
                             {
-                                var topSame = listBackup[i];
+                                var topSame = topTeams[0];
                                 int currentTeamScore = topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0);
+                                var winScore = topSame.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0);
+                                var loseScore = topSame.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0);
+                                var difference = winScore - loseScore;
                                 var sameScoreCount = topTeams
-                                     .Where(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == currentTeamScore)
+                                     .Where(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == currentTeamScore && (t.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0) - t.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0)) == difference)
                                         .ToList();
                                 if (sameScoreCount.Count > 1)
                                 {
-                                    
+
+                                    var topSame2 = sameScoreCount[0];
+                                    var MatchCode = $"T#{i + 1}B#{matchtable.Name}";
+                                    var teamMatchWin = await _scheduleRepo.matchWinScheduleTable(MatchCode, competition.Id);
+                                    teamMatchWin.TeamId = topSame2.TeamId;
+                                    _teamMatchRepo.Update(teamMatchWin);
+                                    topTeams.Remove(topSame2);
                                 }
                                 else
                                 {
                                     var MatchCode = $"T#{i + 1}B#{matchtable.Name}";
-                                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
+                                    var teamMatchWin = await _scheduleRepo.matchWinScheduleTable(MatchCode, competition.Id);
                                     teamMatchWin.TeamId = topSame.TeamId;
                                     _teamMatchRepo.Update(teamMatchWin);
                                 }
