@@ -29,7 +29,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly ContestantRepo _contestantRepo;
         private readonly CompetitionRepo _competitionRepo;
         private readonly TeamRepo _teamRepo;
-        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account, ContestantRepo contestantRepo, CompetitionRepo competitionRepo, TeamRepo teamRepo, AreaRepo areaRepo)
+        private readonly NotificationRepo _notificationRepo;
+        public TournamentSvc(TournamentRepo tournamentRepo, IMapper mapper, IMailService mailService, AccountRepo account, ContestantRepo contestantRepo, CompetitionRepo competitionRepo, TeamRepo teamRepo, AreaRepo areaRepo, NotificationRepo notificationRepo)
         {
             _teamRepo = teamRepo;
             _mapper = mapper;
@@ -39,6 +40,7 @@ namespace STEM_ROBOT.BLL.Svc
             _contestantRepo = contestantRepo;
             _competitionRepo = competitionRepo;
             _area = areaRepo;
+            _notificationRepo = notificationRepo;
         }
 
         public async Task<SingleRsp> getStatus(int id)
@@ -88,6 +90,15 @@ namespace STEM_ROBOT.BLL.Svc
                     var status = request.Status;
                     tournament.CreateDate = ConvertToVietnamTime(DateTime.Now);
                     _tournament.Add(tournament);
+                    var nottification = new Notification
+                    {
+                        Description = "Bạn vừa tạo giải thành công",
+                        AccountId = userID,
+                        RouterUi = "/account/my-tournament",
+                        CreateDate = ConvertToVietnamTime(DateTime.Now),
+                        Status = false,
+                    };
+                    _notificationRepo.Add(nottification);
                     var listCompettiondata = new List<Competition>();
                     foreach (var competition in request.competition)
                     {
