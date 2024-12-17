@@ -37,6 +37,14 @@ namespace STEM_ROBOT_BE.Controllers
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }
+        [HttpGet("list-tournament-admin")]
+        public IActionResult getListTournamentAdmin()
+        {
+  
+            var res = _tournament.GetTournamentAdmin();
+            if (!res.Success) throw new Exception("Please check again");
+            return Ok(res);
+        }
         [HttpGet("tournament-adhesion")]
         public async Task<IActionResult> listTournamentAdhesion( int page = 1, int pageSize = 10)
         {
