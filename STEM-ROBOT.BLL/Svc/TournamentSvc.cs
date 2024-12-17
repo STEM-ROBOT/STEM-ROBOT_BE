@@ -63,6 +63,23 @@ namespace STEM_ROBOT.BLL.Svc
                 throw new Exception("Fail data");
             }
         }
+
+        public SingleRsp GetTournamentAdmin()
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var listTournament = _tournament.All();
+                if (listTournament == null) throw new Exception("Please Check Againt");
+                res.setData("data", listTournament);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Get ListFail");
+            }
+            return res;
+
+        }
         public async Task<SingleRsp> AddTournement(int userID, TournamentReq request)
         {
             var res = new SingleRsp();
