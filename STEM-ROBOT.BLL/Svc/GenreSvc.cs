@@ -99,7 +99,12 @@ namespace STEM_ROBOT.BLL.Svc
                 }
                 else
                 {
-                    _mapper.Map(res, updGenre);
+                    updGenre.Name = req.Name;
+                    updGenre.Image = req.Image;
+                    updGenre.Description = req.Description;
+                    updGenre.HintRule = req.HintRule;
+                    updGenre.HintScore = req.HintScore;
+                    updGenre.IsTop = req.IsTop;
                     _genreRepo.Update(updGenre);
                     res.setData("data", updGenre);
                 }
