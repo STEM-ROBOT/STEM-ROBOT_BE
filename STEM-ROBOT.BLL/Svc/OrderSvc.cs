@@ -91,14 +91,14 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<string> CreatePayos(List<ItemData> items, long orderCode, int totalPay)
         {
 
-            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"http://157.66.27.69:5000/api/orders/cancel/{orderCode}", $"http://157.66.27.69:5000/api/order/success/{orderCode}");
+            PaymentData paymentData = new PaymentData(orderCode, totalPay, "Thanh toan don hang", items, $"http://157.66.27.69:5000/api/orders/cancel/{orderCode}", $"http://157.66.27.69:5000/api/orders/success/{orderCode}");
 
 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
             return createPayment.checkoutUrl;
         }
-        public async Task<SingleRsp> SuccessOrder(int orderCode)
+        public async Task<SingleRsp> SuccessOrder(string orderCode)
         {
             var res = new SingleRsp();
             try
@@ -124,8 +124,8 @@ namespace STEM_ROBOT.BLL.Svc
 
                 var payment = new Payment
                 {
-                    OrderId = orderCode,
-                    Amount = package.Price,
+                    OrderId = int.Parse(orderCode),
+                     Amount = package.Price,
                     PurchaseDate = ConvertToVietnamTime(DateTime.Now),
                     Status = "Success",
                 };
