@@ -289,6 +289,9 @@ namespace STEM_ROBOT.DAL.Repo
                     teamMatchResult = (int)a.TotalScore,
                     teamName = a.Team.Name,
                     teamImage = a.Team.Image,
+                    HintCount=a.HitCount != null ? a.HitCount.ToString():null,
+                    isPlay=a.IsPlay,
+
                     halfActionTeam = a.Actions.Where(a=>a.Status == "accept").Select(c => new MatchListPoint
                     {
                         id = c.Id,

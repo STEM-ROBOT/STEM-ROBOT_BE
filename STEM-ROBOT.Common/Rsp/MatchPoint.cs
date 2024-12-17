@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Rsp
 {
-   public  class MatchPoint
+    public class MatchPoint
     {
-    public int haftMatch { get; set; }
-    public string haftName { get; set; }
+        public int haftMatch { get; set; }
+        public string haftName { get; set; }
 
-    public TeamAcctivity activity { get; set; } 
+        public TeamAcctivity activity { get; set; }
 
 
     }
@@ -22,14 +22,16 @@ namespace STEM_ROBOT.Common.Rsp
         public ICollection<TeamActivity1> activityTeam1 { get; set; } = new List<TeamActivity1>();
         public ICollection<TeamActivity2> activityTeam2 { get; set; } = new List<TeamActivity2>();
     }
-    public class TeamActivity1 { 
+    public class TeamActivity1
+    {
         public string teamName { get; set; }
         public string type { get; set; }
         public string description { get; set; }
         public int point { get; set; }
         public string timeScore { get; set; }
     }
-    public class TeamActivity2 {
+    public class TeamActivity2
+    {
         public string teamName { get; set; }
         public string type { get; set; }
         public string description { get; set; }
@@ -53,17 +55,19 @@ namespace STEM_ROBOT.Common.Rsp
         public int? teamMatchId { get; set; }
         public int? MatchId { get; set; }
         public int? TeamId { get; set; }
-        public int? teamMatchResult {  get; set; }
+        public int? teamMatchResult { get; set; }
         public string? teamName { get; set; }
         public string? teamImage { get; set; }
-        public ICollection<MatchListPoint > halfActionTeam {  get; set; } = new List<MatchListPoint>();
+        public string? HintCount { get; set; }
+        public bool? isPlay { get; set; }
+        public ICollection<MatchListPoint> halfActionTeam { get; set; } = new List<MatchListPoint>();
     }
     public class MatchListPoint
     {
         public int? halfId { get; set; }
         public string? halfName { get; set; }
-        
-        public int? id { get; set; } 
+
+        public int? id { get; set; }
         public int? refereeCompetitionId { get; set; }
         public string? refereeCompetitionName { get; set; }
         public string? scoreTime { get; set; }
