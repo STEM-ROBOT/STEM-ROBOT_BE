@@ -33,7 +33,7 @@ namespace STEM_ROBOT_BE.Controllers
         [HttpGet("list-tournament")]
         public async Task<IActionResult> getListTournament(string? name = null, string? provinceCode = null, string? level = null, string? status = null, int? GenerId = null, int page = 1, int pageSize = 10)
         {
-            var res = await _tournament.GetTournament(name, provinceCode, status, level, GenerId, page, pageSize);
+            var res = await _tournament.GetTournament(name, provinceCode, level, status, GenerId, page, pageSize);
             if (!res.Success) throw new Exception("Please check again");
             return Ok(res);
         }

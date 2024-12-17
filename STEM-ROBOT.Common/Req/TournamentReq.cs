@@ -1,30 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace STEM_ROBOT.Common.Req
 {
     public class TournamentReq
     {
-        [Required(ErrorMessage = "TournamentLevel is required.")]
-        [StringLength(50, ErrorMessage = "TournamentLevel cannot exceed 50 characters.")]
+
         public string? TournamentLevel { get; set; }
 
-        [Required(ErrorMessage = "Name is required.")]
-        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string? Name { get; set; }
 
-        [Required(ErrorMessage = "Location is required.")]
-        [StringLength(200, ErrorMessage = "Location cannot exceed 200 characters.")]
         public string? Location { get; set; }
 
         public string? Image { get; set; }
 
-        [Required(ErrorMessage = "Status is required.")]
-        [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters.")]
         public string? Status { get; set; }
 
-        [Phone(ErrorMessage = "Invalid phone format.")]
         public string? Phone { get; set; }
 
         public string? Introduce { get; set; }
@@ -33,84 +28,70 @@ namespace STEM_ROBOT.Common.Req
 
         public string? AreaCode { get; set; }
 
-        public ICollection<TournamentCompetition> competition {  get; set; } = new List<TournamentCompetition>();
-   
+        public ICollection<TournamentComeptition> competition { get; set; } = new List<TournamentComeptition>();
     }
 
-    public class TournamentCompetition
+
+
+    public class TournamentComeptition
     {
-        [Required(ErrorMessage = "GenreId is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "GenreId must be a positive integer.")]
+
+
         public int? GenreId { get; set; }
 
-        public DateTime? RegisterTime { get; set; } = DateTime.UtcNow;
+        public DateTime? RegisterTime = DateTime.UtcNow;
 
-        public bool? IsActive { get; set; } = false;
+        public bool? IsActive = false;
 
-        public string? Regulation { get; set; }
+        public string? Regulation = null;
 
-        [Range(1, int.MaxValue, ErrorMessage = "NumberContestantTeam must be a positive integer.")]
-        public int? NumberContestantTeam { get; set; }
+        public int? NumberContestantTeam = null;
 
-        public bool? IsTop { get; set; }
+        public bool? IsTop = null;
 
-        [Range(0, int.MaxValue, ErrorMessage = "NumberView must be zero or a positive integer.")]
-        public int? NumberView { get; set; }
+        public int? NumberView = null;
 
-        [Range(1, int.MaxValue, ErrorMessage = "FormatId must be a positive integer.")]
-        public int? FormatId { get; set; }
+        public int? FormatId = null;
 
-        public DateTime? StartTime { get; set; } = DateTime.UtcNow;
+        public DateTime? StartTime = DateTime.UtcNow;
 
-        [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters.")]
-        public string? Status { get; set; }
+        public string? Status = null;
 
-        [Required(ErrorMessage = "Mode is required.")]
-        [StringLength(20, ErrorMessage = "Mode cannot exceed 20 characters.")]
         public string? Mode { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "NumberTeam must be a positive integer.")]
-        public int? NumberTeam { get; set; }
+        public int? NumberTeam = null!;
 
-        [Range(1, int.MaxValue, ErrorMessage = "NumberTeamNextRound must be a positive integer.")]
-        public int? NumberTeamNextRound { get; set; }
+        public int? NumberTeamNextRound = null!;
 
-        [Range(1, int.MaxValue, ErrorMessage = "NumberTable must be a positive integer.")]
-        public int? NumberTable { get; set; }
+        public int? NumberTable = null!;
 
-        [Range(0, int.MaxValue, ErrorMessage = "WinScore must be zero or a positive integer.")]
-        public int? WinScore { get; set; }
+        public int? WinScore = null!;
 
-        [Range(0, int.MaxValue, ErrorMessage = "LoseScore must be zero or a positive integer.")]
-        public int? LoseScore { get; set; }
+        public int? LoseScore = null!;
 
-        [Range(0, int.MaxValue, ErrorMessage = "TieScore must be zero or a positive integer.")]
-        public int? TieScore { get; set; }
+        public int? TieScore = null!;
 
-        [Range(0, int.MaxValue, ErrorMessage = "NumberSubReferee must be zero or a positive integer.")]
-        public int? NumberSubReferee { get; set; }
+        public int? NumberSubReferee = null!;
 
-        [Range(0, int.MaxValue, ErrorMessage = "NumberTeamReferee must be zero or a positive integer.")]
-        public int? NumberTeamReferee { get; set; }
+        public int? NumberTeamReferee = null!;
 
-        public TimeSpan? TimeOfMatch { get; set; }
+        public TimeSpan? TimeOfMatch = null!;
 
-        [Required(ErrorMessage = "Name is required.")]
-        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
-        public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Location is required.")]
-        [StringLength(200, ErrorMessage = "Location cannot exceed 200 characters.")]
-        public string Location { get; set; } = string.Empty;
+        public string Name = null!;
 
-        public string Image { get; set; } = string.Empty;
 
-        public TimeSpan? TimeBreak { get; set; } = TimeSpan.Zero;
+        public string Location = null!;
 
-        public DateTime? EndTime { get; set; } = DateTime.UtcNow;
+        public string Image = null!;
 
-        public DateTime? TimeStartPlay { get; set; } = DateTime.UtcNow;
 
-        public DateTime? TimeEndPlay { get; set; } = DateTime.UtcNow;
+        public TimeSpan? TimeBreak = TimeSpan.Zero;
+
+        public DateTime? EndTime = DateTime.UtcNow;
+
+        public DateTime? TimeStartPlay = DateTime.UtcNow;
+
+        public DateTime? TimeEndPlay = DateTime.UtcNow;
     }
 }

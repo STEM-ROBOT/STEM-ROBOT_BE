@@ -235,5 +235,22 @@ namespace STEM_ROBOT.BLL.Svc
 
         }
      
+
+        public async Task<SingleRsp> GetTeamWin(int competitionId)
+        {
+            var res = new SingleRsp();
+            try
+            {
+                var team = await _teamRepo.GetTeamWin(competitionId);
+                res.setData("data", team);
+               
+            }
+            catch (Exception ex)
+            {
+                res.SetError("500", ex.Message);
+            }
+            return res;
+        }
+
     }
 }

@@ -109,5 +109,15 @@ namespace STEM_ROBOT.Web.Controllers
             return Ok(list.Data);
         }
       
+        [HttpGet("competition/{competitionId}")]
+        public async Task<IActionResult> GetTeamCompetitionWin(int competitionId)
+        {
+            var res = await _teamSvc.GetTeamWin(competitionId);
+            if (res.Success)
+            {
+                return Ok(res.Data);
+            }
+            return StatusCode(500, res.Message);
+        }
     }
 }

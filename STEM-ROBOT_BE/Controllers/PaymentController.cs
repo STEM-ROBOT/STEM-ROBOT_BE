@@ -4,7 +4,7 @@ using STEM_ROBOT.BLL.Svc;
 
 namespace STEM_ROBOT.Web.Controllers
 {
-    [Route("api/payment")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PaymentController : ControllerBase
     {

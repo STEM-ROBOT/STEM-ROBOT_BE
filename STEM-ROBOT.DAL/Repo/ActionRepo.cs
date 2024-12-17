@@ -24,7 +24,7 @@ namespace STEM_ROBOT.DAL.Repo
 
         public async Task<List<ActionsRefereeSupRsp>> ActionByRefereeSup(int matchId, int refereeCompetitionId)
         {
-            var data = await _context.Actions.Where(ac => ac.RefereeCompetitionId == refereeCompetitionId).Select(a => new ActionsRefereeSupRsp
+            var data = await _context.Actions.Where(ac => ac.RefereeCompetitionId == refereeCompetitionId&& ac.MatchHalf.MatchId == matchId).Select(a => new ActionsRefereeSupRsp
             {
                 Id = a.Id,
                 EventTime = CalculateElapsedMinutesAndSeconds(a.EventTime),
