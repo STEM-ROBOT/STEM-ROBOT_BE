@@ -260,7 +260,7 @@ namespace STEM_ROBOT.BLL.Svc
                 tourmanetRsp.competitionNumber = tournament.Competitions.Count;
                 tourmanetRsp.competitionActivateNumber = tournament.Competitions.Where(cs => cs.IsActive == true).Count();
                 tourmanetRsp.contestant = tournament.Contestants.Count;
-
+                tourmanetRsp.phoneNumber = tournament.Phone;
                 res.setData("data", tourmanetRsp);
             }
             catch (Exception ex)
