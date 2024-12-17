@@ -618,9 +618,13 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var teamUpdate = new List<TeamMatch>();
-                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
-                    teamWin.TeamId = req.teamId;
-                    teamUpdate.Add(teamWin);
+                    if(req.teamMatchWinId != null)
+                    {
+                        var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
+                        teamWin.TeamId = req.teamId;
+                        teamUpdate.Add(teamWin);
+                    }
+                    
                     foreach (var teamMatch in req.TeamMatchs)
                     {
                         var teamItem = _teamMatchRepo.GetById(teamMatch.Id);
@@ -797,6 +801,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var team1 = schedule.Match.TeamMatches.FirstOrDefault();
                     var team2 = schedule.Match.TeamMatches.LastOrDefault();
                     var listTeamMatch = new List<TeamMatch>();
+                   
                     if (team1.TotalScore == team2.TotalScore)
                     {
                         // Tính trung bình cộng của listBonusTeam
@@ -821,8 +826,12 @@ namespace STEM_ROBOT.BLL.Svc
                             //capj nhat team 2
                             team2.IsPlay = true;
                             team2.ResultPlay = "Lose";
-                            teamMatchWin.TeamId = team1.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
+                            if (teamMatchWin != null)
+                            {
+                                teamMatchWin.TeamId = team1.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                            }
+                            
                             listTeamMatch.Add(team1);
                             listTeamMatch.Add(team2);
                             _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -835,8 +844,14 @@ namespace STEM_ROBOT.BLL.Svc
                             //capj nhat team 2
                             team2.IsPlay = true;
                             team2.ResultPlay = "Win";
-                            teamMatchWin.TeamId = team2.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
+                            
+                            if (teamMatchWin != null)
+                            {
+                                teamMatchWin.TeamId = team2.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                            }
+                            
+                               
                             listTeamMatch.Add(team1);
                             listTeamMatch.Add(team2);
                             _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -852,8 +867,12 @@ namespace STEM_ROBOT.BLL.Svc
                                 //capj nhat team 2
                                 team2.IsPlay = true;
                                 team2.ResultPlay = "Lose";
-                                teamMatchWin.TeamId = team1.TeamId;
-                                listTeamMatch.Add(teamMatchWin);
+                                if (teamMatchWin != null)
+                                {
+                                    teamMatchWin.TeamId = team1.TeamId;
+                                    listTeamMatch.Add(teamMatchWin);
+                                }
+                                
                                 listTeamMatch.Add(team1);
                                 listTeamMatch.Add(team2);
                                 _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -866,8 +885,12 @@ namespace STEM_ROBOT.BLL.Svc
                                 //capj nhat team 2
                                 team2.IsPlay = true;
                                 team2.ResultPlay = "Win";
-                                teamMatchWin.TeamId = team2.TeamId;
-                                listTeamMatch.Add(teamMatchWin);
+                                if (teamMatchWin != null)
+                                {
+                                    teamMatchWin.TeamId = team2.TeamId;
+                                    listTeamMatch.Add(teamMatchWin);
+                                }
+                                
                                 listTeamMatch.Add(team1);
                                 listTeamMatch.Add(team2);
                                 _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -880,7 +903,7 @@ namespace STEM_ROBOT.BLL.Svc
                                 {
                                     formatName = "Loại Trực Tiếp",
                                     formatType = "knock-out",
-                                    teamMatchWinId = teamMatchWin.Id,
+                                   
                                     teamRanDom = schedule.Match.TeamMatches.Select(ac => new RandomTeamWinRsp
                                     {
                                         averageMinus = (double)ac.AverageMinus,
@@ -892,6 +915,10 @@ namespace STEM_ROBOT.BLL.Svc
                                         teamId = (int)ac.TeamId
                                     }).ToList(),
                                 };
+                                if(teamMatchWin != null)
+                                {
+                                    data.teamMatchWinId = teamMatchWin.Id;
+                                }
                                 _teamMatchRepo.UpdateRange(schedule.Match.TeamMatches);
                                 res.setData("data", data);
                                 res.SetMessage("randome");
@@ -907,8 +934,12 @@ namespace STEM_ROBOT.BLL.Svc
                         //capj nhat team 2b
                         team2.IsPlay = true;
                         team2.ResultPlay = "Lose";
-                        teamMatchWin.TeamId = team1.TeamId;
-                        listTeamMatch.Add(teamMatchWin);
+                        if (teamMatchWin != null)
+                        {
+                            teamMatchWin.TeamId = team1.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                        }
+                        
                         listTeamMatch.Add(team1);
                         listTeamMatch.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -921,8 +952,12 @@ namespace STEM_ROBOT.BLL.Svc
                         //capj nhat team 2
                         team2.IsPlay = true;
                         team2.ResultPlay = "Win";
-                        teamMatchWin.TeamId = team2.TeamId;
-                        listTeamMatch.Add(teamMatchWin);
+                        if (teamMatchWin != null)
+                        {
+                            teamMatchWin.TeamId = team2.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                        }
+                      
                         listTeamMatch.Add(team1);
                         listTeamMatch.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeamMatch);
