@@ -24,7 +24,8 @@ namespace STEM_ROBOT.BLL.Svc
         private readonly TeamRepo _teamRepo;
         private readonly AccountRepo _accountRepo;
         private readonly IMapper _mapper;
-        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper, TeamRepo teamRepo, TournamentRepo tournamentRepo)
+        private readonly NotificationRepo _notificationRepo;
+        public TeamRegisterSvc(TeamRegisterRepo repo, AccountRepo accountRepo, CompetitionRepo competitionRepo, ContestantTeamRepo contestantTeamRepo, IMapper mapper, TeamRepo teamRepo, TournamentRepo tournamentRepo, NotificationRepo notificationRepo)
         {
             _teamRegisterRepo = repo;
             _competitionRepo = competitionRepo;
@@ -33,22 +34,26 @@ namespace STEM_ROBOT.BLL.Svc
             _accountRepo = accountRepo;
             _teamRepo = teamRepo;
             _tournamentRepo = tournamentRepo;
+            _notificationRepo = notificationRepo;
         }
 
 
         public async Task<SingleRsp> RegisterTeamCompetion(TeamRegisterReq teamRegister, int competitionId, int userId)
         {
-            var res = new SingleRsp();
-            var competition = _competitionRepo.GetById(competitionId);
-            var account = _accountRepo.GetById(userId);
-            if (competition == null)
+                var res = new SingleRsp();
+            try
             {
-                res.Setmessage("Nội dung thi đấu không tồn tại !");
-            }
-            else
-            {
-                try
+                var competition = _competitionRepo.GetById(competitionId);
+                var tournament = _tournamentRepo.GetById(competition.TournamentId);
+
+                var account = _accountRepo.GetById(userId);
+                if (competition == null)
                 {
+                    res.Setmessage("Nội dung thi đấu không tồn tại !");
+                }
+                else
+                {
+
                     teamRegister.CompetitionId = competition.Id;
                     teamRegister.AccountId = userId;
                     teamRegister.Status = "Đang xử lý";
@@ -61,13 +66,25 @@ namespace STEM_ROBOT.BLL.Svc
                         contestant.TeamRegisterId = newTeamRegister.Id;
                     }
                     _contestantTeamRepo.AddRange(listContestTants);
+                    var nottification = new Notification
+                    {
+                        Description = $"Đội {teamRegister.Name} đã đăng kí tham gia vào nội dung thi đấu của giải {tournament.Name}",
+                        AccountId = tournament.AccountId,
+                        RouterUi = $"/my-tournament/{tournament.Id}/mycompetition/{competitionId}/team-register",
+                        CreateDate = ConvertToVietnamTime(DateTime.Now),
+                        Status = false,
+                    };
+                    _notificationRepo.Add(nottification);
                     res.SetMessage("success");
-                }
-                catch (Exception ex)
-                {
-                    res.SetError(ex.ToString());
-                }
 
+
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.ToString());
             }
             return res;
         }
@@ -75,40 +92,43 @@ namespace STEM_ROBOT.BLL.Svc
         public async Task<SingleRsp> getListTeamRegister(int competitionId)
         {
             var res = new SingleRsp();
-            var competition = _competitionRepo.GetById(competitionId);
+            try
+            {
+                var competition = _competitionRepo.GetById(competitionId);
             if (competition == null)
             {
                 res.SetMessage("Nội dung thi đấu không tồn tại!");
             }
             else
             {
-                try
-                {
+                
                     var list = await _teamRegisterRepo.getTeamRegister(competitionId);
 
                     var newTeamRegister = _mapper.Map<List<TeamRegisterRsp>>(list);
 
                     res.setData("data", newTeamRegister);
-                }
-                catch (Exception ex)
-                {
-                    res.SetError(ex.ToString());
-                }
+                
+            }
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.ToString());
             }
             return res;
         }
         public async Task<SingleRsp> getListTeamRegisterTournament(int tournamentId)
         {
             var res = new SingleRsp();
-            var competition = _tournamentRepo.GetById(tournamentId);
+            try
+            {
+                var competition = _tournamentRepo.GetById(tournamentId);
             if (competition == null)
             {
                 res.SetMessage("Giải đấu không tồn tại!");
             }
             else
             {
-                try
-                {
+                
                     var list = await _teamRegisterRepo.getTeamRegisterTournament(tournamentId);
                     var newTeamRegister = list.Select(tr => new TeamRegisterTournamentRsp
                     {
@@ -123,11 +143,12 @@ namespace STEM_ROBOT.BLL.Svc
                     });
 
                     res.setData("data", newTeamRegister);
-                }
-                catch (Exception ex)
-                {
-                    res.SetError(ex.ToString());
-                }
+               
+            }
+            }
+            catch (Exception ex)
+            {
+                res.SetError(ex.ToString());
             }
             return res;
         }
@@ -138,12 +159,23 @@ namespace STEM_ROBOT.BLL.Svc
             try
             {
                 var teamRegister = _teamRegisterRepo.GetById(id);
+                var competition = _competitionRepo.GetById(teamRegister.CompetitionId);
+                var tournament = _tournamentRepo.GetById(competition.TournamentId);
                 if (teamRegister == null)
                 {
                     res.SetMessage("Nội dung thi đấu không tồn tại!");
                 }
                 else
                 {
+                    var nottification = new Notification
+                    {
+                        
+                        AccountId = teamRegister.AccountId,
+                        RouterUi = $"/tournament-adhesion/{tournament.Id}/competitions-adhesion/{teamRegister.CompetitionId}/team-competition-adhesion",
+                        CreateDate = ConvertToVietnamTime(DateTime.Now),
+                        Status = false,
+                    };
+                    
 
                     var slot = _teamRepo.All(x => x.CompetitionId == teamRegister.CompetitionId && x.IsSetup != true).FirstOrDefault();
                     if (slot == null)
@@ -152,6 +184,7 @@ namespace STEM_ROBOT.BLL.Svc
                     }
                     if (teamRegisterStatusRsp.status == "Chấp nhận")
                     {
+                        nottification.Description = $"Đội {teamRegister.Name} đã được chấp nhận đăng ký";
                         teamRegister.Status = teamRegisterStatusRsp.status;
                         teamRegister.TeamId = slot.Id;
                         var contestantTeam = _contestantTeamRepo.All(x => x.TeamRegisterId == teamRegister.Id).ToList();
@@ -168,15 +201,18 @@ namespace STEM_ROBOT.BLL.Svc
                         slot.PhoneNumber = teamRegister.PhoneNumber;                      
                         _teamRegisterRepo.Update(teamRegister);
                         _teamRepo.Update(slot);
+
                         res.SetMessage("Cập nhật thành công");
+
                     }
                     else
                     {
                         teamRegister.Status = teamRegisterStatusRsp.status;
                         _teamRegisterRepo.Update(teamRegister);
+                        nottification.Description = $"Đội {teamRegister.Name} đã bị từ chối đăng ký";
                         res.SetMessage("Cập nhật thành công");
                     }
-
+                    _notificationRepo.Add(nottification);
 
                 }
             }

@@ -127,7 +127,7 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res.Message);
         }
- 
+
         [HttpGet("free-referee")]
         public IActionResult GetListFreeRefereeInTournamentId(int tournamentId, int competitionId)
         {
@@ -140,7 +140,7 @@ namespace STEM_ROBOT.Web.Controllers
         }
 
         [HttpPost("{competitionId}/assign-referees")]
-        public IActionResult AssignReferees(int competitionId, [FromBody] List<AssignRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
+        public IActionResult AssignReferees(int competitionId, [FromBody] List<AssginRefereeReq> referees, int numberTeamReferee, int numberSubReferee)
         {
             var res = _refereeSvc.AssignRefereeInCompetition(competitionId, referees, numberTeamReferee, numberSubReferee);
             if (!res.Success)
@@ -149,8 +149,6 @@ namespace STEM_ROBOT.Web.Controllers
             }
             return Ok(res);
         }
-        
+
     }
 }
-    
-

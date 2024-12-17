@@ -80,7 +80,7 @@ namespace STEM_ROBOT.DAL.Repo
         {
 
             var query = _context.Tournaments
-    .Where(t => t.Contestants.Any(c => c.AccountId == useId))
+    .Where(t => t.Competitions.Any(c => c.TeamRegisters.Any( tr => tr.AccountId == useId)))
     .AsQueryable();
 
             // Tính tổng số trang       

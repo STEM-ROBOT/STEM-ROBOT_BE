@@ -618,9 +618,13 @@ namespace STEM_ROBOT.BLL.Svc
                 else
                 {
                     var teamUpdate = new List<TeamMatch>();
-                    var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
-                    teamWin.TeamId = req.teamId;
-                    teamUpdate.Add(teamWin);
+                    if(req.teamMatchWinId != null)
+                    {
+                        var teamWin = _teamMatchRepo.GetById(req.teamMatchWinId);
+                        teamWin.TeamId = req.teamId;
+                        teamUpdate.Add(teamWin);
+                    }
+                    
                     foreach (var teamMatch in req.TeamMatchs)
                     {
                         var teamItem = _teamMatchRepo.GetById(teamMatch.Id);
@@ -668,14 +672,15 @@ namespace STEM_ROBOT.BLL.Svc
 
                     if (team1.TotalScore > team2.TotalScore)
                     {
-
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.WinScore;
                         team1.IsPlay = true;
                         team1.ResultPlay = "Win";
+                        team1.ConcededScore = team2.TotalScore;
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.LoseScore;
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Lose";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
@@ -685,10 +690,12 @@ namespace STEM_ROBOT.BLL.Svc
                         var listTeam = new List<TeamMatch>();
                         team1.IsPlay = true;
                         team1.ResultPlay = "Draw";
+                        team1.ConcededScore = team2.TotalScore;
                         team1.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team1);
                         //capj nhat team 2
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Draw";
                         team2.ResultPlayTable = competition.TieScore;
                         listTeam.Add(team2);
@@ -698,11 +705,13 @@ namespace STEM_ROBOT.BLL.Svc
                     {
                         var listTeam = new List<TeamMatch>();
                         team1.ResultPlayTable = competition.LoseScore;
+                        team1.ConcededScore = team2.TotalScore;
                         team1.IsPlay = true;
                         team1.ResultPlay = "Lose";
                         listTeam.Add(team1);
                         team2.ResultPlayTable = competition.WinScore;
                         team2.IsPlay = true;
+                        team2.ConcededScore = team1.TotalScore;
                         team2.ResultPlay = "Win";
                         listTeam.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeam);
@@ -714,41 +723,72 @@ namespace STEM_ROBOT.BLL.Svc
                     var matchLastcheck = matchLast.LastOrDefault();
                     if ((int)schedule.MatchId == matchLastcheck.Id)
                     {
-                        var matchtable = await _scheduleRepo.checkTableMatch((int)schedule.MatchId);
+                        var matchtable = await _scheduleRepo.checkTableMatch((int)matchLastcheck.TableGroupId);
                         if (matchLast != null)
                         {
                             int teamNextRound = (int)matchtable.TeamNextRoud;
-                       
+
                             // lay danh sach team trong bangr
                             var listTeamTable = matchtable.TeamTables;
 
                             //sap xep theo thu tu diem giamr dan
                             var topTeams = listTeamTable
-                            .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))                     
-                            .ToList();
+      .OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
+      .ThenByDescending(t => t.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0) - t.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0))
+      .ThenByDescending(t =>
+      {
+          var bonusActions = t.Team.TeamMatches
+              .SelectMany(tm => tm.Actions)
+              .Where(a => a.ScoreCategory.Type.Equals("điểm cộng", StringComparison.OrdinalIgnoreCase))
+              .ToList();
+          return bonusActions.Any() ? bonusActions.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+      })
+      .ThenByDescending(t =>
+      {
+          var minusActions = t.Team.TeamMatches
+              .SelectMany(tm => tm.Actions)
+              .Where(a => a.ScoreCategory.Type.Equals("điểm trừ", StringComparison.OrdinalIgnoreCase))
+              .ToList();
+          return minusActions.Any() ? minusActions.Average(a => a.ScoreCategory.Point ?? 0) : 0;
+      })
+      .ToList();
+
 
                             // mang xu li 
-                            var listBackup = topTeams;
+                            //var listBackup = listTeamTable
+                            //.OrderByDescending(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0))
+                            //.ToList();
 
-                            for (int i = 0; i< teamNextRound; i++)
+                            for (int i = 0; i < teamNextRound; i++)
                             {
-                                var topSame = listBackup[i];
-
-                                int sameScoreCount = topTeams
-                                    .Count(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0));
-                                if( sameScoreCount > 1 )
+                                var topSame = topTeams[0];
+                                int currentTeamScore = topSame.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0);
+                                var winScore = topSame.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0);
+                                var loseScore = topSame.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0);
+                                var difference = winScore - loseScore;
+                                var sameScoreCount = topTeams
+                                     .Where(t => t.Team.TeamMatches.Sum(tm => tm.ResultPlayTable ?? 0) == currentTeamScore && (t.Team.TeamMatches.Sum(tm => tm.TotalScore ?? 0) - t.Team.TeamMatches.Sum(tm => tm.ConcededScore ?? 0)) == difference)
+                                        .ToList();
+                                if (sameScoreCount.Count > 1)
                                 {
 
+                                    var topSame2 = sameScoreCount[0];
+                                    var MatchCode = $"T#{i + 1}B#{matchtable.Name}";
+                                    var teamMatchWin = await _scheduleRepo.matchWinScheduleTable(MatchCode, competition.Id);
+                                    teamMatchWin.TeamId = topSame2.TeamId;
+                                    _teamMatchRepo.Update(teamMatchWin);
+                                    topTeams.Remove(topSame2);
                                 }
-                                else {
-                                    var MatchCode = $"T#{i+1}B#{matchtable.Name}";
-                                    var teamMatchWin = await _scheduleRepo.matchWinSchedule(MatchCode);
+                                else
+                                {
+                                    var MatchCode = $"T#{i + 1}B#{matchtable.Name}";
+                                    var teamMatchWin = await _scheduleRepo.matchWinScheduleTable(MatchCode, competition.Id);
                                     teamMatchWin.TeamId = topSame.TeamId;
                                     _teamMatchRepo.Update(teamMatchWin);
                                 }
                             }
-                            
-   
+
+
                         }
 
                     }
@@ -761,6 +801,7 @@ namespace STEM_ROBOT.BLL.Svc
                     var team1 = schedule.Match.TeamMatches.FirstOrDefault();
                     var team2 = schedule.Match.TeamMatches.LastOrDefault();
                     var listTeamMatch = new List<TeamMatch>();
+                   
                     if (team1.TotalScore == team2.TotalScore)
                     {
                         // Tính trung bình cộng của listBonusTeam
@@ -785,8 +826,12 @@ namespace STEM_ROBOT.BLL.Svc
                             //capj nhat team 2
                             team2.IsPlay = true;
                             team2.ResultPlay = "Lose";
-                            teamMatchWin.TeamId = team1.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
+                            if (teamMatchWin != null)
+                            {
+                                teamMatchWin.TeamId = team1.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                            }
+                            
                             listTeamMatch.Add(team1);
                             listTeamMatch.Add(team2);
                             _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -799,8 +844,14 @@ namespace STEM_ROBOT.BLL.Svc
                             //capj nhat team 2
                             team2.IsPlay = true;
                             team2.ResultPlay = "Win";
-                            teamMatchWin.TeamId = team2.TeamId;
-                            listTeamMatch.Add(teamMatchWin);
+                            
+                            if (teamMatchWin != null)
+                            {
+                                teamMatchWin.TeamId = team2.TeamId;
+                                listTeamMatch.Add(teamMatchWin);
+                            }
+                            
+                               
                             listTeamMatch.Add(team1);
                             listTeamMatch.Add(team2);
                             _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -816,8 +867,12 @@ namespace STEM_ROBOT.BLL.Svc
                                 //capj nhat team 2
                                 team2.IsPlay = true;
                                 team2.ResultPlay = "Lose";
-                                teamMatchWin.TeamId = team1.TeamId;
-                                listTeamMatch.Add(teamMatchWin);
+                                if (teamMatchWin != null)
+                                {
+                                    teamMatchWin.TeamId = team1.TeamId;
+                                    listTeamMatch.Add(teamMatchWin);
+                                }
+                                
                                 listTeamMatch.Add(team1);
                                 listTeamMatch.Add(team2);
                                 _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -830,8 +885,12 @@ namespace STEM_ROBOT.BLL.Svc
                                 //capj nhat team 2
                                 team2.IsPlay = true;
                                 team2.ResultPlay = "Win";
-                                teamMatchWin.TeamId = team2.TeamId;
-                                listTeamMatch.Add(teamMatchWin);
+                                if (teamMatchWin != null)
+                                {
+                                    teamMatchWin.TeamId = team2.TeamId;
+                                    listTeamMatch.Add(teamMatchWin);
+                                }
+                                
                                 listTeamMatch.Add(team1);
                                 listTeamMatch.Add(team2);
                                 _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -844,7 +903,7 @@ namespace STEM_ROBOT.BLL.Svc
                                 {
                                     formatName = "Loại Trực Tiếp",
                                     formatType = "knock-out",
-                                    teamMatchWinId = teamMatchWin.Id,
+                                   
                                     teamRanDom = schedule.Match.TeamMatches.Select(ac => new RandomTeamWinRsp
                                     {
                                         averageMinus = (double)ac.AverageMinus,
@@ -856,6 +915,10 @@ namespace STEM_ROBOT.BLL.Svc
                                         teamId = (int)ac.TeamId
                                     }).ToList(),
                                 };
+                                if(teamMatchWin != null)
+                                {
+                                    data.teamMatchWinId = teamMatchWin.Id;
+                                }
                                 _teamMatchRepo.UpdateRange(schedule.Match.TeamMatches);
                                 res.setData("data", data);
                                 res.SetMessage("randome");
@@ -871,8 +934,12 @@ namespace STEM_ROBOT.BLL.Svc
                         //capj nhat team 2b
                         team2.IsPlay = true;
                         team2.ResultPlay = "Lose";
-                        teamMatchWin.TeamId = team1.TeamId;
-                        listTeamMatch.Add(teamMatchWin);
+                        if (teamMatchWin != null)
+                        {
+                            teamMatchWin.TeamId = team1.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                        }
+                        
                         listTeamMatch.Add(team1);
                         listTeamMatch.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeamMatch);
@@ -885,8 +952,12 @@ namespace STEM_ROBOT.BLL.Svc
                         //capj nhat team 2
                         team2.IsPlay = true;
                         team2.ResultPlay = "Win";
-                        teamMatchWin.TeamId = team2.TeamId;
-                        listTeamMatch.Add(teamMatchWin);
+                        if (teamMatchWin != null)
+                        {
+                            teamMatchWin.TeamId = team2.TeamId;
+                            listTeamMatch.Add(teamMatchWin);
+                        }
+                      
                         listTeamMatch.Add(team1);
                         listTeamMatch.Add(team2);
                         _teamMatchRepo.UpdateRange(listTeamMatch);
