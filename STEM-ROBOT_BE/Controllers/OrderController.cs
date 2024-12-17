@@ -33,7 +33,7 @@ namespace STEM_ROBOT.Web.Controllers
 
 
         [HttpGet("success/{orderCode}")]
-        public async Task<IActionResult> Success(int orderCode)
+        public async Task<IActionResult> Success(string orderCode)
         {
             var result = await _orderSvc.SuccessOrder(orderCode);
 #if DEBUG
